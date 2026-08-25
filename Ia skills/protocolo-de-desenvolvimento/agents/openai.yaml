@@ -1,0 +1,4 @@
+interface:
+  display_name: "Protocolo de Desenvolvimento"
+  short_description: "Mentoria técnica sem implementar pelo estudante"
+  default_prompt: "Use $protocolo-de-desenvolvimento para me orientar no ICEIBank sem escrever código por mim."

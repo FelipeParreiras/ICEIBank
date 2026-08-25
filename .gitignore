@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pre-commit-cache/
+.coverage
+htmlcov/
+
+# Ambientes e segredos
+.venv/
+.env
+
+# IDE e sistema operacional
+.idea/
+.vscode/
+Thumbs.db
+desktop.ini
+
+# Dados gerados em execução
+data/*.jsonl
+logs/
+
+# Evidências continuam versionáveis; apenas arquivos temporários são ignorados
+evidencias/**/~*

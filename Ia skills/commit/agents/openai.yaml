@@ -1,0 +1,4 @@
+interface:
+  display_name: "Commit"
+  short_description: "Resume o conteúdo staged em uma frase"
+  default_prompt: "Use $commit para gerar uma mensagem para todos os arquivos staged."
