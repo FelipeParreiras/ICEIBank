@@ -1,0 +1,26 @@
+# Python
+agencia/.venv/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+
+# Dados e segredos do backend
+agencia/.env
+agencia/data/*.jsonl
+
+# React / Vite
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+
+# Editor e sistema
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+
