@@ -11,11 +11,11 @@ export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(() => localStorage.getItem("iceibank.usuario"));
   const [motivoLogout, setMotivoLogout] = useState("");
 
-  const login = async (nomeUsuario, senha) => {
-    const response = await apiRequest("/auth/login", {
+  const autenticar = async (caminho, nomeUsuario, dados) => {
+    const response = await apiRequest(caminho, {
       agenciaId,
       method: "POST",
-      body: { usuario: nomeUsuario, senha },
+      body: { usuario: nomeUsuario, ...dados },
     });
     localStorage.setItem("iceibank.token", response.accessToken);
     localStorage.setItem("iceibank.usuario", nomeUsuario);
@@ -23,6 +23,10 @@ export function AuthProvider({ children }) {
     setUsuario(nomeUsuario);
     setMotivoLogout("");
   };
+
+  const login = (nomeUsuario, senha) => autenticar("/auth/login", nomeUsuario, { senha });
+  const cadastrar = (nomeUsuario, senha, confirmarSenha) =>
+    autenticar("/auth/cadastro", nomeUsuario, { senha, confirmarSenha });
 
   const logout = (motivo = "") => {
     localStorage.removeItem("iceibank.token");
@@ -32,6 +36,6 @@ export function AuthProvider({ children }) {
     setMotivoLogout(motivo);
   };
 
-  const value = { token, usuario, autenticado: Boolean(token), login, logout, motivoLogout };
+  const value = { token, usuario, autenticado: Boolean(token), login, cadastrar, logout, motivoLogout };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

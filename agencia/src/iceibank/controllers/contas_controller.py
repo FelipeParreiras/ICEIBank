@@ -26,6 +26,13 @@ def criar_conta(
     return _response(service.criar(dados.id, dados.nome_aluno, dados.saldo_inicial))
 
 
+@router.get("", response_model=list[ContaResponse])
+def listar_contas(
+    service: Annotated[ContaService, Depends(get_conta_service)],
+) -> list[ContaResponse]:
+    return [_response(conta) for conta in service.listar()]
+
+
 @router.get("/{conta_id}", response_model=ContaResponse)
 def buscar_conta(
     conta_id: Annotated[int, Path(ge=0)],

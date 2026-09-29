@@ -18,6 +18,7 @@ Definir a arquitetura executável da Sprint 1 do ICEIBank usando Python com Fast
 - transferência local e entre agências por REST;
 - relógio de Lamport e log JSON Lines por agência;
 - autenticação JWT para as rotas de uso da aplicação;
+- cadastro básico de credenciais em memória, processado pela agência 0;
 - autenticação separada para a comunicação interna;
 - frontend React capaz de selecionar qualquer agência;
 - script Python para mesclar logs;
@@ -31,10 +32,25 @@ Definir a arquitetura executável da Sprint 1 do ICEIBank usando Python com Fast
 - rollback automático de transferência remota;
 - 2PC, Saga ou outra transação distribuída;
 - mensageria, relógio vetorial, consenso, containers e aplicativo Flutter;
-- cadastro completo de usuários e autorização por titularidade da conta;
+- perfil completo de usuários, recuperação de senha e autorização por titularidade da conta;
 - alta disponibilidade e execução com múltiplos workers por agência.
 
 Os itens excluídos pertencem a sprints futuras ou excedem o necessário para esta entrega.
+
+### Extensão: cadastro de usuários
+
+O cadastro segue `auth_controller` → `AuthService` → `UsuarioRepository` → `Usuario`.
+`CadastroRequest` valida o contrato HTTP e `security.py` calcula hashes PBKDF2 com salt.
+O repositório em memória usa lock para impedir nomes duplicados em requisições concorrentes.
+No React, a página de login alterna para cadastro, reutilizando `AuthContext`, `apiRequest`,
+`AgenciaSelector` e `AlertMessage`; o JWT retornado inicia a sessão.
+
+Para preservar uma identidade única sem replicação ou banco compartilhado, a agência 0
+processa cadastro e login. `AuthClient` encaminha essas operações das agências 1 e 2,
+com timeout e erro 503 em caso de indisponibilidade. As operações bancárias continuam
+particionadas e validam JWT localmente. A agência 0 é um ponto único de falha para novos
+logins e cadastros; reiniciá-la apaga os usuários criados. Essa escolha mantém o modelo
+em memória da Sprint 1 e evita senhas divergentes entre processos.
 
 ## Contexto atual
 

@@ -13,10 +13,12 @@ import { SaqueForm } from "../components/SaqueForm";
 import { TransferenciaForm } from "../components/TransferenciaForm";
 import { useAgencia } from "../hooks/useAgencia";
 import { useAuth } from "../hooks/useAuth";
+import { useContas } from "../hooks/useContas";
 
 export function DashboardPage() {
   const { token, usuario, logout } = useAuth();
-  const { agenciaId, agencia } = useAgencia();
+  const { agenciaId, agencia, selecionarAgencia } = useAgencia();
+  const listaContas = useContas(agenciaId, token);
   const [conta, setConta] = useState(null);
   const [contaId, setContaId] = useState("0");
   const [nomeAluno, setNomeAluno] = useState("");
@@ -29,8 +31,8 @@ export function DashboardPage() {
 
   const request = (path, options = {}) =>
     apiRequest(path, {
-      ...options,
       agenciaId,
+      ...options,
       token,
       onUnauthorized: () => logout("Sua sessão expirou. Entre novamente."),
     });
@@ -62,7 +64,10 @@ export function DashboardPage() {
       () => request("/contas", { method: "POST", body: { id: Number(contaId), nomeAluno, saldoInicial: Number(saldoInicial) } }),
       "Conta criada com sucesso.",
     );
-    if (result) setConta(result);
+    if (result) {
+      setConta(result);
+      listaContas.atualizar();
+    }
   };
 
   const movimentar = async (tipo, id, valor) => {
@@ -70,18 +75,35 @@ export function DashboardPage() {
       () => request(`/contas/${id}/${tipo}`, { method: "POST", body: { valor } }),
       tipo === "depositar" ? "Depósito concluído." : "Saque concluído.",
     );
-    if (result) setConta(result);
+    if (result) {
+      setConta(result);
+      setContaId(String(result.id));
+    }
+    return Boolean(result);
   };
 
   const transferir = async (origem, destino, valor) => {
+    const contaOrigem = listaContas.contas.find((item) => item.id === origem);
+    if (!contaOrigem) return false;
     const result = await executar(
-      () => request("/transferencias", { method: "POST", body: { idOrigem: origem, idDestino: destino, valor } }),
+      () => request("/transferencias", {
+        agenciaId: contaOrigem.agenciaId,
+        method: "POST",
+        body: { idOrigem: origem, idDestino: destino, valor },
+      }),
       (response) => response.mensagem,
     );
-    if (result && conta?.id === origem) {
-      const atualizada = await executar(() => request(`/contas/${origem}`));
-      if (atualizada) setConta(atualizada);
+    if (result) {
+      if (contaOrigem.agenciaId !== agenciaId) {
+        selecionarAgencia(contaOrigem.agenciaId);
+        setResumo(null);
+      }
+      if (conta?.id === origem) {
+        const atualizada = await executar(() => request(`/contas/${origem}`, { agenciaId: contaOrigem.agenciaId }));
+        if (atualizada) setConta(atualizada);
+      }
     }
+    return Boolean(result);
   };
 
   const carregarResumo = async (preservarAlert = false) => {
@@ -129,7 +151,7 @@ export function DashboardPage() {
     <div className="app-shell">
       <header className="topbar">
         <div className="brand"><span className="brand-mark small">IB</span><div><b>ICEIBank</b><small>Sprint 1 · RA 45</small></div></div>
-        <div className="topbar-actions"><AgenciaSelector onChange={trocarAgencia} /><div className="user-chip"><span>{usuario?.slice(0, 1).toUpperCase()}</span><div><b>{usuario}</b><small>{agencia.nome}</small></div></div><button className="button ghost" onClick={() => logout()}>Sair</button></div>
+        <div className="topbar-actions"><AgenciaSelector disabled={loading} onChange={trocarAgencia} /><div className="user-chip"><span>{usuario?.slice(0, 1).toUpperCase()}</span><div><b>{usuario}</b><small>{agencia.nome}</small></div></div><button className="button ghost" onClick={() => logout()}>Sair</button></div>
       </header>
 
       <main className="dashboard">
@@ -152,9 +174,13 @@ export function DashboardPage() {
 
           <article className="panel operations-panel">
             <div className="section-heading"><div><p className="eyebrow">Movimentações</p><h2>Operações rápidas</h2></div></div>
-            <div className="operation-columns"><div><h3><span className="op-icon income">↓</span> Depósito</h3><DepositoForm key={`d-${conta?.id}`} defaultConta={conta?.id ?? ""} onSubmit={(id, valor) => movimentar("depositar", id, valor)} loading={loading} /></div><div><h3><span className="op-icon outcome">↑</span> Saque</h3><SaqueForm key={`s-${conta?.id}`} defaultConta={conta?.id ?? ""} onSubmit={(id, valor) => movimentar("sacar", id, valor)} loading={loading} /></div></div>
+            {listaContas.carregando && <p className="muted" role="status">Carregando contas…</p>}
+            {listaContas.erro && <AlertMessage alert={{ tipo: "erro", mensagem: listaContas.erro }} />}
+            {!conta && <p className="muted">Consulte uma conta para habilitar depósito e saque.</p>}
+            <button type="button" className="button ghost" onClick={listaContas.atualizar} disabled={loading || listaContas.carregando}>Atualizar contas</button>
+            <div className="operation-columns"><div><h3><span className="op-icon income">↓</span> Depósito</h3><DepositoForm key={`d-${agenciaId}-${conta?.id}`} conta={conta} onSubmit={(id, valor) => movimentar("depositar", id, valor)} loading={loading} /></div><div><h3><span className="op-icon outcome">↑</span> Saque</h3><SaqueForm key={`s-${agenciaId}-${conta?.id}`} conta={conta} onSubmit={(id, valor) => movimentar("sacar", id, valor)} loading={loading} /></div></div>
             <div className="divider" />
-            <div><h3><span className="op-icon transfer">⇄</span> Transferência</h3><TransferenciaForm onSubmit={transferir} loading={loading} /></div>
+            <div><h3><span className="op-icon transfer">⇄</span> Transferência</h3><TransferenciaForm contas={listaContas.contas} contaSelecionada={conta} onSubmit={transferir} loading={loading || listaContas.carregando} /></div>
           </article>
         </section>
 

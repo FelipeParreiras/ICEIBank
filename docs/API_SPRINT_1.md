@@ -44,7 +44,8 @@ Erros estruturais de validação podem incluir a lista de campos inválidos, man
 
 ### `POST /auth/login`
 
-Autentica o usuário de demonstração configurado por ambiente.
+Autentica usuários cadastrados ou o usuário de demonstração configurado por ambiente.
+As agências 1 e 2 encaminham a autenticação para a agência 0; não mantêm cópias das senhas.
 
 Requisição:
 
@@ -72,7 +73,48 @@ Erros:
 
 O endpoint não deve informar se foi o usuário ou a senha que falhou.
 
+Se a agência 0 não responder, as agências 1 e 2 retornam 503 `AUTENTICACAO_INDISPONIVEL`.
+
+### `POST /auth/cadastro`
+
+Rota pública disponível nas três agências. Cria credenciais e retorna 201 com o mesmo
+`TokenResponse` do login, iniciando a sessão. Não cria conta bancária.
+
+```json
+{
+  "usuario": "ana.silva",
+  "senha": "senha-de-exemplo-123",
+  "confirmarSenha": "senha-de-exemplo-123"
+}
+```
+
+- Usuário: 3 a 100 caracteres, somente letras ASCII, números, ponto, hífen e sublinhado.
+  A comparação distingue maiúsculas de minúsculas; não remove espaços nem altera o nome.
+- Senha: 8 a 256 caracteres, não pode conter apenas espaços; confirmação deve ser idêntica.
+- 400 `CADASTRO_INVALIDO`: confirmação divergente ou senha composta apenas de espaços.
+- 409 `USUARIO_JA_EXISTE`: nome ocupado, inclusive pelo usuário de demonstração.
+- 422 `REQUISICAO_INVALIDA`: formato, campos obrigatórios ou limites inválidos.
+- 503 `AUTENTICACAO_INDISPONIVEL`: agência 0 indisponível ao encaminhar a requisição.
+
+A agência 0 mantém usuários em memória com inserção atômica e senha em hash PBKDF2.
+Reiniciá-la apaga os cadastros. As agências 1 e 2 encaminham cadastro e login por HTTP;
+JWTs são aceitos pelas três instâncias. Nenhuma resposta de validação de autenticação
+inclui os valores recebidos de senha ou confirmação. Cadastro e login não alteram
+saldo nem o relógio de Lamport das operações bancárias.
+
 ## Contas
+
+### `GET /contas`
+
+Proteção: JWT. Retorna 200 com a lista de contas da agência consultada, ordenada por ID.
+Cada item contém `id`, `nomeAluno` e `saldo`, como na consulta individual.
+Uma agência sem contas retorna `[]`. A consulta não incrementa o relógio de Lamport.
+O frontend consulta as três agências e agrupa suas contas nos seletores de origem e
+destino da transferência. A requisição é enviada à agência da conta de origem. Nos
+formulários de depósito e saque, a conta é definida automaticamente pela consulta
+exibida no painel, evitando operar em uma conta diferente por engano. As listas são
+recarregadas ao trocar de agência, criar uma conta ou clicar em **Atualizar contas**.
+Falhas de uma agência são exibidas sem descartar as contas das demais.
 
 ### `POST /contas`
 

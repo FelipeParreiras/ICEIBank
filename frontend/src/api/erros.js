@@ -12,6 +12,8 @@ export class ApiError extends Error {
 export function mensagemAmigavel(error) {
   const mensagens = {
     CREDENCIAIS_INVALIDAS: "Usuário ou senha inválidos.",
+    USUARIO_JA_EXISTE: "Este usuário já está cadastrado. Escolha outro nome ou entre na sua conta.",
+    AUTENTICACAO_INDISPONIVEL: "Não foi possível acessar o serviço de autenticação. Tente novamente.",
     TOKEN_EXPIRADO: "Sua sessão expirou. Entre novamente.",
     CONTA_NAO_ENCONTRADA: "Conta não encontrada na agência selecionada.",
     CONTA_FORA_DA_PARTICAO: "Essa conta pertence a outra agência.",

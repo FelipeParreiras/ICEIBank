@@ -35,6 +35,9 @@ class ContaService:
         if responsavel != self.settings.agencia_id:
             raise ContaForaDaParticao(conta_id, responsavel)
 
+    def listar(self) -> tuple[Conta, ...]:
+        return tuple(sorted(self.repository.listar(), key=lambda conta: conta.id))
+
     def buscar(self, conta_id: int) -> Conta:
         self.validar_particao(conta_id)
         conta = self.repository.buscar(conta_id)

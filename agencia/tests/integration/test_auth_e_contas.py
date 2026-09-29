@@ -6,10 +6,32 @@ from fastapi.testclient import TestClient
 
 
 def test_rotas_de_conta_exigem_jwt(client: TestClient) -> None:
+    assert client.get("/contas").status_code == 401
     response = client.get("/contas/0")
 
     assert response.status_code == 401
     assert response.json()["codigo"] == "NAO_AUTENTICADO"
+
+
+def test_listar_contas_da_agencia_sem_alterar_lamport(
+    client: TestClient, auth_headers: dict[str, str]
+) -> None:
+    assert client.get("/contas", headers=auth_headers).json() == []
+    for conta_id in (3, 0):
+        response = client.post(
+            "/contas",
+            headers=auth_headers,
+            json={"id": conta_id, "nomeAluno": f"Aluno {conta_id}", "saldoInicial": 100},
+        )
+        assert response.status_code == 201
+    clock = client.app.state.clock.value
+    response = client.get("/contas", headers=auth_headers)
+    assert response.status_code == 200
+    assert response.json() == [
+        {"id": 0, "nomeAluno": "Aluno 0", "saldo": "100.00"},
+        {"id": 3, "nomeAluno": "Aluno 3", "saldo": "100.00"},
+    ]
+    assert client.app.state.clock.value == clock
 
 
 def test_login_rejeita_credenciais_invalidas(client: TestClient) -> None:

@@ -73,6 +73,25 @@ class NaoAutenticado(DomainError):
         super().__init__(message, code, 401)
 
 
+class UsuarioJaExiste(DomainError):
+    def __init__(self) -> None:
+        super().__init__("Este usuário já está cadastrado.", "USUARIO_JA_EXISTE", 409)
+
+
+class CadastroInvalido(DomainError):
+    def __init__(self, message: str) -> None:
+        super().__init__(message, "CADASTRO_INVALIDO", 400)
+
+
+class AutenticacaoIndisponivel(DomainError):
+    def __init__(self) -> None:
+        super().__init__(
+            "Serviço de autenticação indisponível. Tente novamente.",
+            "AUTENTICACAO_INDISPONIVEL",
+            503,
+        )
+
+
 class PlanejamentoInvalido(DomainError):
     def __init__(self, message: str) -> None:
         super().__init__(message, "PLANEJAMENTO_INVALIDO", 400)

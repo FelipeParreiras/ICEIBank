@@ -15,7 +15,9 @@ from iceibank.repositories.conta_repository import ContaRepository
 from iceibank.repositories.controle_financeiro_repository import (
     ControleFinanceiroRepository,
 )
+from iceibank.repositories.usuario_repository import UsuarioRepository
 from iceibank.services.agencia_client import AgenciaClient
+from iceibank.services.auth_client import AuthClient
 from iceibank.services.auth_service import AuthService
 from iceibank.services.conta_service import ContaService
 from iceibank.services.controle_financeiro_service import ControleFinanceiroService
@@ -26,7 +28,9 @@ from iceibank.services.transferencia_service import TransferenciaService
 
 
 def create_app(
-    settings: Settings | None = None, agencia_client: AgenciaClient | None = None
+    settings: Settings | None = None,
+    agencia_client: AgenciaClient | None = None,
+    auth_client: AuthClient | None = None,
 ) -> FastAPI:
     settings = settings or Settings()
     app = FastAPI(
@@ -54,7 +58,9 @@ def create_app(
     app.state.clock = clock
     app.state.conta_repository = conta_repository
     app.state.financeiro_repository = financeiro_repository
-    app.state.auth_service = AuthService(settings)
+    app.state.auth_service = AuthService(
+        settings, UsuarioRepository(), auth_client or AuthClient(settings)
+    )
     app.state.conta_service = conta_service
     app.state.transferencia_service = TransferenciaService(
         conta_repository, conta_service, client, clock, logger, settings
@@ -81,13 +87,19 @@ def create_app(
     async def handle_validation_error(
         _request: Request, exc: RequestValidationError
     ) -> JSONResponse:
+        errors = exc.errors()
+        if _request.url.path.startswith("/auth/"):
+            errors = [
+                {key: error[key] for key in ("type", "loc", "msg") if key in error}
+                for error in errors
+            ]
         return JSONResponse(
             status_code=422,
             content=jsonable_encoder(
                 {
                     "erro": "Requisição inválida.",
                     "codigo": "REQUISICAO_INVALIDA",
-                    "detalhes": exc.errors(),
+                    "detalhes": errors,
                 }
             ),
         )

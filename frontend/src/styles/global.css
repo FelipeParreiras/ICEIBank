@@ -28,6 +28,13 @@ h1, h2 { font-family: "Manrope", sans-serif; letter-spacing: -.035em; }
 .field { display: grid; gap: .4rem; color:#455049; font-size:.82rem; font-weight: 600; }
 .field input, .field select { width:100%; min-height:43px; padding:.68rem .8rem; border:1px solid #d6dfd8; border-radius:10px; outline:none; color:#17211c; background:#fbfcfb; transition:.15s; }
 .field input:focus, .field select:focus { border-color:#458262; box-shadow:0 0 0 3px rgba(50,119,80,.12); }
+.password-field { position:relative; min-width:0; }
+.password-field input { padding-right:5.3rem; }
+.password-field input::-ms-reveal { display:none; }
+.password-toggle { position:absolute; top:1px; right:1px; bottom:1px; padding:0 .8rem; border:0; border-radius:0 9px 9px 0; color:var(--green); background:transparent; font-size:.76rem; font-weight:700; }
+.password-toggle:hover:not(:disabled) { background:#eaf2ec; }
+.password-toggle:focus-visible { outline:2px solid var(--green); outline-offset:2px; }
+.password-toggle:disabled { cursor:not-allowed; opacity:.55; }
 .compact-field { min-width: 205px; }
 .button { min-height:42px; padding:.65rem 1rem; border:0; border-radius:10px; font-weight:700; transition:.15s; }
 .button:hover:not(:disabled) { transform:translateY(-1px); filter:brightness(.97); }

@@ -99,9 +99,18 @@ Abrir `http://localhost:5173`. O Vite encaminha `/api/agencia-0`, `/api/agencia-
 
 Credenciais locais de demonstração: `aluno` / `iceibank123`. Altere os segredos e o hash em `agencia/.env` fora de ambientes acadêmicos locais.
 
+Também é possível usar **Não tenho usuário. Cadastrar** na tela de login. Informe usuário,
+senha e confirmação; o cadastro inicia a sessão automaticamente. O usuário pode entrar
+por qualquer agência. Cadastro e login são processados pela agência 0, que deve estar
+ativa; as agências 1 e 2 encaminham essas requisições por HTTP. As senhas são armazenadas
+somente como hashes PBKDF2 com salt aleatório, no repositório em memória da agência 0.
+O cadastro cria credenciais de acesso; contas bancárias continuam sendo criadas no painel.
+
 ## Limitações intencionais
 
 - contas não persistem após reinício;
+- usuários cadastrados não persistem após reinício da agência 0; o usuário de demonstração permanece;
+- novos cadastros e logins dependem da agência 0; JWTs já emitidos continuam válidos até expirar;
 - planejamentos e gastos do Controle Financeiro também não persistem;
 - não há replicação;
 - transferência remota não é atômica;

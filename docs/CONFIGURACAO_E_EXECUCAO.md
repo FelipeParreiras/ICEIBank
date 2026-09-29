@@ -130,6 +130,17 @@ Isso não altera as portas do roteiro nem a comunicação direta entre os backen
 
 ## Verificações iniciais
 
+### Cadastro de usuário
+
+Na tela inicial, selecione **Não tenho usuário. Cadastrar**. Informe usuário (3 a 100
+caracteres), senha (8 a 256 caracteres) e confirmação. Após cadastrar, o painel abre
+automaticamente. Para validar o acesso entre agências, saia e entre com o mesmo usuário
+selecionando outra agência. O usuário `aluno` continua disponível para demonstração.
+
+A agência 0 deve estar ativa para cadastro e login em qualquer agência. Ela mantém os
+usuários em memória; reiniciá-la remove os cadastros. As senhas não são salvas em `.env`
+nem em arquivos de log. Não é necessária instalação de banco de dados ou dependência nova.
+
 ### Portas ocupadas
 
 ```powershell
