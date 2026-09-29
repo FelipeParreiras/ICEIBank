@@ -1,27 +1,26 @@
 # Python
-__pycache__/
+agencia/.venv/
+**/__pycache__/
 *.py[cod]
-*.egg-info/
 .pytest_cache/
-.mypy_cache/
 .ruff_cache/
-.pre-commit-cache/
 .coverage
 htmlcov/
+*.egg-info/
 
-# Ambientes e segredos
-.venv/
-.env
+# Dados e segredos do backend
+agencia/.env
+agencia/data/*.jsonl
 
-# IDE e sistema operacional
-.idea/
+# React / Vite
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+
+# Editor e sistema
 .vscode/
+.idea/
 Thumbs.db
 desktop.ini
 
-# Dados gerados em execução
-data/*.jsonl
-logs/
-
-# Evidências continuam versionáveis; apenas arquivos temporários são ignorados
-evidencias/**/~*
