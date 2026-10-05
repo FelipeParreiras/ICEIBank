@@ -30,7 +30,7 @@ export function CaixinhaPanel({ conta, request, loading, onMessage, onContaAtual
   const [selecionadaId, setSelecionadaId] = useState("");
   const [modal, setModal] = useState(null);
   const [nome, setNome] = useState("");
-  const [cor, setCor] = useState("caramelo");
+  const [cor, setCor] = useState("verde");
   const [valor, setValor] = useState("");
   const [carregando, setCarregando] = useState(false);
 
@@ -87,7 +87,7 @@ export function CaixinhaPanel({ conta, request, loading, onMessage, onContaAtual
 
   const abrirGerenciamento = () => {
     if (!selecionada) return;
-    setCor(selecionada.cor || "caramelo");
+    setCor(selecionada.cor || "verde");
     setModal("gerenciar");
   };
 
@@ -106,7 +106,7 @@ export function CaixinhaPanel({ conta, request, loading, onMessage, onContaAtual
 
       <div className="caixinha-grid" aria-live="polite">
         {caixinhas.length === 0 && <p className="muted caixinha-empty">Nenhuma Caixinha criada nesta conta.</p>}
-        {caixinhas.map((item) => <button type="button" key={item.id} className={`caixinha-box color-${item.cor || "caramelo"} ${selecionadaId === item.id ? "selected" : ""}`} onClick={() => abrirDetalhes(item.id)} aria-pressed={selecionadaId === item.id}>
+        {caixinhas.map((item) => <button type="button" key={item.id} className={`caixinha-box color-${item.cor || "verde"} ${selecionadaId === item.id ? "selected" : ""}`} onClick={() => abrirDetalhes(item.id)} aria-pressed={selecionadaId === item.id}>
           <span className="caixinha-lid" />
           <span className="caixinha-sticker">{item.nome}</span>
           <span className="caixinha-balance">{formatarDinheiro(item.saldo)}</span>

@@ -16,6 +16,7 @@ def test_caixinha_crud_guarda_e_resgata(client: TestClient, auth_headers: dict[s
     _criar_conta(client, auth_headers, 0, 100)
     criada = client.post("/contas/0/caixinhas", headers=auth_headers, json={"nome": "Viagem"})
     caixinha_id = criada.json()["id"]
+    assert criada.json()["cor"] == "verde"
     guardada = client.post(
         f"/contas/0/caixinhas/{caixinha_id}/guardar", headers=auth_headers, json={"valor": 40}
     )

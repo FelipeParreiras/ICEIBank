@@ -26,7 +26,7 @@ class MovimentoCaixinha:
 class Caixinha:
     conta_id: int
     nome: str
-    cor: str = "caramelo"
+    cor: str = "verde"
     id: UUID = field(default_factory=uuid4)
     lotes: list[LoteCaixinha] = field(default_factory=list)
     movimentos: list[MovimentoCaixinha] = field(default_factory=list)
