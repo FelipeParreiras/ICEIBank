@@ -2,9 +2,10 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 
 from iceibank.core.money import normalizar_dinheiro
+from iceibank.models.caixinha import CORES_CAIXINHA
 from iceibank.schemas.base import ApiSchema
 
 
@@ -20,8 +21,32 @@ class CriarCaixinhaRequest(ApiSchema):
         return valor
 
 
-class AtualizarCaixinhaRequest(CriarCaixinhaRequest):
-    pass
+class AtualizarCaixinhaRequest(ApiSchema):
+    nome: str | None = Field(default=None, min_length=1, max_length=80)
+    cor: str | None = None
+
+    @field_validator("nome")
+    @classmethod
+    def validar_nome(cls, valor: str | None) -> str | None:
+        if valor is None:
+            return valor
+        valor = valor.strip()
+        if not valor:
+            raise ValueError("O nome da Caixinha não pode ser vazio.")
+        return valor
+
+    @field_validator("cor")
+    @classmethod
+    def validar_cor(cls, valor: str | None) -> str | None:
+        if valor is not None and valor not in CORES_CAIXINHA:
+            raise ValueError("Cor de Caixinha inválida.")
+        return valor
+
+    @model_validator(mode="after")
+    def validar_alteracao(self):
+        if self.nome is None and self.cor is None:
+            raise ValueError("Informe um nome ou uma cor para atualizar a Caixinha.")
+        return self
 
 
 class MovimentoCaixinhaRequest(ApiSchema):
@@ -49,6 +74,7 @@ class CaixinhaResponse(ApiSchema):
     id: UUID
     conta_id: int = Field(alias="contaId")
     nome: str
+    cor: str
     saldo: Decimal
     rendimento_total: Decimal = Field(alias="rendimentoTotal")
     lotes: list[LoteCaixinhaResponse]

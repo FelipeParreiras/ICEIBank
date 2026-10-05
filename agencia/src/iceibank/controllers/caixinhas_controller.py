@@ -27,6 +27,7 @@ def _response(caixinha: Caixinha) -> CaixinhaResponse:
         id=caixinha.id,
         contaId=caixinha.conta_id,
         nome=caixinha.nome,
+        cor=caixinha.cor,
         saldo=caixinha.saldo,
         rendimentoTotal=caixinha.rendimento_total,
         lotes=[
@@ -69,13 +70,13 @@ def buscar(
 
 
 @router.patch("/{caixinha_id}", response_model=CaixinhaResponse)
-def renomear(
+def atualizar(
     conta_id: Annotated[int, Path(ge=0)],
     caixinha_id: UUID,
     dados: AtualizarCaixinhaRequest,
     service: Annotated[CaixinhaService, Depends(get_caixinha_service)],
 ) -> CaixinhaResponse:
-    return _response(service.renomear(conta_id, caixinha_id, dados.nome))
+    return _response(service.atualizar(conta_id, caixinha_id, dados.nome, dados.cor))
 
 
 @router.delete("/{caixinha_id}", response_model=ExcluirCaixinhaResponse)

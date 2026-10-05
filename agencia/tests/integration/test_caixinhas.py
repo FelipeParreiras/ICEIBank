@@ -33,9 +33,19 @@ def test_caixinha_crud_guarda_e_resgata(client: TestClient, auth_headers: dict[s
     novo_id = nova.json()["id"]
     assert (
         client.patch(
-            f"/contas/0/caixinhas/{novo_id}", headers=auth_headers, json={"nome": "Férias"}
+            f"/contas/0/caixinhas/{novo_id}",
+            headers=auth_headers,
+            json={"nome": "Férias", "cor": "azul"},
         ).json()["nome"]
         == "Férias"
+    )
+    atualizada = client.get(f"/contas/0/caixinhas/{novo_id}", headers=auth_headers).json()
+    assert atualizada["cor"] == "azul"
+    assert (
+        client.patch(
+            f"/contas/0/caixinhas/{novo_id}", headers=auth_headers, json={"cor": "amarelo"}
+        ).status_code
+        == 422
     )
     assert (
         client.delete(f"/contas/0/caixinhas/{novo_id}", headers=auth_headers).status_code == 200

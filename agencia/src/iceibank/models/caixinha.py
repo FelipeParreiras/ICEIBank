@@ -5,6 +5,8 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import UUID, uuid4
 
+CORES_CAIXINHA = frozenset({"caramelo", "verde", "azul", "roxo", "coral"})
+
 
 @dataclass(slots=True)
 class LoteCaixinha:
@@ -24,6 +26,7 @@ class MovimentoCaixinha:
 class Caixinha:
     conta_id: int
     nome: str
+    cor: str = "caramelo"
     id: UUID = field(default_factory=uuid4)
     lotes: list[LoteCaixinha] = field(default_factory=list)
     movimentos: list[MovimentoCaixinha] = field(default_factory=list)

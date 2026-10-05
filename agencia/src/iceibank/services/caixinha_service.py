@@ -69,19 +69,25 @@ class CaixinhaService:
         with self.repository.transacao():
             return self._atualizar_rendimento(self._buscar_da_conta(conta_id, caixinha_id))
 
-    def renomear(self, conta_id: int, caixinha_id: UUID, nome: str) -> Caixinha:
+    def atualizar(
+        self, conta_id: int, caixinha_id: UUID, nome: str | None, cor: str | None
+    ) -> Caixinha:
         self._validar_conta(conta_id)
         with self.repository.transacao():
             caixinha = self._buscar_da_conta(conta_id, caixinha_id)
-            if any(
-                item.id != caixinha_id and item.nome.casefold() == nome.casefold()
-                for item in self.repository.listar_por_conta(conta_id)
-            ):
-                raise CaixinhaInvalida("Já existe uma Caixinha com este nome nesta conta.")
-            caixinha.nome = nome
+            if nome is not None:
+                if any(
+                    item.id != caixinha_id and item.nome.casefold() == nome.casefold()
+                    for item in self.repository.listar_por_conta(conta_id)
+                ):
+                    raise CaixinhaInvalida("Já existe uma Caixinha com este nome nesta conta.")
+                caixinha.nome = nome
+            if cor is not None:
+                caixinha.cor = cor
             caixinha = self.repository.atualizar(caixinha)
             self._evento(
-                "RENOMEAR_CAIXINHA", {"contaId": conta_id, "caixinhaId": caixinha.id, "nome": nome}
+                "ATUALIZAR_CAIXINHA",
+                {"contaId": conta_id, "caixinhaId": caixinha.id, "nome": nome, "cor": cor},
             )
             return caixinha
 
