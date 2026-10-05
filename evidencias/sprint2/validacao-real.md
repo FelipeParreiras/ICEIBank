@@ -24,3 +24,12 @@ O mesclador classificou como concorrentes as criações independentes com vetore
 crédito remoto `[2, 3, 0]` não foram classificados como concorrentes.
 
 As imagens PNG obrigatórias devem mostrar estas execuções reais com data/hora visível.
+
+## Rodada complementar - 05/10/2026
+
+O detalhamento reproduzível da rodada está em
+[`registro-execucao-2026-10-05.md`](registro-execucao-2026-10-05.md). Foram
+reproduzidas a transferência entre agências, a publicação enquanto o destino
+estava offline, a entrega com conta ausente após reinício, a classificação causal
+e o fluxo de criar, guardar e resgatar uma Caixinha. Nenhuma credencial ou token
+foi registrado.
