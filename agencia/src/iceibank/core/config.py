@@ -51,6 +51,10 @@ class Settings(BaseSettings):
         return self.porta_base + self.agencia_id
 
     @property
+    def database_path(self) -> Path:
+        return self.data_dir / f"iceibank-agencia-{self.agencia_id}.sqlite3"
+
+    @property
     def nome_agencia(self) -> str:
         return f"agencia-{self.agencia_id}"
 

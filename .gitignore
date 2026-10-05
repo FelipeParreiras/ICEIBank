@@ -11,6 +11,9 @@ htmlcov/
 # Dados e segredos do backend
 agencia/.env
 agencia/data/*.jsonl
+agencia/data/*.sqlite3
+agencia/data/*.sqlite3-shm
+agencia/data/*.sqlite3-wal
 
 # React / Vite
 frontend/node_modules/

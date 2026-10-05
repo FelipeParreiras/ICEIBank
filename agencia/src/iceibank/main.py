@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
-from threading import RLock
 
 from fastapi import FastAPI, Request
 from fastapi.encoders import jsonable_encoder
@@ -17,6 +16,7 @@ from iceibank.repositories.conta_repository import ContaRepository
 from iceibank.repositories.controle_financeiro_repository import (
     ControleFinanceiroRepository,
 )
+from iceibank.repositories.sqlite_database import SQLiteDatabase
 from iceibank.repositories.usuario_repository import UsuarioRepository
 from iceibank.services.auth_client import AuthClient
 from iceibank.services.auth_service import AuthService
@@ -45,6 +45,9 @@ def create_app(
         yield
         if mensageria is not None:
             mensageria.encerrar()
+        database = getattr(app_lifespan.state, "database", None)
+        if database is not None:
+            database.encerrar()
 
     app = FastAPI(
         title="ICEIBank",
@@ -60,10 +63,10 @@ def create_app(
         allow_headers=["*"],
     )
 
-    state_lock = RLock()
-    conta_repository = ContaRepository(state_lock)
-    caixinha_repository = CaixinhaRepository(state_lock)
-    financeiro_repository = ControleFinanceiroRepository(state_lock)
+    database = SQLiteDatabase(settings.database_path)
+    conta_repository = ContaRepository(database)
+    caixinha_repository = CaixinhaRepository(database)
+    financeiro_repository = ControleFinanceiroRepository(database)
     clock = RelogioVetorial(settings.agencia_id, settings.numero_agencias)
     logger = EventLogger(settings.data_dir, settings.agencia_id)
     conta_service = ContaService(conta_repository, clock, logger, settings)
@@ -78,11 +81,12 @@ def create_app(
     app.state.settings = settings
     app.state.clock = clock
     app.state.mensageria = mensageria
+    app.state.database = database
     app.state.conta_repository = conta_repository
     app.state.caixinha_repository = caixinha_repository
     app.state.financeiro_repository = financeiro_repository
     app.state.auth_service = AuthService(
-        settings, UsuarioRepository(), auth_client or AuthClient(settings)
+        settings, UsuarioRepository(database), auth_client or AuthClient(settings)
     )
     app.state.conta_service = conta_service
     app.state.transferencia_service = TransferenciaService(
