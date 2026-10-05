@@ -26,15 +26,16 @@ Todas as rotas exigem JWT e a conta deve pertencer à agência atual.
 | POST | `/contas/{contaId}/caixinhas` | Cria com `{ "nome": "Viagem" }`. |
 | GET | `/contas/{contaId}/caixinhas` | Lista apenas as Caixinhas da conta. |
 | GET | `/contas/{contaId}/caixinhas/{caixinhaId}` | Consulta uma Caixinha vinculada. |
-| PATCH | `/contas/{contaId}/caixinhas/{caixinhaId}` | Renomeia com `{ "nome": "Férias" }`. |
+| PATCH | `/contas/{contaId}/caixinhas/{caixinhaId}` | Atualiza nome e/ou cor, por exemplo `{ "nome": "Férias" }` ou `{ "cor": "azul" }`. |
 | DELETE | `/contas/{contaId}/caixinhas/{caixinhaId}` | Aplica rendimento, resgata todo o saldo e exclui. |
 | POST | `/contas/{contaId}/caixinhas/{caixinhaId}/guardar` | Debita conta e cria lote. |
 | POST | `/contas/{contaId}/caixinhas/{caixinhaId}/resgatar` | Aplica rendimentos e resgata FIFO. |
 
 Guardar e resgatar recebem `{ "valor": 10.00 }` e retornam a Caixinha atual e
 `saldoConta`. A Caixinha inclui `rendimentoTotal` e o histórico `movimentos`,
-com depósitos, retiradas e rendimentos. O `DELETE` retorna `saldoConta` e
-`valorResgatado`. Nomes têm de 1 a 80 caracteres após espaços externos e são
+com depósitos, retiradas e rendimentos. A Caixinha inclui a cor persistida `cor`,
+aceitando `caramelo`, `verde`, `azul`, `roxo` ou `coral` na atualização. O
+`DELETE` retorna `saldoConta` e `valorResgatado`. Nomes têm de 1 a 80 caracteres após espaços externos e são
 únicos por conta sem diferenciar maiúsculas. Os erros de domínio incluem
 `CAIXINHA_NAO_ENCONTRADA`, `CAIXINHA_INVALIDA` e `SALDO_INSUFICIENTE`.
 
