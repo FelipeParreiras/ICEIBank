@@ -11,7 +11,7 @@ from iceibank.core.exceptions import (
     SaldoInsuficiente,
 )
 from iceibank.models.evento import Evento
-from iceibank.models.gasto import CategoriaGasto, Gasto
+from iceibank.models.gasto import Gasto
 from iceibank.models.planejamento_financeiro import (
     PlanejamentoMensal,
     ResumoFinanceiro,
@@ -53,8 +53,9 @@ class ControleFinanceiroService:
         competencia: str,
         renda_prevista: Decimal,
         meta_economia: Decimal,
-        limites_por_categoria: dict[CategoriaGasto, Decimal],
-        categorias_flexiveis: set[CategoriaGasto],
+        limites_por_categoria: dict[str, Decimal],
+        categorias_flexiveis: list[str],
+        categorias_ordenadas: list[str],
     ) -> PlanejamentoMensal:
         self._validar_competencia(competencia)
         self.conta_service.buscar(conta_id)
@@ -70,6 +71,7 @@ class ControleFinanceiroService:
             meta_economia=meta_economia,
             limites_por_categoria=dict(limites_por_categoria),
             categorias_flexiveis=frozenset(categorias_flexiveis),
+            categorias_ordenadas=tuple(categorias_ordenadas),
         )
         with self.repository.transacao():
             self.repository.salvar_planejamento(planejamento)
@@ -89,7 +91,7 @@ class ControleFinanceiroService:
         conta_id: int,
         descricao: str,
         valor: Decimal,
-        categoria: CategoriaGasto,
+        categoria: str,
         data_gasto: date,
     ) -> tuple[Gasto, Decimal]:
         competencia = data_gasto.strftime("%Y-%m")
@@ -98,6 +100,10 @@ class ControleFinanceiroService:
             planejamento = self.repository.buscar_planejamento(conta_id, competencia)
             if planejamento is None:
                 raise PlanejamentoNaoEncontrado()
+            if categoria not in planejamento.categorias_ordenadas:
+                raise PlanejamentoInvalido(
+                    "A categoria precisa estar configurada no planejamento do mês."
+                )
             conta = self.conta_repository.buscar(conta_id)
             if conta is None:
                 self.conta_service.buscar(conta_id)
@@ -136,7 +142,7 @@ class ControleFinanceiroService:
         if planejamento is None:
             raise PlanejamentoNaoEncontrado()
         gastos = self.repository.listar_gastos(conta_id, competencia)
-        totais: dict[CategoriaGasto, Decimal] = {}
+        totais: dict[str, Decimal] = {}
         for gasto in gastos:
             totais[gasto.categoria] = totais.get(gasto.categoria, ZERO) + gasto.valor
         total_gasto = sum(totais.values(), ZERO)

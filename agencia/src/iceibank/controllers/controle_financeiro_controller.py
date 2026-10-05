@@ -39,7 +39,8 @@ def _planejamento_response(
         metaEconomia=planejamento.meta_economia,
         limiteGastoMensal=planejamento.limite_gasto_mensal,
         limitesPorCategoria=planejamento.limites_por_categoria,
-        categoriasFlexiveis=planejamento.categorias_flexiveis,
+        categoriasFlexiveis=list(planejamento.categorias_flexiveis),
+        categoriasOrdenadas=list(planejamento.categorias_ordenadas),
     )
 
 
@@ -70,6 +71,7 @@ def definir_planejamento(
         dados.meta_economia,
         dados.limites_por_categoria,
         dados.categorias_flexiveis,
+        dados.categorias_ordenadas,
     )
     return _planejamento_response(planejamento)
 
@@ -109,6 +111,7 @@ def obter_resumo(
         valorAjuste=resumo.valor_ajuste,
         status=resumo.status,
         totaisPorCategoria=resumo.totais_por_categoria,
+        categoriasOrdenadas=list(resumo.planejamento.categorias_ordenadas),
         recomendacoes=[
             RecomendacaoResponse(
                 categoria=item.categoria,
