@@ -197,3 +197,96 @@ Não afirmar que uma revisão ou execução foi realizada antes que isso aconte�
 - [ ] Conferir links e nomes das evidências.
 - [ ] Reescrever em linguagem própria onde necessário.
 - [ ] Confirmar que a declaração de IA é verdadeira.
+
+---
+
+# Sprint 2 - Respostas e registro de entrega
+
+## Parte B - Relógio vetorial
+
+### 6.4.1 Crescimento para 10 agências
+
+Cada timestamp passa a ter 10 posições e cada mensagem carrega as 10. O custo
+por mensagem cresce linearmente com o número de processos, além de aumentar o
+custo de comparação. Para três agências do ICEIBank é pequeno e torna explícita
+a causalidade; para centenas ou milhares de processos se torna um problema e
+exige técnicas como grupos, versões compactadas ou rastreamento parcial.
+
+### 6.4.2 V1 = [3, 1, 0] e V2 = [3, 2, 0]
+
+V1 aconteceu antes de V2: 3 <= 3, 1 <= 2 e 0 <= 0, com pelo menos uma posição
+estritamente menor. Portanto V1 <= V2 e os vetores não são iguais.
+
+### 6.4.3 V1 = [3, 1, 0] e V2 = [1, 3, 0]
+
+São concorrentes. V1 não é menor ou igual a V2 porque 3 > 1 na primeira posição;
+V2 não é menor ou igual a V1 porque 3 > 1 na segunda. Nenhum vetor contém todo
+o histórico do outro.
+
+## Parte C - Publish/Subscribe
+
+### 7.5.1 Retorno da agência de destino
+
+Na execução de 04/10/2026, a Agência 1 foi encerrada depois de criar a conta 4.
+Uma transferência de R$ 20,00 da conta 0 foi publicada com a Agência 1 offline
+e a origem passou de R$ 170,00 para R$ 150,00. Ao reiniciar a Agência 1, a fila
+entregou a mensagem e o log registrou `CREDITO_REMOTO_FALHOU`, vetor `[3, 1, 0]`
+e motivo `CONTA_NAO_ENCONTRADA`. A mensageria não falhou: a conta tinha sido
+perdida porque o repositório ainda é somente em memória.
+
+### 7.5.2 Melhoria e problema restante
+
+Ao contrário do HTTP síncrono da Sprint 1, uma agência offline não impede a
+publicação: a fila retém a mensagem. Isso não torna o sistema automaticamente
+correto. As contas continuam voláteis, não existe transação distribuída,
+persistência, idempotência durável ou confirmação de crédito ao remetente.
+
+### 7.5.3 Segurança do consumidor
+
+O consumidor não recebe JWT porque não é uma requisição de navegador; ele só
+aceita mensagens entregues pelo RabbitMQ. Isso é aceitável apenas enquanto o
+broker, vhost, credenciais e permissões de publicação forem restritos às
+agências autorizadas. Em produção, as permissões AMQP devem limitar cada
+publisher e a mensagem também deve ser validada como entrada não confiável.
+
+## Parte D - Linha do tempo causal
+
+### 8.3.1 Comparação confiável
+
+Cada vetor registra o maior contador conhecido de cada agência. Comparar todas
+as posições permite provar V1 <= V2 quando o histórico de V1 está contido no de
+V2; se cada vetor tem ao menos uma posição maior, eles são incomparáveis e,
+portanto, concorrentes. Lamport escalar não mantém essas posições independentes.
+
+### 8.3.2 Par concorrente observado
+
+No teste real de 04/10/2026, `CRIAR_CONTA` da Agência 0 teve vetor `[1, 0, 0]`
+e `CRIAR_CONTA` da Agência 1 teve `[0, 1, 0]`. O mesclador classificou o par como
+concorrente: a primeira posição é maior no primeiro vetor e a segunda é maior no
+segundo, portanto não há relação de causa e efeito entre as criações.
+
+### 8.3.3 Escalabilidade
+
+Comparar todos os pares é O(n²), inviável para milhões de eventos. Em produção,
+o processamento poderia ser incremental, particionado por tempo/agência,
+indexado por vetor, limitado a janelas de investigação ou delegado a um motor
+de análise distribuído. A ferramenta atual prioriza transparência acadêmica.
+
+## Funcionalidade adicional - Caixinha
+
+A Caixinha permite criar, listar, consultar, renomear e excluir reservas de uma
+conta. Guardar debita a conta e cria um lote; resgatar aplica rendimentos vencidos
+e consome lotes por FIFO. Cada lote rende 10% composto a cada 48 horas, com
+arredondamento em centavos `ROUND_HALF_UP`. A exclusão é bloqueada enquanto
+existir saldo. A implementação e os testes estão documentados em SPEC-003,
+ADR-006 e ADR-008; a captura real `evidencias/sprint2/caixinha.png` continua
+pendente.
+
+## Uso de IA - Sprint 2
+
+Rascunho a ser revisado pelo aluno antes da entrega:
+
+> Utilizei o OpenAI Codex no desenvolvimento da Sprint 2 para apoio à implementação,
+> testes, documentação e revisão. Revisei o código e devo conseguir explicar as
+> decisões e os resultados. Os testes automatizados e a validação no RabbitMQ real
+> registrados foram executados; as capturas PNG da entrega permanecem pendentes.

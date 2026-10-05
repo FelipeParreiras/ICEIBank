@@ -68,6 +68,15 @@ class AgenciaIndisponivel(DomainError):
         )
 
 
+class MensageriaIndisponivel(DomainError):
+    def __init__(self) -> None:
+        super().__init__(
+            "Não foi possível publicar a transferência no RabbitMQ. O débito não foi aplicado.",
+            "MENSAGERIA_INDISPONIVEL",
+            503,
+        )
+
+
 class NaoAutenticado(DomainError):
     def __init__(self, message: str, code: str = "NAO_AUTENTICADO") -> None:
         super().__init__(message, code, 401)
@@ -103,4 +112,23 @@ class PlanejamentoNaoEncontrado(DomainError):
             "Planejamento financeiro não encontrado para a competência.",
             "PLANEJAMENTO_NAO_ENCONTRADO",
             404,
+        )
+
+
+class CaixinhaNaoEncontrada(DomainError):
+    def __init__(self) -> None:
+        super().__init__("Caixinha não encontrada para esta conta.", "CAIXINHA_NAO_ENCONTRADA", 404)
+
+
+class CaixinhaInvalida(DomainError):
+    def __init__(self, message: str) -> None:
+        super().__init__(message, "CAIXINHA_INVALIDA", 400)
+
+
+class CaixinhaComSaldo(DomainError):
+    def __init__(self) -> None:
+        super().__init__(
+            "A Caixinha possui saldo e deve ser resgatada antes da exclusão.",
+            "CAIXINHA_COM_SALDO",
+            409,
         )

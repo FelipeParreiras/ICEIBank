@@ -23,22 +23,6 @@ class TransferenciaRequest(ApiSchema):
         return self
 
 
-class CreditoRemotoRequest(ApiSchema):
-    valor: Decimal
-    timestamp_lamport: int = Field(alias="timestampLamport", ge=0)
-    origem_agencia: int = Field(alias="origemAgencia", ge=0, le=2)
-
-    @field_validator("valor")
-    @classmethod
-    def validar_valor(cls, valor: Decimal) -> Decimal:
-        return normalizar_dinheiro(valor)
-
-
 class MensagemTransferenciaResponse(ApiSchema):
     mensagem: str
     tipo: str | None = None
-
-
-class CreditoRemotoResponse(ApiSchema):
-    mensagem: str
-    saldo_atual: Decimal = Field(alias="saldoAtual")
