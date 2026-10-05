@@ -56,7 +56,8 @@ O saldo de outra caixinha não complementa automaticamente a retirada.
    Para saque, aplicar rendimentos vencidos, validar o saldo da caixinha e
    consumir seus lotes por FIFO, creditando a conta atomicamente com a retirada.
 5. No gerenciamento, permitir editar o nome e escolher uma cor de uma paleta
-   controlada (`caramelo`, `verde`, `azul`, `roxo` e `coral`), sem alterar
+   controlada (`caramelo`, `verde`, `azul`, `roxo` e `coral`), sendo `verde` o
+   padrão de criação, sem alterar
    saldos, lotes ou prazos.
 6. Ao excluir, aplicar rendimento vencido, resgatar todo o saldo para a conta e
    remover a Caixinha na mesma transação local.

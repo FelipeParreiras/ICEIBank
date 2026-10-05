@@ -33,8 +33,9 @@ Todas as rotas exigem JWT e a conta deve pertencer à agência atual.
 
 Guardar e resgatar recebem `{ "valor": 10.00 }` e retornam a Caixinha atual e
 `saldoConta`. A Caixinha inclui `rendimentoTotal` e o histórico `movimentos`,
-com depósitos, retiradas e rendimentos. A Caixinha inclui a cor persistida `cor`,
-aceitando `caramelo`, `verde`, `azul`, `roxo` ou `coral` na atualização. O
+com depósitos, retiradas e rendimentos. A Caixinha inclui a cor persistida `cor`;
+novas Caixinhas usam `verde` por padrão e a atualização aceita `caramelo`,
+`verde`, `azul`, `roxo` ou `coral`. O
 `DELETE` retorna `saldoConta` e `valorResgatado`. Nomes têm de 1 a 80 caracteres após espaços externos e são
 únicos por conta sem diferenciar maiúsculas. Os erros de domínio incluem
 `CAIXINHA_NAO_ENCONTRADA`, `CAIXINHA_INVALIDA` e `SALDO_INSUFICIENTE`.
