@@ -59,7 +59,9 @@ export function CaixinhaPanel({ conta, request, loading, onMessage, onContaAtual
   const executar = async (acao, mensagem, proximaSelecao) => {
     try {
       const resultado = await acao();
-      if (resultado?.saldoConta && conta) onContaAtualizada({ ...conta, saldo: resultado.saldoConta });
+      if (resultado?.saldoConta !== undefined && conta) {
+        onContaAtualizada({ ...conta, saldo: resultado.saldoConta });
+      }
       onMessage(null, mensagem);
       await carregar(typeof proximaSelecao === "function" ? proximaSelecao(resultado) : proximaSelecao);
       return resultado;

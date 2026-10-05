@@ -24,10 +24,19 @@ def test_caixinha_crud_guarda_e_resgata(client: TestClient, auth_headers: dict[s
     assert guardada.json()["saldoConta"] == "60.00"
     assert guardada.json()["caixinha"]["saldo"] == "40.00"
     assert guardada.json()["caixinha"]["movimentos"][0]["tipo"] == "DEPOSITO"
+    assert client.get("/contas/0", headers=auth_headers).json()["saldo"] == "60.00"
+    resgatada = client.post(
+        f"/contas/0/caixinhas/{caixinha_id}/resgatar", headers=auth_headers, json={"valor": 15}
+    )
+    assert resgatada.status_code == 200
+    assert resgatada.json()["saldoConta"] == "75.00"
+    assert resgatada.json()["caixinha"]["saldo"] == "25.00"
+    assert client.get("/contas/0", headers=auth_headers).json()["saldo"] == "75.00"
     excluida = client.delete(f"/contas/0/caixinhas/{caixinha_id}", headers=auth_headers)
     assert excluida.status_code == 200
     assert excluida.json()["saldoConta"] == "100.00"
-    assert excluida.json()["valorResgatado"] == "40.00"
+    assert excluida.json()["valorResgatado"] == "25.00"
+    assert client.get("/contas/0", headers=auth_headers).json()["saldo"] == "100.00"
     assert client.get("/contas/0/caixinhas", headers=auth_headers).json() == []
 
     nova = client.post("/contas/0/caixinhas", headers=auth_headers, json={"nome": "Viagem 2"})

@@ -39,11 +39,9 @@ export function DashboardPage() {
     [agenciaId, listaContas.contas],
   );
 
-  const conta = contasDaAgencia.find((item) => item.id === contaAtualizada?.id)
-    || contasDaAgencia[0]
-    || (contaAtualizada && Number(contaAtualizada.agenciaId) === Number(agenciaId)
-      ? contaAtualizada
-      : null);
+  const conta = contaAtualizada && Number(contaAtualizada.agenciaId) === Number(agenciaId)
+    ? contaAtualizada
+    : contasDaAgencia[0] || null;
 
   const request = useCallback((path, options = {}) => apiRequest(path, {
     agenciaId,
@@ -217,7 +215,7 @@ export function DashboardPage() {
 
             {abaAtiva === "caixinhas" && <section className="workspace-content caixinha-panel" role="tabpanel">
               <div className="section-heading"><div><p className="eyebrow">Reserva financeira</p><h2>Caixinhas com rendimento</h2><p className="muted">Rendimento composto de 10% a cada 48 horas por depósito.</p></div></div>
-              <CaixinhaPanel key={conta?.id ?? "sem-conta"} conta={conta} request={request} loading={loading} onMessage={mensagemCaixinha} onContaAtualizada={(atualizada) => setContaAtualizada({ ...atualizada, agenciaId: Number(agenciaId) })} />
+              <CaixinhaPanel key={conta?.id ?? "sem-conta"} conta={conta} request={request} loading={loading} onMessage={mensagemCaixinha} onContaAtualizada={(atualizada) => { setContaAtualizada({ ...atualizada, agenciaId: Number(agenciaId) }); listaContas.atualizar(); }} />
             </section>}
 
             {abaAtiva === "financeiro" && <section className="workspace-content finance-panel" role="tabpanel">
