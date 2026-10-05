@@ -1,19 +1,39 @@
 import { useCallback, useEffect, useState } from "react";
 
+const ROTULOS_MOVIMENTO = {
+  DEPOSITO: "Depósito",
+  RETIRADA: "Retirada",
+  RENDIMENTO: "Rendimento",
+  EXCLUSAO_RESGATE: "Resgate ao excluir",
+};
+
+const formatarDinheiro = (valor) => Number(valor).toLocaleString("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+});
+
+const formatarData = (valor) => new Intl.DateTimeFormat("pt-BR", {
+  dateStyle: "short",
+  timeStyle: "short",
+}).format(new Date(valor));
+
 export function CaixinhaPanel({ conta, request, loading, onMessage, onContaAtualizada }) {
   const [caixinhas, setCaixinhas] = useState([]);
-  const [selecionada, setSelecionada] = useState("");
+  const [selecionadaId, setSelecionadaId] = useState("");
+  const [modal, setModal] = useState(null);
   const [nome, setNome] = useState("");
   const [valor, setValor] = useState("");
   const [carregando, setCarregando] = useState(false);
 
-  const carregar = useCallback(async () => {
+  const carregar = useCallback(async (preferida) => {
     if (!conta) return;
     setCarregando(true);
     try {
       const resultado = await request(`/contas/${conta.id}/caixinhas`);
       setCaixinhas(resultado);
-      setSelecionada((atual) => resultado.some((item) => item.id === atual) ? atual : resultado[0]?.id || "");
+      setSelecionadaId((atual) => preferida ?? (
+        resultado.some((item) => item.id === atual) ? atual : resultado[0]?.id || ""
+      ));
     } catch (error) {
       onMessage(error);
     } finally {
@@ -27,42 +47,68 @@ export function CaixinhaPanel({ conta, request, loading, onMessage, onContaAtual
     return () => window.clearTimeout(timer);
   }, [conta, carregar]);
 
-  const executar = async (acao, mensagem) => {
+  const executar = async (acao, mensagem, proximaSelecao) => {
     try {
       const resultado = await acao();
       if (resultado?.saldoConta && conta) onContaAtualizada({ ...conta, saldo: resultado.saldoConta });
       onMessage(null, mensagem);
-      await carregar();
+      await carregar(typeof proximaSelecao === "function" ? proximaSelecao(resultado) : proximaSelecao);
+      return resultado;
     } catch (error) {
       onMessage(error);
+      return null;
     }
   };
 
-  if (!conta) return <p className="muted">Consulte uma conta para gerenciar as Caixinhas.</p>;
+  if (!conta) return <p className="muted">Selecione uma agência com conta para gerenciar as Caixinhas.</p>;
 
+  const selecionada = caixinhas.find((item) => item.id === selecionadaId);
   const desabilitado = loading || carregando;
+
+  const abrirCriacao = () => {
+    setNome("");
+    setModal("criar");
+  };
+
+  const abrirEdicao = () => {
+    if (!selecionada) return;
+    setNome(selecionada.nome);
+    setModal("editar");
+  };
+
   return (
     <div className="caixinha-layout">
-      <form className="inline-form" onSubmit={(event) => { event.preventDefault(); executar(() => request(`/contas/${conta.id}/caixinhas`, { method: "POST", body: { nome } }), "Caixinha criada."); setNome(""); }}>
-        <label className="field"><span>Nova Caixinha</span><input required maxLength="80" value={nome} onChange={(event) => setNome(event.target.value)} placeholder="Ex.: Viagem" /></label>
-        <button className="button primary" disabled={desabilitado}>Criar</button>
-      </form>
-      <div className="caixinha-list" aria-live="polite">
-        {caixinhas.length === 0 && <p className="muted">Nenhuma Caixinha criada nesta conta.</p>}
-        {caixinhas.map((item) => <button type="button" key={item.id} className={`caixinha-item ${selecionada === item.id ? "selected" : ""}`} onClick={() => setSelecionada(item.id)}><span>{item.nome}</span><b>R$ {item.saldo}</b></button>)}
+      <div className="caixinha-toolbar">
+        <p className="muted">Escolha uma Caixinha para acompanhar a reserva e movimentá-la.</p>
+        <button type="button" className="button primary" onClick={abrirCriacao} disabled={desabilitado}>+ Criar Caixinha</button>
       </div>
-      {selecionada && <div className="caixinha-actions">
-        <form className="inline-form" onSubmit={(event) => { event.preventDefault(); executar(() => request(`/contas/${conta.id}/caixinhas/${selecionada}`, { method: "PATCH", body: { nome } }), "Nome da Caixinha atualizado."); }}>
-          <label className="field"><span>Renomear selecionada</span><input required maxLength="80" value={nome} onChange={(event) => setNome(event.target.value)} placeholder="Novo nome" /></label>
-          <button className="button secondary" disabled={desabilitado}>Renomear</button>
-          <button type="button" className="button ghost" disabled={desabilitado} onClick={() => executar(() => request(`/contas/${conta.id}/caixinhas/${selecionada}`, { method: "DELETE" }), "Caixinha excluída.")}>Excluir</button>
+
+      <div className="caixinha-grid" aria-live="polite">
+        {caixinhas.length === 0 && <p className="muted caixinha-empty">Nenhuma Caixinha criada nesta conta.</p>}
+        {caixinhas.map((item) => <button type="button" key={item.id} className={`caixinha-box ${selecionadaId === item.id ? "selected" : ""}`} onClick={() => setSelecionadaId(item.id)} aria-pressed={selecionadaId === item.id}>
+          <span className="caixinha-lid" />
+          <span className="caixinha-sticker">{item.nome}</span>
+          <span className="caixinha-balance">{formatarDinheiro(item.saldo)}</span>
+          <span className="caixinha-caption">Toque para visualizar</span>
+        </button>)}
+      </div>
+
+      {selecionada && <section className="caixinha-details" aria-live="polite">
+        <div className="caixinha-detail-heading"><div><p className="eyebrow">Caixinha selecionada</p><h3>{selecionada.nome}</h3></div><button type="button" className="button ghost" onClick={() => setModal("gerenciar")} disabled={desabilitado}>Gerenciar</button></div>
+        <div className="caixinha-metrics"><article><span>Valor armazenado</span><strong>{formatarDinheiro(selecionada.saldo)}</strong></article><article><span>Rendimento acumulado</span><strong>{formatarDinheiro(selecionada.rendimentoTotal)}</strong></article></div>
+        <div className="caixinha-history"><h4>Histórico de movimentações</h4>{selecionada.movimentos.length === 0 ? <p className="muted">Ainda não há depósitos, retiradas ou rendimentos.</p> : <ul>{selecionada.movimentos.map((movimento, indice) => <li key={`${movimento.em}-${indice}`}><span className={`movement-dot ${movimento.tipo.toLowerCase()}`} /><div><b>{ROTULOS_MOVIMENTO[movimento.tipo] || movimento.tipo}</b><small>{formatarData(movimento.em)}</small></div><strong className={movimento.tipo === "RETIRADA" ? "negative" : ""}>{movimento.tipo === "RETIRADA" ? "−" : "+"}{formatarDinheiro(movimento.valor)}</strong></li>)}</ul>}</div>
+        <form className="caixinha-movement-form" onSubmit={(event) => { event.preventDefault(); executar(() => request(`/contas/${conta.id}/caixinhas/${selecionada.id}/guardar`, { method: "POST", body: { valor } }), "Depósito realizado.", selecionada.id).then((resultado) => { if (resultado) setValor(""); }); }}>
+          <label className="field"><span>Valor da movimentação</span><input required type="number" min="0.01" step="0.01" value={valor} onChange={(event) => setValor(event.target.value)} placeholder="R$ 0,00" /></label>
+          <button className="button primary" disabled={desabilitado}>Depositar</button>
+          <button type="button" className="button secondary" disabled={desabilitado || !valor} onClick={() => executar(() => request(`/contas/${conta.id}/caixinhas/${selecionada.id}/resgatar`, { method: "POST", body: { valor } }), "Resgate realizado.", selecionada.id).then((resultado) => { if (resultado) setValor(""); })}>Sacar</button>
         </form>
-        <form className="inline-form" onSubmit={(event) => { event.preventDefault(); executar(() => request(`/contas/${conta.id}/caixinhas/${selecionada}/guardar`, { method: "POST", body: { valor } }), "Valor guardado na Caixinha."); setValor(""); }}>
-          <label className="field"><span>Valor</span><input required type="number" min="0.01" step="0.01" value={valor} onChange={(event) => setValor(event.target.value)} /></label>
-          <button className="button primary" disabled={desabilitado}>Guardar</button>
-          <button type="button" className="button secondary" disabled={desabilitado || !valor} onClick={() => executar(() => request(`/contas/${conta.id}/caixinhas/${selecionada}/resgatar`, { method: "POST", body: { valor } }), "Resgate concluído.")}>Resgatar</button>
-        </form>
-      </div>}
+      </section>}
+
+      {modal && <div className="modal-backdrop" role="presentation"><section className="caixinha-modal" role="dialog" aria-modal="true" aria-labelledby="modal-caixinha-titulo"><div className="modal-header"><h3 id="modal-caixinha-titulo">{modal === "criar" ? "Criar Caixinha" : modal === "editar" ? "Editar Caixinha" : "Gerenciar Caixinha"}</h3><button type="button" className="button ghost" onClick={() => setModal(null)} aria-label="Fechar">×</button></div>
+        {modal === "criar" && <form onSubmit={(event) => { event.preventDefault(); executar(() => request(`/contas/${conta.id}/caixinhas`, { method: "POST", body: { nome } }), "Caixinha criada.", (resultado) => resultado.id).then((resultado) => { if (resultado) setModal(null); }); }}><label className="field"><span>Nome da Caixinha</span><input autoFocus required maxLength="80" value={nome} onChange={(event) => setNome(event.target.value)} placeholder="Ex.: Viagem" /></label><button className="button primary full" disabled={desabilitado}>Criar</button></form>}
+        {modal === "editar" && selecionada && <form onSubmit={(event) => { event.preventDefault(); executar(() => request(`/contas/${conta.id}/caixinhas/${selecionada.id}`, { method: "PATCH", body: { nome } }), "Nome atualizado.", selecionada.id).then((resultado) => { if (resultado) setModal(null); }); }}><label className="field"><span>Novo nome</span><input autoFocus required maxLength="80" value={nome} onChange={(event) => setNome(event.target.value)} /></label><button className="button primary full" disabled={desabilitado}>Salvar alteração</button></form>}
+        {modal === "gerenciar" && selecionada && <div className="manager-actions"><p className="muted">Edite o nome ou exclua a Caixinha. Ao excluir, {formatarDinheiro(selecionada.saldo)} será resgatado automaticamente para a conta.</p><button type="button" className="button secondary full" onClick={abrirEdicao} disabled={desabilitado}>Editar nome</button><button type="button" className="button danger full" onClick={() => executar(() => request(`/contas/${conta.id}/caixinhas/${selecionada.id}`, { method: "DELETE" }), "Caixinha excluída e saldo devolvido à conta.", "").then((resultado) => { if (resultado) setModal(null); })} disabled={desabilitado}>Excluir e resgatar {formatarDinheiro(selecionada.saldo)}</button></div>}
+      </section></div>}
     </div>
   );
 }

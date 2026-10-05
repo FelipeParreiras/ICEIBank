@@ -22,21 +22,23 @@ def test_caixinha_crud_guarda_e_resgata(client: TestClient, auth_headers: dict[s
     assert guardada.status_code == 200
     assert guardada.json()["saldoConta"] == "60.00"
     assert guardada.json()["caixinha"]["saldo"] == "40.00"
-    bloqueada = client.delete(f"/contas/0/caixinhas/{caixinha_id}", headers=auth_headers)
-    assert bloqueada.status_code == 409
-    assert bloqueada.json()["codigo"] == "CAIXINHA_COM_SALDO"
-    resgatada = client.post(
-        f"/contas/0/caixinhas/{caixinha_id}/resgatar", headers=auth_headers, json={"valor": 40}
-    )
-    assert resgatada.json()["saldoConta"] == "100.00"
+    assert guardada.json()["caixinha"]["movimentos"][0]["tipo"] == "DEPOSITO"
+    excluida = client.delete(f"/contas/0/caixinhas/{caixinha_id}", headers=auth_headers)
+    assert excluida.status_code == 200
+    assert excluida.json()["saldoConta"] == "100.00"
+    assert excluida.json()["valorResgatado"] == "40.00"
+    assert client.get("/contas/0/caixinhas", headers=auth_headers).json() == []
+
+    nova = client.post("/contas/0/caixinhas", headers=auth_headers, json={"nome": "Viagem 2"})
+    novo_id = nova.json()["id"]
     assert (
         client.patch(
-            f"/contas/0/caixinhas/{caixinha_id}", headers=auth_headers, json={"nome": "Férias"}
+            f"/contas/0/caixinhas/{novo_id}", headers=auth_headers, json={"nome": "Férias"}
         ).json()["nome"]
         == "Férias"
     )
     assert (
-        client.delete(f"/contas/0/caixinhas/{caixinha_id}", headers=auth_headers).status_code == 204
+        client.delete(f"/contas/0/caixinhas/{novo_id}", headers=auth_headers).status_code == 200
     )
 
 
@@ -54,6 +56,8 @@ def test_caixinha_aplica_juros_compostos_e_fifo(
     agora += timedelta(hours=48)
     primeiro = client.get(f"/contas/0/caixinhas/{caixinha_id}", headers=auth_headers).json()
     assert primeiro["saldo"] == "110.00"
+    assert primeiro["rendimentoTotal"] == "10.00"
+    assert primeiro["movimentos"][0]["tipo"] == "RENDIMENTO"
     client.post(
         f"/contas/0/caixinhas/{caixinha_id}/guardar", headers=auth_headers, json={"valor": 220}
     )

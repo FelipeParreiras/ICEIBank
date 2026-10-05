@@ -9,6 +9,8 @@ from iceibank.schemas.caixinha import (
     AtualizarCaixinhaRequest,
     CaixinhaResponse,
     CriarCaixinhaRequest,
+    ExcluirCaixinhaResponse,
+    HistoricoCaixinhaResponse,
     LoteCaixinhaResponse,
     MovimentoCaixinhaRequest,
     MovimentoCaixinhaResponse,
@@ -26,11 +28,16 @@ def _response(caixinha: Caixinha) -> CaixinhaResponse:
         contaId=caixinha.conta_id,
         nome=caixinha.nome,
         saldo=caixinha.saldo,
+        rendimentoTotal=caixinha.rendimento_total,
         lotes=[
             LoteCaixinhaResponse(
                 id=lote.id, saldo=lote.saldo, proximoRendimentoEm=lote.proximo_rendimento_em
             )
             for lote in caixinha.lotes
+        ],
+        movimentos=[
+            HistoricoCaixinhaResponse(tipo=item.tipo, valor=item.valor, em=item.em)
+            for item in reversed(caixinha.movimentos)
         ],
     )
 
@@ -71,13 +78,18 @@ def renomear(
     return _response(service.renomear(conta_id, caixinha_id, dados.nome))
 
 
-@router.delete("/{caixinha_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{caixinha_id}", response_model=ExcluirCaixinhaResponse)
 def excluir(
     conta_id: Annotated[int, Path(ge=0)],
     caixinha_id: UUID,
     service: Annotated[CaixinhaService, Depends(get_caixinha_service)],
-) -> None:
-    service.excluir(conta_id, caixinha_id)
+) -> ExcluirCaixinhaResponse:
+    saldo_conta, valor_resgatado = service.excluir(conta_id, caixinha_id)
+    return ExcluirCaixinhaResponse(
+        mensagem="Caixinha excluída e saldo resgatado para a conta.",
+        saldoConta=saldo_conta,
+        valorResgatado=valor_resgatado,
+    )
 
 
 @router.post("/{caixinha_id}/guardar", response_model=MovimentoCaixinhaResponse)

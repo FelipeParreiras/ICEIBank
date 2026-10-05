@@ -7,13 +7,12 @@ from uuid import UUID
 
 from iceibank.core.config import Settings
 from iceibank.core.exceptions import (
-    CaixinhaComSaldo,
     CaixinhaInvalida,
     CaixinhaNaoEncontrada,
     ContaNaoEncontrada,
     SaldoInsuficiente,
 )
-from iceibank.models.caixinha import Caixinha, LoteCaixinha
+from iceibank.models.caixinha import Caixinha, LoteCaixinha, MovimentoCaixinha
 from iceibank.models.evento import Evento
 from iceibank.repositories.caixinha_repository import CaixinhaRepository
 from iceibank.repositories.conta_repository import ContaRepository
@@ -86,14 +85,29 @@ class CaixinhaService:
             )
             return caixinha
 
-    def excluir(self, conta_id: int, caixinha_id: UUID) -> None:
+    def excluir(self, conta_id: int, caixinha_id: UUID) -> tuple[Decimal, Decimal]:
         self._validar_conta(conta_id)
-        with self.repository.transacao():
+        with self.repository.transacao(), self.conta_repository.transacao():
             caixinha = self._atualizar_rendimento(self._buscar_da_conta(conta_id, caixinha_id))
-            if caixinha.saldo > 0:
-                raise CaixinhaComSaldo()
+            valor_resgatado = caixinha.saldo
+            conta = self._conta_existente(conta_id)
+            conta.saldo += valor_resgatado
+            conta = self.conta_repository.atualizar(conta)
+            if valor_resgatado:
+                caixinha.movimentos.append(
+                    MovimentoCaixinha("EXCLUSAO_RESGATE", valor_resgatado, self.agora())
+                )
             self.repository.remover(caixinha_id)
-            self._evento("EXCLUIR_CAIXINHA", {"contaId": conta_id, "caixinhaId": caixinha_id})
+            self._evento(
+                "EXCLUIR_CAIXINHA",
+                {
+                    "contaId": conta_id,
+                    "caixinhaId": caixinha_id,
+                    "valorResgatado": valor_resgatado,
+                    "saldoConta": conta.saldo,
+                },
+            )
+            return conta.saldo, valor_resgatado
 
     def guardar(self, conta_id: int, caixinha_id: UUID, valor: Decimal) -> tuple[Caixinha, Decimal]:
         self._validar_conta(conta_id)
@@ -106,6 +120,7 @@ class CaixinhaService:
             caixinha.lotes.append(
                 LoteCaixinha(saldo=valor, proximo_rendimento_em=self.agora() + PERIODO_RENDIMENTO)
             )
+            caixinha.movimentos.append(MovimentoCaixinha("DEPOSITO", valor, self.agora()))
             caixinha = self.repository.atualizar(caixinha)
             conta = self.conta_repository.atualizar(conta)
             self._evento(
@@ -138,6 +153,7 @@ class CaixinhaService:
             caixinha.lotes = lotes_restantes
             conta = self._conta_existente(conta_id)
             conta.saldo += valor
+            caixinha.movimentos.append(MovimentoCaixinha("RETIRADA", valor, self.agora()))
             caixinha = self.repository.atualizar(caixinha)
             conta = self.conta_repository.atualizar(conta)
             self._evento(
@@ -163,6 +179,7 @@ class CaixinhaService:
                 rendimento += lote.saldo - anterior
                 lote.proximo_rendimento_em += PERIODO_RENDIMENTO
         if rendimento:
+            caixinha.movimentos.append(MovimentoCaixinha("RENDIMENTO", rendimento, agora))
             caixinha = self.repository.atualizar(caixinha)
             self._evento(
                 "RENDIMENTO_CAIXINHA",

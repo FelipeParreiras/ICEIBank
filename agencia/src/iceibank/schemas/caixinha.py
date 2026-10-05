@@ -39,14 +39,28 @@ class LoteCaixinhaResponse(ApiSchema):
     proximo_rendimento_em: datetime = Field(alias="proximoRendimentoEm")
 
 
+class HistoricoCaixinhaResponse(ApiSchema):
+    tipo: str
+    valor: Decimal
+    em: datetime
+
+
 class CaixinhaResponse(ApiSchema):
     id: UUID
     conta_id: int = Field(alias="contaId")
     nome: str
     saldo: Decimal
+    rendimento_total: Decimal = Field(alias="rendimentoTotal")
     lotes: list[LoteCaixinhaResponse]
+    movimentos: list[HistoricoCaixinhaResponse]
 
 
 class MovimentoCaixinhaResponse(ApiSchema):
     caixinha: CaixinhaResponse
     saldo_conta: Decimal = Field(alias="saldoConta")
+
+
+class ExcluirCaixinhaResponse(ApiSchema):
+    mensagem: str
+    saldo_conta: Decimal = Field(alias="saldoConta")
+    valor_resgatado: Decimal = Field(alias="valorResgatado")
