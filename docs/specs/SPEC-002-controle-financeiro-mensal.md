@@ -28,12 +28,12 @@ Exemplo: para uma renda prevista de R$ 500,00 e meta de economia de R$ 100,00, o
 - eventos vetoriais para planejamento e gasto;
 - API protegida por JWT;
 - interface React;
-- armazenamento em memória na agência da conta;
+- armazenamento SQLite local na agência da conta;
 - evidência e commit próprios.
 
 ### Fora do escopo
 
-- banco de dados ou histórico após reinício;
+- sincronização ou histórico compartilhado entre agências;
 - sincronização de planejamento entre contas/agências;
 - várias metas simultâneas no mesmo mês;
 - edição, exclusão ou estorno de gasto;
@@ -48,7 +48,7 @@ Exemplo: para uma renda prevista de R$ 500,00 e meta de economia de R$ 100,00, o
 
 ## Contexto atual
 
-- A Sprint 1 armazena contas em memória por agência.
+- A Sprint 1 persiste contas por agência em SQLite local.
 - Cada conta pertence a `id_conta % 3`.
 - Operações que alteram estado são registradas com relógio vetorial.
 - O frontend React acessa qualquer agência usando JWT.
@@ -303,7 +303,7 @@ Consultas de resumo não geram evento porque não alteram estado.
 
 ## Restrições e premissas
 
-- dados em memória e perdidos no reinício;
+- dados persistidos no SQLite local da agência; não há replicação entre agências;
 - uma moeda implícita: BRL;
 - uma meta por conta/mês;
 - datas e competência validadas;

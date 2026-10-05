@@ -110,7 +110,9 @@ Categoria que a pessoa autoriza o sistema a considerar em recomendações de red
 
 ## Worker
 
-Processo que atende requisições. Mais de um worker para a mesma agência criaria estados em memória independentes e, por isso, não será usado na Sprint 1.
+Processo que atende requisições. Mais de um worker para a mesma agência criaria
+relógios independentes e concorrência fora do modelo operacional do SQLite
+local; por isso, não será usado na Sprint 1.
 
 ## Lock
 

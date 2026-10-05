@@ -63,9 +63,9 @@ Devem:
 
 Devem:
 
-- encapsular armazenamento em memória;
-- impedir que o dicionário interno escape;
-- oferecer operações sincronizadas;
+- encapsular o armazenamento SQLite local;
+- mapear modelos de domínio sem expor detalhes SQL;
+- participar da transação compartilhada da agência;
 - não conhecer FastAPI, JWT ou HTTP.
 
 ### Models e schemas

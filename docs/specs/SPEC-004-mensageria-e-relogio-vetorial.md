@@ -32,9 +32,9 @@ informa que a mensagem foi publicada, não que o crédito terminou.
 
 O consumidor combina cada posição do vetor recebido com o vetor local usando
 o máximo e incrementa sua própria posição antes de aplicar o crédito. Se a
-conta não existir após um reinício, registra `CREDITO_REMOTO_FALHOU` e confirma
-a mensagem para evitar reentrega infinita. A mensagem chegou; a ausência da
-conta é consequência do armazenamento ainda ser em memória.
+conta não existir, registra `CREDITO_REMOTO_FALHOU` e confirma a mensagem para
+evitar reentrega infinita. A ausência pode decorrer de uma conta nunca criada
+ou da remoção consciente do SQLite local da agência.
 
 ## Design técnico
 

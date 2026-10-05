@@ -101,9 +101,9 @@ técnica de efetivação dessa atualização em caso de rejeição ainda será d
 ## Contexto técnico
 
 O projeto usa Python/FastAPI, serviços para regras de negócio, repositórios
-sincronizados em memória e `Decimal` para dinheiro. A implementação da Caixinha
-deve seguir essas convenções. Ainda não foram definidos endpoints, modelos,
-agendamento ou integração com mensageria.
+SQLite locais por agência e `Decimal` para dinheiro. A implementação da Caixinha
+segue essas convenções e mantém endpoints, modelos e integração de mensageria
+separados das regras locais da reserva.
 
 O vínculo conta–caixinha é uma regra de domínio e deve ser validado no serviço,
 não apenas por filtragem no frontend. A autorização usuário–conta é uma questão
@@ -118,12 +118,12 @@ essa limitação existente deve continuar explícita.
   `ROUND_HALF_UP`.
 - Nomes possuem de 1 a 80 caracteres após trim e são únicos por conta sem
   diferenciação entre maiúsculas e minúsculas.
-- O próximo vencimento de cada lote é mantido em memória; rendimentos vencidos
+- O próximo vencimento de cada lote é persistido em SQLite; rendimentos vencidos
   são aplicados sob demanda e cada ciclo avança esse vencimento.
-- Reiniciar a agência apaga Caixinhas e lotes, como as demais estruturas em memória.
+- Reiniciar a agência preserva Caixinhas, lotes, ordem, cor e histórico local.
 - A Caixinha não usa RabbitMQ: é uma regra local e atômica da agência responsável.
-- Cada Caixinha mantém em memória o histórico de depósitos, retiradas e
-  rendimentos, exibido no detalhe do cartão.
+- Cada Caixinha persiste o histórico de depósitos, retiradas e rendimentos,
+  exibido no detalhe do cartão.
 - A cor é persistida como atributo da Caixinha; a paleta fechada evita valores
   arbitrários e mantém contraste previsível entre etiqueta, caixa e saldo.
 - A exclusão com saldo resgata automaticamente o valor integral para a conta,

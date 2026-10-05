@@ -25,7 +25,7 @@ flowchart LR
 
 ## Ativos protegidos
 
-- saldo e integridade das contas em memória;
+- saldo e integridade das contas persistidos no SQLite local;
 - chave de assinatura JWT;
 - hash da senha de demonstração;
 - token interno entre agências;
@@ -41,7 +41,7 @@ flowchart LR
 - resposta genérica para usuário ou senha inválidos;
 - nenhuma senha escrita em logs ou retornada pela API.
 
-Também existe cadastro público que cria credenciais em memória na agência 0 e
+Também existe cadastro público que cria credenciais persistidas na agência 0 e
 inicia a sessão. Não há recuperação de senha nem vínculo entre usuário e conta.
 
 ### JWT
@@ -190,7 +190,8 @@ Apagar somente o commit mais recente não torna um segredo antigo automaticament
 - Sem revogação individual antes da expiração.
 - Sem rate limit de login.
 - Sem autorização por conta.
-- Sem persistência segura de dados financeiros.
+- SQLite local sem criptografia em repouso, backup automático ou controle de
+  acesso do SGBD.
 
 Essas limitações impedem uso real, mas não bloqueiam os objetivos acadêmicos da Sprint 1.
 

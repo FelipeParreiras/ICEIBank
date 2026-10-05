@@ -26,7 +26,8 @@ Implementar um Controle Financeiro Mensal por conta com:
 - recomendações transparentes de redução por categoria;
 - visualização no frontend React;
 - eventos vetoriais para alterações do planejamento e registros de gastos;
-- estado mantido em memória na agência responsável pela conta.
+- estado local na agência responsável pela conta; a persistência SQLite foi
+  adicionada posteriormente pelo ADR-010.
 
 As recomendações serão produzidas por regras matemáticas explicáveis. A funcionalidade não chamará um modelo de IA ou serviço externo.
 

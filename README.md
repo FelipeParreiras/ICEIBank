@@ -61,7 +61,7 @@ flowchart LR
     A2 -->|"RabbitMQ topic"| Q
 ```
 
-O mesmo código FastAPI é executado três vezes com `AGENCIA_ID` diferente. Cada processo possui contas em memória, relógio e arquivo JSONL próprios. A aplicação deve rodar com apenas um worker por agência.
+O mesmo código FastAPI é executado três vezes com `AGENCIA_ID` diferente. Cada processo possui um banco SQLite local, relógio e arquivo JSONL próprios. A aplicação deve rodar com apenas um worker por agência.
 
 ## Portas e partições
 
@@ -119,16 +119,14 @@ Também é possível usar **Não tenho usuário. Cadastrar** na tela de login. I
 senha e confirmação; o cadastro inicia a sessão automaticamente. O usuário pode entrar
 por qualquer agência. Cadastro e login são processados pela agência 0, que deve estar
 ativa; as agências 1 e 2 encaminham essas requisições por HTTP. As senhas são armazenadas
-somente como hashes PBKDF2 com salt aleatório, no repositório em memória da agência 0.
+somente como hashes PBKDF2 com salt aleatório, no banco SQLite local da agência 0.
 O cadastro cria credenciais de acesso; contas bancárias continuam sendo criadas no painel.
 
 ## Limitações intencionais
 
-- contas não persistem após reinício;
-- usuários cadastrados não persistem após reinício da agência 0; o usuário de demonstração permanece;
+- contas, usuários cadastrados, planejamentos, gastos e Caixinhas persistem no arquivo SQLite da agência correspondente;
 - novos cadastros e logins dependem da agência 0; JWTs já emitidos continuam válidos até expirar;
-- planejamentos e gastos do Controle Financeiro também não persistem;
-- Caixinhas, seus lotes, histórico, cores e ordem também não persistem;
+- não há migrações versionadas, criptografia em repouso ou backup automático do SQLite;
 - não há replicação;
 - transferência remota não é atômica;
 - entrega de RabbitMQ não é exatamente uma vez e não há confirmação reversa de crédito;

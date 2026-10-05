@@ -189,7 +189,8 @@ Invariante global observado: 145,00 + 110,00 = 255,00.
 
 Resultado didático: o débito de 10,00 não foi revertido. A inconsistência é intencional.
 
-Ao reiniciar a Agência 2, sua conta em memória terá sido perdida e precisará ser recriada para os testes seguintes.
+Ao reiniciar a Agência 2, confirmar que sua conta permanece no SQLite local. Não a
+recriar, salvo se o arquivo da agência tiver sido conscientemente resetado antes do teste.
 
 ### Cenário D — Linha do tempo
 

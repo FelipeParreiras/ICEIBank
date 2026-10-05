@@ -37,9 +37,9 @@ explica o resgate automático antes de apresentar a ação de exclusão.
 
 - A exclusão passa a alterar o saldo da conta, mesmo quando iniciada na gestão
   da Caixinha.
-- O histórico em memória registra depósitos, retiradas e rendimentos enquanto a
+- O histórico persistido registra depósitos, retiradas e rendimentos enquanto a
   Caixinha existe; após a exclusão, o evento vetorial registra o resgate final.
-- A operação continua limitada ao armazenamento em memória da agência.
+- A operação é limitada ao SQLite local da agência e não cria transação distribuída.
 
 ## Referências
 

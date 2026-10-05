@@ -22,8 +22,8 @@ a medição de dois dias, o arredondamento e a exclusão com saldo.
   aplicação no mesmo período.
 - A exclusão com saldo era bloqueada nesta decisão original. Foi substituída em
   05/10/2026 pelo resgate automático descrito no ADR-009.
-- O relógio é injetável no serviço para testes determinísticos. Como todo estado
-  é em memória, reiniciar apaga Caixinhas e lotes, limitação mantida explícita.
+- O relógio é injetável no serviço para testes determinísticos. A persistência
+  SQLite local passou a preservar Caixinhas e lotes após o ADR-010.
 
 ## Alternativas consideradas
 

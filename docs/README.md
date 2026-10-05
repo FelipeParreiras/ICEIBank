@@ -14,7 +14,8 @@ Este diretório centraliza a documentação técnica, operacional e acadêmica d
 | Proxy Vite preservando 4045–4047 no Chrome | Aceito e implementado |
 | Código da Sprint 1 | Implementado |
 | Código da Sprint 2 | Implementado |
-| Testes automatizados do estado atual | 43 aprovados; lint backend/frontend e build frontend aprovados |
+| Persistência local SQLite por agência | Aceito e implementado |
+| Testes automatizados do estado atual | 45 aprovados; lint backend/frontend e build frontend aprovados |
 | Evidências PNG e vídeo | Pendentes de captura para entrega |
 
 ## Como navegar
@@ -59,6 +60,7 @@ Este diretório centraliza a documentação técnica, operacional e acadêmica d
 - [ADR-007 — Mensageria e relógio vetorial](decisions/ADR-007-mensageria-rabbitmq-e-relogio-vetorial.md) — Aceito e implementado.
 - [ADR-008 — Tempo e exclusão da Caixinha](decisions/ADR-008-caixinha-tempo-arredondamento-e-exclusao.md) — Aceito e implementado.
 - [ADR-009 — Exclusão com resgate automático](decisions/ADR-009-exclusao-caixinha-com-resgate-automatico.md) — Aceito e implementado.
+- [ADR-010 — Persistência SQLite por agência](decisions/ADR-010-persistencia-sqlite-por-agencia.md) — Aceito e implementado.
 - [Índice de ADRs](decisions/README.md)
 - [ADR-001 — Python/FastAPI e React](decisions/ADR-001-stack-python-fastapi-react.md) — Aceito.
 - [ADR-002 — Health-check adicional](decisions/ADR-002-funcionalidade-adicional-health-check.md) — Substituído.

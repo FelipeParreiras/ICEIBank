@@ -110,7 +110,7 @@ A duração deve seguir a orientação dos professores, se houver. O vídeo prec
 - mesmo serviço executado três vezes;
 - partição `id % 3`;
 - MVC adaptado ao FastAPI e React;
-- estado em memória e um worker por agência.
+- SQLite local por agência e um worker por agência.
 
 ### 3. Contas e transferências
 

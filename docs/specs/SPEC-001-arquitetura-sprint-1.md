@@ -18,7 +18,7 @@ Definir a arquitetura executável da Sprint 1 do ICEIBank usando Python com Fast
 - transferência local e entre agências por REST;
 - relógio de Lamport e log JSON Lines por agência;
 - autenticação JWT para as rotas de uso da aplicação;
-- cadastro básico de credenciais em memória, processado pela agência 0;
+- cadastro básico de credenciais persistidas no SQLite da agência 0;
 - autenticação separada para a comunicação interna;
 - frontend React capaz de selecionar qualquer agência;
 - script Python para mesclar logs;
@@ -27,7 +27,7 @@ Definir a arquitetura executável da Sprint 1 do ICEIBank usando Python com Fast
 
 ### Excluído
 
-- persistência de contas em banco de dados;
+- replicação ou banco de dados compartilhado entre agências;
 - replicação de contas entre agências;
 - rollback automático de transferência remota;
 - 2PC, Saga ou outra transação distribuída;
@@ -41,7 +41,7 @@ Os itens excluídos pertencem a sprints futuras ou excedem o necessário para es
 
 O cadastro segue `auth_controller` → `AuthService` → `UsuarioRepository` → `Usuario`.
 `CadastroRequest` valida o contrato HTTP e `security.py` calcula hashes PBKDF2 com salt.
-O repositório em memória usa lock para impedir nomes duplicados em requisições concorrentes.
+O repositório SQLite usa a transação local para impedir nomes duplicados em requisições concorrentes.
 No React, a página de login alterna para cadastro, reutilizando `AuthContext`, `apiRequest`,
 `AgenciaSelector` e `AlertMessage`; o JWT retornado inicia a sessão.
 
@@ -49,8 +49,8 @@ Para preservar uma identidade única sem replicação ou banco compartilhado, a 
 processa cadastro e login. `AuthClient` encaminha essas operações das agências 1 e 2,
 com timeout e erro 503 em caso de indisponibilidade. As operações bancárias continuam
 particionadas e validam JWT localmente. A agência 0 é um ponto único de falha para novos
-logins e cadastros; reiniciá-la apaga os usuários criados. Essa escolha mantém o modelo
-em memória da Sprint 1 e evita senhas divergentes entre processos.
+logins e cadastros; reiniciá-la preserva os usuários criados no SQLite local. Essa escolha
+mantém uma única fonte de verdade para credenciais sem senhas divergentes entre processos.
 
 ## Contexto atual
 
@@ -98,7 +98,7 @@ flowchart LR
 
 Cada agência é um processo independente e possui:
 
-- repositório de contas em memória próprio;
+- arquivo SQLite próprio e repositórios locais;
 - relógio de Lamport próprio;
 - arquivo de eventos próprio;
 - identidade e porta derivadas de `AGENCIA_ID`;
@@ -439,7 +439,7 @@ O frontend envia sempre o mesmo contrato de transferência. A decisão entre flu
 
 ## Funcionalidade adicional escolhida
 
-O Controle Financeiro Mensal permite definir renda prevista, meta de economia e limites de categoria, registrar gastos e obter recomendações determinísticas de redução. Seus dados pertencem à mesma agência da conta e permanecem em memória.
+O Controle Financeiro Mensal permite definir renda prevista, meta de economia e limites de categoria, registrar gastos e obter recomendações determinísticas de redução. Seus dados pertencem à mesma agência da conta e persistem no SQLite local.
 
 A funcionalidade possui especificação própria na [SPEC-002](SPEC-002-controle-financeiro-mensal.md), deve ser implementada somente depois das partes obrigatórias e terá commit/evidência exclusivos.
 
@@ -513,7 +513,7 @@ Os arquivos JSONL não serão versionados. As evidências visuais serão version
 
 ## Restrições e premissas
 
-- todo o estado financeiro da Sprint 1 está em memória e é perdido ao reiniciar;
+- o estado financeiro persiste no SQLite local de cada agência, sem replicação entre elas;
 - os logs são persistidos apenas para observação, não para reconstruir saldos;
 - apenas um worker por agência;
 - execução local em `localhost`;

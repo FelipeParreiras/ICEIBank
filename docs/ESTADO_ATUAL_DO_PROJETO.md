@@ -117,16 +117,19 @@ e [API Sprint 2](API_SPRINT_2.md).
 ## Persistência e limites conhecidos
 
 - contas, usuários cadastrados, planejamentos, gastos, Caixinhas, ordem,
-  lotes e histórico vivem em memória e se perdem quando sua agência reinicia;
-- os arquivos JSONL são logs locais, não uma base transacional;
-- não há SQLite, replicação, autorização por titularidade, idempotência de
-  mensagens ou confirmação reversa do crédito remoto;
+  lotes e histórico persistem no SQLite local da agência, em
+  `agencia/data/iceibank-agencia-{AGENCIA_ID}.sqlite3`;
+- os arquivos JSONL são logs locais de auditoria, não a base transacional;
+- cada agência mantém seu próprio arquivo SQLite: não há replicação,
+  autorização por titularidade, idempotência de mensagens ou confirmação
+  reversa do crédito remoto;
 - transferências assíncronas não fornecem consistência distribuída atômica;
 - o sistema é didático e não deve receber dados financeiros reais.
 
-Adicionar SQLite é uma evolução possível, mas exige uma decisão arquitetural
-própria: modelo de migrações, isolamento de transações, escopo por agência e
-estratégia para não confundir logs de eventos com a fonte de verdade do saldo.
+O SQLite é a fonte de verdade local para o estado operacional; as operações que
+alteram conta e gasto, ou conta e Caixinha, usam a mesma transação local.
+Migrações versionadas, criptografia em repouso e backup automático continuam
+fora do escopo acadêmico atual.
 
 ## Fontes de verdade por assunto
 

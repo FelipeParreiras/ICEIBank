@@ -16,8 +16,8 @@ Traduzir os exemplos Node.js do roteiro para FastAPI sem copiar sua estrutura li
 Cada processo cria exatamente uma instância de:
 
 - `Settings` validada;
-- `ContaRepository` em memória;
-- `ControleFinanceiroRepository` em memória;
+- `SQLiteDatabase` local da agência e os repositórios de conta, usuário,
+  controle financeiro e Caixinha;
 - `RelogioVetorial`;
 - `EventLogger` em JSONL;
 - `MensageriaRabbitMQ`, quando `RABBITMQ_URL` estiver configurada;
@@ -228,7 +228,7 @@ Autenticação possui tratamento separado para produzir 401 e o cabeçalho aprop
 5. registrar evento;
 6. liberar seção crítica e responder.
 
-Se a escrita do JSONL falhar, a exceção é propagada como erro interno e o sistema não finge que o evento foi persistido. Como o estado é apenas em memória e não existe transação com o arquivo, a mutação pode já ter ocorrido; essa é uma limitação operacional documentada da Sprint 1.
+Se a escrita do JSONL falhar, a exceção é propagada como erro interno e o sistema não finge que o evento foi persistido. O JSONL não participa da transação SQLite local; portanto, uma mutação pode já estar confirmada no banco quando a trilha de auditoria falha. Essa limitação operacional permanece explícita.
 
 ### Transferência local
 

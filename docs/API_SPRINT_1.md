@@ -97,8 +97,8 @@ Rota pública disponível nas três agências. Cria credenciais e retorna 201 co
 - 422 `REQUISICAO_INVALIDA`: formato, campos obrigatórios ou limites inválidos.
 - 503 `AUTENTICACAO_INDISPONIVEL`: agência 0 indisponível ao encaminhar a requisição.
 
-A agência 0 mantém usuários em memória com inserção atômica e senha em hash PBKDF2.
-Reiniciá-la apaga os cadastros. As agências 1 e 2 encaminham cadastro e login por HTTP;
+A agência 0 mantém usuários no SQLite local com inserção atômica e senha em hash PBKDF2.
+Reiniciá-la preserva os cadastros. As agências 1 e 2 encaminham cadastro e login por HTTP;
 JWTs são aceitos pelas três instâncias. Nenhuma resposta de validação de autenticação
 inclui os valores recebidos de senha ou confirmação. Cadastro e login não alteram
 saldo nem o relógio vetorial das operações bancárias.
