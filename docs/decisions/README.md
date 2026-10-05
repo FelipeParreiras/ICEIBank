@@ -10,6 +10,7 @@
 | [ADR-006](ADR-006-caixinha-lotes-fifo.md) | Caixinha por lotes e resgate FIFO | Aceito e implementado |
 | [ADR-007](ADR-007-mensageria-rabbitmq-e-relogio-vetorial.md) | RabbitMQ durável e relógio vetorial | Aceito e implementado |
 | [ADR-008](ADR-008-caixinha-tempo-arredondamento-e-exclusao.md) | Tempo, arredondamento e exclusão da Caixinha | Aceito e implementado |
+| [ADR-009](ADR-009-exclusao-caixinha-com-resgate-automatico.md) | Exclusão com resgate automático | Aceito e implementado |
 
 ## Convenção
 

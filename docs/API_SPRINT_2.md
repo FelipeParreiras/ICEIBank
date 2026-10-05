@@ -27,15 +27,16 @@ Todas as rotas exigem JWT e a conta deve pertencer à agência atual.
 | GET | `/contas/{contaId}/caixinhas` | Lista apenas as Caixinhas da conta. |
 | GET | `/contas/{contaId}/caixinhas/{caixinhaId}` | Consulta uma Caixinha vinculada. |
 | PATCH | `/contas/{contaId}/caixinhas/{caixinhaId}` | Renomeia com `{ "nome": "Férias" }`. |
-| DELETE | `/contas/{contaId}/caixinhas/{caixinhaId}` | Exclui apenas quando o saldo é zero. |
+| DELETE | `/contas/{contaId}/caixinhas/{caixinhaId}` | Aplica rendimento, resgata todo o saldo e exclui. |
 | POST | `/contas/{contaId}/caixinhas/{caixinhaId}/guardar` | Debita conta e cria lote. |
 | POST | `/contas/{contaId}/caixinhas/{caixinhaId}/resgatar` | Aplica rendimentos e resgata FIFO. |
 
 Guardar e resgatar recebem `{ "valor": 10.00 }` e retornam a Caixinha atual e
-`saldoConta`. Nomes têm de 1 a 80 caracteres após espaços externos e são únicos
-por conta sem diferenciar maiúsculas. Os erros de domínio incluem
-`CAIXINHA_NAO_ENCONTRADA`, `CAIXINHA_INVALIDA`, `CAIXINHA_COM_SALDO` e
-`SALDO_INSUFICIENTE`.
+`saldoConta`. A Caixinha inclui `rendimentoTotal` e o histórico `movimentos`,
+com depósitos, retiradas e rendimentos. O `DELETE` retorna `saldoConta` e
+`valorResgatado`. Nomes têm de 1 a 80 caracteres após espaços externos e são
+únicos por conta sem diferenciar maiúsculas. Os erros de domínio incluem
+`CAIXINHA_NAO_ENCONTRADA`, `CAIXINHA_INVALIDA` e `SALDO_INSUFICIENTE`.
 
 ## Referências
 

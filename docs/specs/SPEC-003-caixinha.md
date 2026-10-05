@@ -3,7 +3,8 @@
 ## Status
 
 Implementado e coberto por testes automatizados em 04/10/2026. As decisões de
-tempo, arredondamento e exclusão foram consolidadas no ADR-008.
+tempo e arredondamento foram consolidadas no ADR-008; a exclusão com resgate
+automático foi definida no ADR-009.
 
 ## Objetivo e escopo
 
@@ -54,7 +55,8 @@ O saldo de outra caixinha não complementa automaticamente a retirada.
    Para saque, aplicar rendimentos vencidos, validar o saldo da caixinha e
    consumir seus lotes por FIFO, creditando a conta atomicamente com a retirada.
 5. Permitir editar o nome sem alterar saldos, lotes ou prazos.
-6. Bloquear exclusão enquanto houver saldo; o usuário precisa resgatar antes.
+6. Ao excluir, aplicar rendimento vencido, resgatar todo o saldo para a conta e
+   remover a Caixinha na mesma transação local.
 
 Caixinha e lote possuem responsabilidades distintas: a caixinha organiza a
 reserva por nome; cada lote registra um depósito e controla seu próprio prazo.
@@ -110,10 +112,15 @@ essa limitação existente deve continuar explícita.
   são aplicados sob demanda e cada ciclo avança esse vencimento.
 - Reiniciar a agência apaga Caixinhas e lotes, como as demais estruturas em memória.
 - A Caixinha não usa RabbitMQ: é uma regra local e atômica da agência responsável.
+- Cada Caixinha mantém em memória o histórico de depósitos, retiradas e
+  rendimentos, exibido no detalhe do cartão.
+- A exclusão com saldo resgata automaticamente o valor integral para a conta,
+  conforme ADR-009.
 
 ## Validação planejada
 
-- Criar, listar, consultar, renomear e excluir Caixinhas vazias.
+- Criar, listar, consultar, renomear e excluir Caixinhas, confirmando o resgate
+  automático do saldo na exclusão.
 - Depositar na caixinha selecionada sem alterar saldos ou lotes das demais.
 - Criar caixinhas em duas contas e verificar que cada listagem contém somente
   as caixinhas da respectiva conta.
@@ -138,7 +145,8 @@ essa limitação existente deve continuar explícita.
 ## Referências
 
 - [ADR-006 — Lotes e resgate FIFO](../decisions/ADR-006-caixinha-lotes-fifo.md)
-- [ADR-008 — Tempo e exclusão](../decisions/ADR-008-caixinha-tempo-arredondamento-e-exclusao.md)
+- [ADR-008 — Tempo e arredondamento](../decisions/ADR-008-caixinha-tempo-arredondamento-e-exclusao.md)
+- [ADR-009 — Exclusão com resgate automático](../decisions/ADR-009-exclusao-caixinha-com-resgate-automatico.md)
 - [Roadmap da Sprint 2](../../ROADMAP_SPRINT_2.md)
 - [Guia de desenvolvimento](../GUIA_DE_DESENVOLVIMENTO.md)
 - Confirmação do aluno na mentoria: guardar/resgatar movimenta o saldo da conta;

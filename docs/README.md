@@ -55,6 +55,7 @@ Este diretório centraliza a documentação técnica, operacional e acadêmica d
 - [ADR-006 — Caixinha por lotes e resgate FIFO](decisions/ADR-006-caixinha-lotes-fifo.md) — Aceito e implementado.
 - [ADR-007 — Mensageria e relógio vetorial](decisions/ADR-007-mensageria-rabbitmq-e-relogio-vetorial.md) — Aceito e implementado.
 - [ADR-008 — Tempo e exclusão da Caixinha](decisions/ADR-008-caixinha-tempo-arredondamento-e-exclusao.md) — Aceito e implementado.
+- [ADR-009 — Exclusão com resgate automático](decisions/ADR-009-exclusao-caixinha-com-resgate-automatico.md) — Aceito e implementado.
 - [Índice de ADRs](decisions/README.md)
 - [ADR-001 — Python/FastAPI e React](decisions/ADR-001-stack-python-fastapi-react.md) — Aceito.
 - [ADR-002 — Health-check adicional](decisions/ADR-002-funcionalidade-adicional-health-check.md) — Substituído.

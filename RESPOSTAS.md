@@ -277,10 +277,10 @@ de análise distribuído. A ferramenta atual prioriza transparência acadêmica.
 A Caixinha permite criar, listar, consultar, renomear e excluir reservas de uma
 conta. Guardar debita a conta e cria um lote; resgatar aplica rendimentos vencidos
 e consome lotes por FIFO. Cada lote rende 10% composto a cada 48 horas, com
-arredondamento em centavos `ROUND_HALF_UP`. A exclusão é bloqueada enquanto
-existir saldo. A implementação e os testes estão documentados em SPEC-003,
-ADR-006 e ADR-008; a captura real `evidencias/sprint2/caixinha.png` continua
-pendente.
+arredondamento em centavos `ROUND_HALF_UP`. A exclusão resgata o saldo integral
+para a conta antes de remover a reserva. A implementação e os testes estão
+documentados em SPEC-003, ADR-006, ADR-008 e ADR-009; a captura real
+`evidencias/sprint2/caixinha.png` continua pendente.
 
 ## Uso de IA - Sprint 2
 

@@ -48,7 +48,8 @@ e frontend.
 
 O fluxo inclui CRUD de caixinhas com nome por conta. Para guardar dinheiro,
 o usuário seleciona uma caixinha e informa o valor; cada depósito gera um lote
-nessa caixinha. Caixinhas com saldo não podem ser excluídas; o resgate deve ocorrer antes.
+nessa caixinha. Ao excluir, todo o saldo é resgatado automaticamente para a
+conta antes da remoção.
 Cada caixinha é exclusiva da conta criadora, com vínculo imutável e validação
 no backend em todas as operações.
 
