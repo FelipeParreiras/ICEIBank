@@ -6,11 +6,10 @@ import { mensagemAmigavel } from "../api/erros";
 import { AgenciaSelector } from "../components/AgenciaSelector";
 import { CaixinhaPanel } from "../components/CaixinhaPanel";
 import { ContaCard } from "../components/ContaCard";
-import { DepositoForm } from "../components/DepositoForm";
 import { GastoForm } from "../components/GastoForm";
+import { MovimentacaoForm } from "../components/MovimentacaoForm";
 import { PlanejamentoMensalForm } from "../components/PlanejamentoMensalForm";
 import { ResumoFinanceiro } from "../components/ResumoFinanceiro";
-import { SaqueForm } from "../components/SaqueForm";
 import { TransferenciaForm } from "../components/TransferenciaForm";
 import { useAgencia } from "../hooks/useAgencia";
 import { useAuth } from "../hooks/useAuth";
@@ -208,7 +207,7 @@ export function DashboardPage() {
               {listaContas.carregando && <p className="muted" role="status">Carregando contas…</p>}
               {!conta && !listaContas.carregando && <p className="muted">Crie uma conta nesta agência para habilitar as operações.</p>}
               <button type="button" className="button ghost" onClick={listaContas.atualizar} disabled={loading || listaContas.carregando}>Atualizar contas</button>
-              <div className="operation-columns"><div><h3><span className="op-icon income">↓</span> Depósito</h3><DepositoForm key={`d-${agenciaId}-${conta?.id}`} conta={conta} onSubmit={(id, valor) => movimentar("depositar", id, valor)} loading={loading} /></div><div><h3><span className="op-icon outcome">↑</span> Saque</h3><SaqueForm key={`s-${agenciaId}-${conta?.id}`} conta={conta} onSubmit={(id, valor) => movimentar("sacar", id, valor)} loading={loading} /></div></div>
+              <div><h3><span className="op-icon transfer">⇄</span> Movimentar saldo</h3><MovimentacaoForm key={`${agenciaId}-${conta?.id}`} conta={conta} onSubmit={movimentar} loading={loading} /></div>
               <div className="divider" />
               <div><h3><span className="op-icon transfer">⇄</span> Transferência</h3><TransferenciaForm contas={listaContas.contas} contaSelecionada={conta} onSubmit={transferir} loading={loading || listaContas.carregando} /></div>
             </section>}

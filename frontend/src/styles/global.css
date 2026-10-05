@@ -97,10 +97,8 @@ h1, h2 { font-family: "Manrope", sans-serif; letter-spacing: -.035em; }
 .workspace-tabs button:hover { color:var(--green); background:#eef5ef; }
 .workspace-tabs button.active { border-bottom-color:var(--green); color:var(--green-dark); background:#fff; }
 .operations-panel h3,.finance-results h3 { margin-bottom:.8rem; font-size:.95rem; }
-.operation-columns { display:grid; grid-template-columns:1fr 1fr; gap:1.3rem; }
 .operation-form { display:grid; grid-template-columns:1fr 1.2fr auto; align-items:end; gap:.6rem; }
-.operation-columns .operation-form { grid-template-columns:.8fr 1.2fr; }
-.operation-columns .operation-form .button { grid-column:1/-1; }
+.quick-movement-form { grid-template-columns:1.05fr .8fr 1fr auto; }
 .transfer-form { grid-template-columns:1fr 1fr 1.2fr auto; }
 .field-error { margin:.4rem 0 0; color:#a33939; font-size:.78rem; }
 .transfer-form .field-error { grid-column:1/-1; }
