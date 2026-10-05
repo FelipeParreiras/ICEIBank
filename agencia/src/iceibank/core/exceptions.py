@@ -68,6 +68,15 @@ class AgenciaIndisponivel(DomainError):
         )
 
 
+class MensageriaIndisponivel(DomainError):
+    def __init__(self) -> None:
+        super().__init__(
+            "Não foi possível publicar a transferência no RabbitMQ. O débito não foi aplicado.",
+            "MENSAGERIA_INDISPONIVEL",
+            503,
+        )
+
+
 class NaoAutenticado(DomainError):
     def __init__(self, message: str, code: str = "NAO_AUTENTICADO") -> None:
         super().__init__(message, code, 401)

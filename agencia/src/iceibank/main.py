@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from contextlib import asynccontextmanager
 from threading import RLock
 
 from fastapi import FastAPI, Request
@@ -16,27 +17,38 @@ from iceibank.repositories.controle_financeiro_repository import (
     ControleFinanceiroRepository,
 )
 from iceibank.repositories.usuario_repository import UsuarioRepository
-from iceibank.services.agencia_client import AgenciaClient
 from iceibank.services.auth_client import AuthClient
 from iceibank.services.auth_service import AuthService
 from iceibank.services.conta_service import ContaService
 from iceibank.services.controle_financeiro_service import ControleFinanceiroService
+from iceibank.services.mensageria import MensageriaRabbitMQ
 from iceibank.services.recomendacao_economia_service import RecomendacaoEconomiaService
 from iceibank.services.registro_eventos import EventLogger
-from iceibank.services.relogio_lamport import LamportClock
-from iceibank.services.transferencia_service import TransferenciaService
+from iceibank.services.relogio_vetorial import RelogioVetorial
+from iceibank.services.transferencia_service import PublicadorCredito, TransferenciaService
 
 
 def create_app(
     settings: Settings | None = None,
-    agencia_client: AgenciaClient | None = None,
+    publicador: PublicadorCredito | None = None,
     auth_client: AuthClient | None = None,
 ) -> FastAPI:
     settings = settings or Settings()
+
+    @asynccontextmanager
+    async def lifespan(app_lifespan: FastAPI):
+        mensageria = getattr(app_lifespan.state, "mensageria", None)
+        if mensageria is not None:
+            mensageria.iniciar()
+        yield
+        if mensageria is not None:
+            mensageria.encerrar()
+
     app = FastAPI(
         title="ICEIBank",
-        version="1.0.0-sprint1",
+        version="2.0.0-sprint2",
         description=f"API distribuída da {settings.nome_agencia}",
+        lifespan=lifespan,
     )
     app.add_middleware(
         CORSMiddleware,
@@ -49,13 +61,20 @@ def create_app(
     state_lock = RLock()
     conta_repository = ContaRepository(state_lock)
     financeiro_repository = ControleFinanceiroRepository(state_lock)
-    clock = LamportClock()
+    clock = RelogioVetorial(settings.agencia_id, settings.numero_agencias)
     logger = EventLogger(settings.data_dir, settings.agencia_id)
     conta_service = ContaService(conta_repository, clock, logger, settings)
-    client = agencia_client or AgenciaClient(settings)
+    mensageria = None
+    if publicador is None:
+        mensageria = MensageriaRabbitMQ(
+            settings,
+            lambda mensagem: app.state.transferencia_service.processar_credito_remoto(mensagem),
+        )
+        publicador = mensageria
 
     app.state.settings = settings
     app.state.clock = clock
+    app.state.mensageria = mensageria
     app.state.conta_repository = conta_repository
     app.state.financeiro_repository = financeiro_repository
     app.state.auth_service = AuthService(
@@ -63,7 +82,7 @@ def create_app(
     )
     app.state.conta_service = conta_service
     app.state.transferencia_service = TransferenciaService(
-        conta_repository, conta_service, client, clock, logger, settings
+        conta_repository, conta_service, publicador, clock, logger, settings
     )
     app.state.controle_financeiro_service = ControleFinanceiroService(
         financeiro_repository,
