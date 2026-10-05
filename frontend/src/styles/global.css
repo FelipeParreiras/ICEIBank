@@ -71,7 +71,9 @@ h1, h2 { font-family: "Manrope", sans-serif; letter-spacing: -.035em; }
 .dashboard > .alert { margin-bottom:1.2rem; }
 .bank-grid { display:grid; grid-template-columns:.82fr 1.18fr; gap:1.2rem; }
 .panel { border:1px solid rgba(33,67,45,.1); border-radius:18px; background:rgba(255,255,255,.94); box-shadow:0 10px 35px rgba(30,65,42,.055); }
-.account-panel,.operations-panel,.finance-panel { padding:1.5rem; }
+.account-panel { padding:1.5rem; }
+.workspace-panel { overflow:hidden; }
+.workspace-content { padding:1.5rem; }
 .section-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; margin-bottom:1.2rem; }
 .section-heading h2 { margin-bottom:0; font-size:1.35rem; }
 .account-card { min-height:145px; display:flex; flex-direction:column; justify-content:space-between; margin-bottom:1rem; padding:1.4rem; border-radius:16px; color:#fff; background:radial-gradient(circle at 90% 10%, rgba(184,220,131,.25), transparent 25%),linear-gradient(135deg,#0e452c,#1b6541); box-shadow:0 12px 24px rgba(13,63,40,.17); }
@@ -82,10 +84,14 @@ h1, h2 { font-family: "Manrope", sans-serif; letter-spacing: -.035em; }
 .account-empty,.finance-empty { display:grid; min-height:145px; place-items:center; align-content:center; gap:.4rem; margin-bottom:1rem; border:1px dashed #cad7cd; border-radius:16px; color:#7b887f; background:#f8faf8; text-align:center; }
 .account-empty p,.finance-empty p { max-width:280px; margin:0; font-size:.85rem; }
 .empty-icon,.finance-empty span { color:#71a180; font-size:2rem; }
-.account-search { display:grid; grid-template-columns:1fr auto; align-items:end; gap:.7rem; }
 .create-account { margin-top:1rem; border-top:1px solid var(--line); padding-top:1rem; }
-.create-account summary,.finance-inputs summary { cursor:pointer; color:var(--green); font-weight:700; }
+.account-context { margin:.65rem 0 0; color:#657269; font-size:.82rem; line-height:1.45; }
+.finance-inputs summary { cursor:pointer; color:var(--green); font-weight:700; }
 .create-account form { display:grid; grid-template-columns:1fr 1fr auto; align-items:end; gap:.6rem; margin-top:1rem; }
+.workspace-tabs { display:flex; gap:.2rem; padding:.55rem .7rem 0; border-bottom:1px solid var(--line); background:#f8faf8; overflow-x:auto; }
+.workspace-tabs button { min-height:42px; padding:.65rem .85rem; border:0; border-bottom:3px solid transparent; color:#66736a; background:transparent; font-size:.82rem; font-weight:700; white-space:nowrap; }
+.workspace-tabs button:hover { color:var(--green); background:#eef5ef; }
+.workspace-tabs button.active { border-bottom-color:var(--green); color:var(--green-dark); background:#fff; }
 .operations-panel h3,.finance-results h3 { margin-bottom:.8rem; font-size:.95rem; }
 .operation-columns { display:grid; grid-template-columns:1fr 1fr; gap:1.3rem; }
 .operation-form { display:grid; grid-template-columns:1fr 1.2fr auto; align-items:end; gap:.6rem; }
@@ -97,8 +103,8 @@ h1, h2 { font-family: "Manrope", sans-serif; letter-spacing: -.035em; }
 .divider { height:1px; margin:1.35rem 0; background:var(--line); }
 .op-icon { display:inline-grid; width:25px; height:25px; place-items:center; margin-right:.35rem; border-radius:7px; }
 .op-icon.income { color:#26754a; background:#e5f3e9; }.op-icon.outcome { color:#9b5b22; background:#fff0e3; }.op-icon.transfer { color:#345e9c; background:#e8effa; }
-.finance-panel { margin-top:1.2rem; }
-.caixinha-panel { margin-top:1.2rem; padding:1.5rem; }
+.finance-panel { margin:0; }
+.caixinha-panel { margin:0; padding:1.5rem; }
 .caixinha-panel .section-heading { margin-bottom:.8rem; }.caixinha-panel .muted { margin:.35rem 0 0; }
 .caixinha-layout { display:grid; gap:1rem; }.inline-form { display:flex; align-items:end; gap:.65rem; }.inline-form .field { flex:1; }.caixinha-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:.55rem; }.caixinha-list .muted { grid-column:1/-1; }.caixinha-item { display:flex; justify-content:space-between; gap:.5rem; padding:.8rem; border:1px solid #dce6de; border-radius:10px; color:#355443; background:#f8fbf8; text-align:left; }.caixinha-item:hover,.caixinha-item.selected { border-color:#75a88a; background:#eaf4ec; }.caixinha-item b { color:var(--green); }.caixinha-actions { display:grid; gap:.65rem; padding-top:1rem; border-top:1px solid var(--line); }
 .finance-heading { align-items:flex-end; }
@@ -139,4 +145,4 @@ h1, h2 { font-family: "Manrope", sans-serif; letter-spacing: -.035em; }
 .disclaimer { margin:1rem 0 0; color:#849087; font-size:.67rem; line-height:1.5; }
 footer { display:flex; justify-content:space-between; padding:1.2rem clamp(1rem,4vw,4rem); border-top:1px solid var(--line); color:#78827c; background:#fff; font-size:.72rem; }
 @media (max-width:1050px) { .bank-grid,.finance-layout { grid-template-columns:1fr; }.finance-heading { align-items:flex-start; flex-direction:column; }.login-shell { grid-template-columns:1fr; }.login-brand { min-height:45vh; padding:3rem; }.login-brand .eyebrow { margin-top:2rem; }.login-brand h1 { font-size:3rem; }.login-panel { padding:3rem 1rem; } }
-@media (max-width:720px) { .topbar { height:auto; padding:1rem; align-items:flex-start; }.topbar-actions { align-items:flex-end; flex-direction:column; gap:.5rem; }.user-chip { display:none; }.hero-row,.finance-filters,.inline-form { align-items:stretch; flex-direction:column; }.agency-status { min-width:0; }.operation-columns,.form-row,.category-grid,.metric-grid { grid-template-columns:1fr; }.operation-form,.transfer-form,.expense-form,.create-account form { grid-template-columns:1fr; }.finance-filters .field { width:auto; }.dashboard { width:min(100% - 1rem,1480px); }.account-panel,.operations-panel,.finance-panel,.caixinha-panel { padding:1rem; } footer { flex-direction:column; gap:.4rem; } }
+@media (max-width:720px) { .topbar { height:auto; padding:1rem; align-items:flex-start; }.topbar-actions { align-items:flex-end; flex-direction:column; gap:.5rem; }.user-chip { display:none; }.hero-row,.finance-filters,.inline-form { align-items:stretch; flex-direction:column; }.agency-status { min-width:0; }.operation-columns,.form-row,.category-grid,.metric-grid { grid-template-columns:1fr; }.operation-form,.transfer-form,.expense-form,.create-account form { grid-template-columns:1fr; }.finance-filters .field { width:auto; }.dashboard { width:min(100% - 1rem,1480px); }.account-panel,.workspace-content,.caixinha-panel { padding:1rem; } .workspace-tabs { padding-left:.35rem; padding-right:.35rem; } footer { flex-direction:column; gap:.4rem; } }
