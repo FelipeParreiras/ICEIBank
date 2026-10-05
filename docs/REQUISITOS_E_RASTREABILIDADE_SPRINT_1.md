@@ -47,6 +47,7 @@ Transformar o roteiro em requisitos verificáveis e ligar cada requisito à arqu
 | REQ-EXT-003 | Calcular limite, total, projeção e ajuste | controle/recomendação services | total 450, projeção 50, ajuste 50 | `funcionalidade-adicional.png` | Validado |
 | REQ-EXT-004 | Recomendar categorias e valores de redução | recomendação service | Delivery 40 e Lazer 10 | `funcionalidade-adicional.png` | Validado |
 | REQ-EXT-005 | Exibir o controle financeiro no React | componentes financeiros | fluxo completo na interface | `funcionalidade-adicional.png` | Validado |
+| REQ-EXT-006 | Gerenciar categorias e prioridade do planejamento | schemas, serviços e formulário React | categoria personalizada, remoção e ordenação persistida | teste de integração e fluxo da interface | Validado |
 
 ## Requisitos não funcionais
 

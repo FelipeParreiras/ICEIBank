@@ -30,6 +30,10 @@ Implementar um Controle Financeiro Mensal por conta com:
 
 As recomendações serão produzidas por regras matemáticas explicáveis. A funcionalidade não chamará um modelo de IA ou serviço externo.
 
+### Evolução de categorias
+
+O catálogo fixo foi substituído por categorias gerenciadas no próprio planejamento mensal. Essa evolução preserva o caráter determinístico: cada planejamento persiste a lista ordenada `categoriasOrdenadas`; a primeira posição é a mais importante e só é usada para desempatar recomendações com o mesmo impacto financeiro. A mudança permite personalização sem introduzir dependência externa ou alterar gastos já registrados.
+
 ## Alternativas consideradas
 
 ### Health-check por agência

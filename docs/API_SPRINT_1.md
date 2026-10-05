@@ -367,12 +367,13 @@ Requisição:
   "rendaPrevista": 500.00,
   "metaEconomia": 100.00,
   "limitesPorCategoria": {
-    "ALIMENTACAO": 150.00,
-    "TRANSPORTE": 100.00,
-    "DELIVERY": 80.00,
-    "LAZER": 70.00
+    "Alimentação": 150.00,
+    "Transporte": 100.00,
+    "Delivery": 80.00,
+    "Lazer": 70.00
   },
-  "categoriasFlexiveis": ["DELIVERY", "LAZER", "COMPRAS", "ASSINATURAS"]
+  "categoriasFlexiveis": ["Delivery", "Lazer", "Compras", "Assinaturas"],
+  "categoriasOrdenadas": ["Alimentação", "Transporte", "Delivery", "Lazer", "Compras", "Assinaturas"]
 }
 ```
 
@@ -386,12 +387,13 @@ Resposta 200:
   "metaEconomia": 100.00,
   "limiteGastoMensal": 400.00,
   "limitesPorCategoria": {
-    "ALIMENTACAO": 150.00,
-    "TRANSPORTE": 100.00,
-    "DELIVERY": 80.00,
-    "LAZER": 70.00
+    "Alimentação": 150.00,
+    "Transporte": 100.00,
+    "Delivery": 80.00,
+    "Lazer": 70.00
   },
-  "categoriasFlexiveis": ["DELIVERY", "LAZER", "COMPRAS", "ASSINATURAS"]
+  "categoriasFlexiveis": ["Delivery", "Lazer", "Compras", "Assinaturas"],
+  "categoriasOrdenadas": ["Alimentação", "Transporte", "Delivery", "Lazer", "Compras", "Assinaturas"]
 }
 ```
 
@@ -400,7 +402,9 @@ Regras:
 - renda maior que zero;
 - meta entre zero e a renda;
 - competência válida;
-- limites não negativos e categorias reconhecidas;
+- nome de categoria não vazio, normalizado e com no máximo 60 caracteres;
+- `categoriasOrdenadas` define todas as categorias do planejamento; as categorias presentes nos limites ou marcadas como flexíveis são incluídas nela quando omitidas;
+- a primeira categoria de `categoriasOrdenadas` é a mais importante;
 - soma dos limites por categoria não superior ao limite mensal;
 - atualização não apaga gastos existentes;
 - registrar `DEFINIR_PLANEJAMENTO_MENSAL` com evento local.
@@ -449,7 +453,7 @@ Regras:
 
 - planejamento da competência deve existir;
 - valor positivo com até duas casas;
-- categoria pertencente ao catálogo;
+- categoria configurada no planejamento da mesma competência;
 - saldo suficiente;
 - gasto e débito são uma única operação local;
 - registrar `REGISTRAR_GASTO` com novo saldo.
@@ -483,19 +487,20 @@ Resposta 200 resumida:
   "valorAjuste": 50.00,
   "status": "AJUSTE_NECESSARIO",
   "totaisPorCategoria": {
-    "ALIMENTACAO": 150.00,
-    "TRANSPORTE": 80.00,
-    "DELIVERY": 120.00,
-    "LAZER": 100.00
+    "Alimentação": 150.00,
+    "Transporte": 80.00,
+    "Delivery": 120.00,
+    "Lazer": 100.00
   },
+  "categoriasOrdenadas": ["Alimentação", "Transporte", "Delivery", "Lazer", "Compras", "Assinaturas"],
   "recomendacoes": [
     {
-      "categoria": "DELIVERY",
+      "categoria": "Delivery",
       "reducaoSugerida": 40.00,
       "motivo": "ACIMA_DO_LIMITE"
     },
     {
-      "categoria": "LAZER",
+      "categoria": "Lazer",
       "reducaoSugerida": 10.00,
       "motivo": "ACIMA_DO_LIMITE"
     }
@@ -514,7 +519,7 @@ Erros:
 - 404 `PLANEJAMENTO_NAO_ENCONTRADO`.
 - 422 `COMPETENCIA_INVALIDA`.
 
-O algoritmo e o catálogo de categorias estão definidos na [SPEC-002](specs/SPEC-002-controle-financeiro-mensal.md).
+O algoritmo e as regras de categorias estão definidos na [SPEC-002](specs/SPEC-002-controle-financeiro-mensal.md).
 
 ## Códigos de autenticação
 

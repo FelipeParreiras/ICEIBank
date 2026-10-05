@@ -19,6 +19,7 @@ Exemplo: para uma renda prevista de R$ 500,00 e meta de economia de R$ 100,00, o
 - meta de economia mensal;
 - limites opcionais por categoria;
 - categorias marcadas como flexíveis;
+- criação, remoção e ordenação de prioridade de categorias pelo planejamento;
 - registro de gasto com descrição, valor, categoria e data;
 - listagem dos gastos da competência no resumo;
 - cálculo de limite mensal, total gasto, economia projetada e valor faltante;
@@ -89,7 +90,7 @@ A pessoa informa:
 
 - descrição não vazia;
 - valor positivo com até duas casas decimais;
-- categoria;
+- categoria previamente configurada no planejamento;
 - data;
 - competência derivada da data.
 
@@ -130,6 +131,7 @@ A consulta é somente leitura e não incrementa Lamport.
 | `metaEconomia` | decimal | entre zero e a renda |
 | `limitesPorCategoria` | mapa categoria → decimal | valores não negativos |
 | `categoriasFlexiveis` | conjunto de categorias | usadas nas recomendações |
+| `categoriasOrdenadas` | lista ordenada de categorias | primeira posição é a mais importante |
 
 Chave lógica: `(contaId, competencia)`.
 
@@ -141,24 +143,17 @@ Chave lógica: `(contaId, competencia)`.
 | `contaId` | inteiro | conta local existente |
 | `descricao` | texto | obrigatório |
 | `valor` | decimal | maior que zero |
-| `categoria` | texto normalizado | pertencente ao catálogo aceito |
+| `categoria` | texto normalizado | deve existir no planejamento da competência |
 | `data` | data ISO | define a competência |
 | `registradoEm` | instante UTC | auditoria |
 
-### Categorias iniciais
+### Categorias gerenciadas no planejamento
 
-- `MORADIA`
-- `ALIMENTACAO`
-- `TRANSPORTE`
-- `SAUDE`
-- `EDUCACAO`
-- `LAZER`
-- `DELIVERY`
-- `ASSINATURAS`
-- `COMPRAS`
-- `OUTROS`
+O planejamento possui uma lista própria de categorias. A interface começa com sugestões comuns, mas a pessoa pode adicionar ou remover tipos de gasto e reorganizá-los por arrastar e soltar. Os nomes são normalizados, não podem ficar vazios, têm no máximo 60 caracteres e não podem se repetir no mesmo planejamento.
 
-O catálogo é fechado no MVP para evitar nomes duplicados e tornar as recomendações consistentes.
+`categoriasOrdenadas` preserva essa lista no backend. A posição `0` representa a categoria mais importante. A ordem não muda os valores nem substitui limites; ela é usada somente como critério de desempate das recomendações, protegendo a categoria mais importante quando os valores financeiros forem equivalentes.
+
+Ao remover uma categoria, novos gastos nela deixam de ser aceitos. Gastos já registrados permanecem no histórico e nos totais da competência para não perder auditoria.
 
 ## Cálculos
 
@@ -186,9 +181,9 @@ O algoritmo é determinístico e auditável:
 2. se for zero, retornar lista vazia e informar que a meta está atingível;
 3. calcular o excesso de cada categoria que possui limite;
 4. considerar apenas categorias marcadas como flexíveis;
-5. ordenar primeiro pelo maior excesso sobre o limite;
+5. ordenar primeiro pelo maior excesso sobre o limite; em empate, priorizar o corte da categoria menos importante segundo `categoriasOrdenadas`;
 6. recomendar a redução do excesso, sem ultrapassar o `valor_ajuste` restante;
-7. se ainda faltar redução, ordenar categorias flexíveis pelo total gasto e propor redução adicional de até 20% do gasto de cada uma, descontando valores já recomendados;
+7. se ainda faltar redução, ordenar categorias flexíveis pelo total gasto e, em empate, pela menor prioridade; propor redução adicional de até 20% do gasto de cada uma, descontando valores já recomendados;
 8. parar quando a soma recomendada cobrir o ajuste;
 9. se não for possível cobrir tudo, retornar também o valor ainda não coberto.
 
@@ -211,12 +206,13 @@ Planejamento da conta 6 para `2026-09`:
   "rendaPrevista": 500.00,
   "metaEconomia": 100.00,
   "limitesPorCategoria": {
-    "ALIMENTACAO": 150.00,
-    "TRANSPORTE": 100.00,
-    "DELIVERY": 80.00,
-    "LAZER": 70.00
+    "Alimentação": 150.00,
+    "Transporte": 100.00,
+    "Delivery": 80.00,
+    "Lazer": 70.00
   },
-  "categoriasFlexiveis": ["DELIVERY", "LAZER", "COMPRAS", "ASSINATURAS"]
+  "categoriasFlexiveis": ["Delivery", "Lazer", "Compras", "Assinaturas"],
+  "categoriasOrdenadas": ["Alimentação", "Transporte", "Delivery", "Lazer", "Compras", "Assinaturas"]
 }
 ```
 
@@ -264,6 +260,7 @@ O serviço financeiro coordena o `ContaRepository` ao registrar gasto. Os dois r
 ### Frontend
 
 - formulário de planejamento mensal;
+- gestão de categorias com criação, remoção e reordenação por arrastar e soltar;
 - formulário de gasto;
 - resumo da meta;
 - totais por categoria;
@@ -328,6 +325,7 @@ Consultas de resumo não geram evento porque não alteram estado.
 | uso de `float` altera cálculos | `Decimal` em todo o domínio |
 | descrição expõe informação pessoal | evitar logs e evidências com dados reais |
 | reenvio duplica gasto e débito | desabilitar envio durante carregamento e documentar ausência de idempotência |
+| remoção confunde categorias já usadas | manter histórico e totais; bloquear somente novos gastos na categoria removida |
 
 ## Validação
 
@@ -343,6 +341,9 @@ Consultas de resumo não geram evento porque não alteram estado.
 - calcular renda excedida;
 - sugerir primeiro excessos flexíveis;
 - nunca sugerir categorias não flexíveis;
+- aceitar categorias personalizadas e preservar a ordem de prioridade definida;
+- rejeitar novo gasto em categoria ausente do planejamento;
+- no frontend, adicionar, remover e reordenar uma categoria sem perder seus dados de limite e flexibilidade;
 - retornar valor não coberto quando necessário;
 - consulta não incrementa Lamport;
 - frontend mostra meta de R$ 100,00, gastos e recomendações;
