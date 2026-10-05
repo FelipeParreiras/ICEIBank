@@ -53,7 +53,7 @@ h1, h2 { font-family: "Manrope", sans-serif; letter-spacing: -.035em; }
 .Toastify__toast--success { border-color:#b9dec5; background:#eef9f1; }.Toastify__toast--error { border-color:#efc9c4; background:#fff4f2; }.Toastify__toast--warning { border-color:#eed6a6; background:#fff9eb; }.Toastify__toast--info { border-color:#bfd7e8; background:#f1f8fc; }
 .Toastify__progress-bar--success { background:#2e8a56; }.Toastify__progress-bar--error { background:#b84d43; }.Toastify__progress-bar--warning { background:#bd842c; }.Toastify__progress-bar--info { background:#3f7ea3; }
 .app-shell { min-height:100vh; background:linear-gradient(180deg,#edf4ee 0,#f7f8f6 260px); }
-.topbar { height:74px; display:flex; align-items:center; justify-content:space-between; padding:0 clamp(1rem,4vw,4rem); border-bottom:1px solid rgba(35,75,50,.1); background:rgba(255,255,255,.88); backdrop-filter:blur(15px); }
+.topbar { position:sticky; z-index:5; top:0; height:74px; display:flex; align-items:center; justify-content:space-between; padding:0 clamp(1rem,4vw,4rem); border-bottom:1px solid rgba(35,75,50,.1); background:rgba(255,255,255,.94); box-shadow:0 5px 18px rgba(30,65,42,.07); backdrop-filter:blur(15px); }
 .brand,.topbar-actions,.user-chip { display:flex; align-items:center; }
 .brand { gap:.7rem; }
 .brand div,.user-chip div { display:grid; }
