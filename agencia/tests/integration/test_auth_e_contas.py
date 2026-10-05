@@ -13,7 +13,7 @@ def test_rotas_de_conta_exigem_jwt(client: TestClient) -> None:
     assert response.json()["codigo"] == "NAO_AUTENTICADO"
 
 
-def test_listar_contas_da_agencia_sem_alterar_lamport(
+def test_listar_contas_da_agencia_sem_alterar_relogio_vetorial(
     client: TestClient, auth_headers: dict[str, str]
 ) -> None:
     assert client.get("/contas", headers=auth_headers).json() == []
@@ -112,4 +112,4 @@ def test_mutacoes_geram_jsonl(client: TestClient, auth_headers: dict[str, str], 
     )
     eventos = [json.loads(linha) for linha in linhas]
     assert [evento["tipo"] for evento in eventos] == ["CRIAR_CONTA", "DEPOSITO"]
-    assert [evento["timestampLamport"] for evento in eventos] == [1, 2]
+    assert [evento["timestampVetorial"] for evento in eventos] == [[1, 0, 0], [2, 0, 0]]

@@ -25,7 +25,7 @@ from iceibank.services.recomendacao_economia_service import (
     RecomendacaoEconomiaService,
 )
 from iceibank.services.registro_eventos import EventLogger
-from iceibank.services.relogio_lamport import LamportClock
+from iceibank.services.relogio_vetorial import RelogioVetorial
 
 ZERO = Decimal("0.00")
 
@@ -37,7 +37,7 @@ class ControleFinanceiroService:
         conta_repository: ContaRepository,
         conta_service: ContaService,
         recomendacao_service: RecomendacaoEconomiaService,
-        clock: LamportClock,
+        clock: RelogioVetorial,
         logger: EventLogger,
     ) -> None:
         self.repository = repository
@@ -175,7 +175,7 @@ class ControleFinanceiroService:
             Evento(
                 agencia=self.conta_service.settings.nome_agencia,
                 tipo=tipo,
-                timestamp_lamport=self.clock.ao_enviar(),
+                timestamp_vetorial=self.clock.evento_local(),
                 hora_parede=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
                 detalhes=detalhes,
             )

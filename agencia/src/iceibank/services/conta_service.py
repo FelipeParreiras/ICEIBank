@@ -14,14 +14,14 @@ from iceibank.models.conta import Conta
 from iceibank.models.evento import Evento
 from iceibank.repositories.conta_repository import ContaRepository
 from iceibank.services.registro_eventos import EventLogger
-from iceibank.services.relogio_lamport import LamportClock
+from iceibank.services.relogio_vetorial import RelogioVetorial
 
 
 class ContaService:
     def __init__(
         self,
         repository: ContaRepository,
-        clock: LamportClock,
+        clock: RelogioVetorial,
         logger: EventLogger,
         settings: Settings,
     ) -> None:
@@ -83,13 +83,13 @@ class ContaService:
             raise ContaNaoEncontrada()
         return conta
 
-    def _evento(self, tipo: str, detalhes: dict[str, object]) -> int:
-        timestamp = self.clock.ao_enviar()
+    def _evento(self, tipo: str, detalhes: dict[str, object]) -> list[int]:
+        timestamp = self.clock.evento_local()
         self.logger.registrar(
             Evento(
                 agencia=self.settings.nome_agencia,
                 tipo=tipo,
-                timestamp_lamport=timestamp,
+                timestamp_vetorial=timestamp,
                 hora_parede=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
                 detalhes=detalhes,
             )

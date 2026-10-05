@@ -6,7 +6,7 @@ from typing import Any
 class Evento:
     agencia: str
     tipo: str
-    timestamp_lamport: int
+    timestamp_vetorial: list[int]
     hora_parede: str
     detalhes: dict[str, Any]
 
@@ -14,7 +14,7 @@ class Evento:
         return {
             "agencia": self.agencia,
             "tipo": self.tipo,
-            "timestampLamport": self.timestamp_lamport,
+            "timestampVetorial": self.timestamp_vetorial,
             "horaParede": self.hora_parede,
             "detalhes": self.detalhes,
         }
