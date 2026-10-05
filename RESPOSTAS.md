@@ -180,6 +180,21 @@ React não impõe MVC clássico e pode misturar View e Controller dentro de comp
 | `frontend-erro.png` | Pendente | Pendente | Pendente |
 | `funcionalidade-adicional.png` | Pendente | Pendente | Meta, gastos e recomendações |
 
+### 7.1 Rodada complementar de 05/10/2026
+
+O registro verificável desta rodada está em
+[`evidencias/sprint1/registro-execucao-2026-10-05.md`](evidencias/sprint1/registro-execucao-2026-10-05.md).
+Foram reexecutados, na Agência 0, a consulta sem credencial (HTTP 401), o
+acesso autenticado, a transferência local 9900 → 9903 de R$ 25,00 (saldos
+finais R$ 175,00 e R$ 75,00) e o cenário financeiro da conta 9906 (total
+R$ 450,00, projeção R$ 50,00, Delivery R$ 40,00 e Lazer R$ 10,00).
+
+A árvore atual é a evolução da Sprint 2 e usa RabbitMQ/relógio vetorial. Logo,
+não se deve declarar que as capturas históricas de HTTP direto, falha 502 ou
+Lamport foram produzidas nesta rodada. Todas as imagens da tabela continuam
+pendentes até serem capturadas da versão apropriada, com os requisitos visuais
+do roteiro.
+
 ## 8. Declaração de uso de IA
 
 Rascunho a ser confirmado e ajustado pelo aluno antes da entrega:

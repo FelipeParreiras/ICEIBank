@@ -1,6 +1,15 @@
 # Evidências da Sprint 1
 
-Esta pasta receberá capturas reais de execução. No estado atual, nenhuma funcionalidade foi implementada ou evidenciada.
+Esta pasta recebe capturas reais de execução. A rodada complementar de
+05/10/2026 está registrada em
+[`registro-execucao-2026-10-05.md`](registro-execucao-2026-10-05.md), sem
+segredos e sem substituir os PNGs exigidos pelo roteiro.
+
+A implementação atual já incorpora a evolução da Sprint 2: mensageria RabbitMQ
+e relógio vetorial substituíram a transferência HTTP direta e o relógio de
+Lamport da Sprint 1. Por isso, o registro separa os cenários que foram
+reexecutados com honestidade daqueles que precisam da versão histórica da
+Sprint 1 para gerar a captura correta.
 
 ## Arquivos obrigatórios
 

@@ -2,7 +2,16 @@
 
 ## Status
 
-Testes automatizados e fluxo integrado executados em 7 de setembro de 2026. As capturas PNG e o vídeo continuam pendentes e só devem ser marcados depois de salvos em `evidencias/sprint1/`.
+Testes automatizados e fluxo integrado executados em 7 de setembro de 2026. Uma
+rodada complementar real ocorreu em 5 de outubro de 2026 e está registrada em
+[`../evidencias/sprint1/registro-execucao-2026-10-05.md`](../evidencias/sprint1/registro-execucao-2026-10-05.md).
+As capturas PNG e o vídeo continuam pendentes e só devem ser marcados depois de
+salvos em `evidencias/sprint1/`.
+
+> A branch atual evoluiu para a arquitetura da Sprint 2 (RabbitMQ e relógios
+> vetoriais). Assim, a rodada de 05/10 revalidou transferência local, JWT e
+> controle financeiro, mas não declara como reproduzidos os cenários históricos
+> de HTTP direto, falha HTTP `502` e Lamport.
 
 ## Resultado da execução de referência
 
@@ -263,6 +272,7 @@ Preencher depois de cada rodada:
 | Rodada | Data/hora | Commit | Cenários | Resultado | Observações |
 |---|---|---|---|---|---|
 | 1 | Pendente | Pendente | Pendente | Pendente | Pendente |
+| 2 | 05/10/2026 15:24 -03:00 | `52af43a` | JWT, transferência local e controle financeiro | Aprovado nos cenários executados | Detalhes e limitações de arquitetura no registro de 05/10; PNGs ainda pendentes. |
 
 ## Critério de saída
 
