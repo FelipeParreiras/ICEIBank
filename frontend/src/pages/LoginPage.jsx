@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 import { mensagemAmigavel } from "../api/erros";
 import { AgenciaSelector } from "../components/AgenciaSelector";
-import { AlertMessage } from "../components/AlertMessage";
 import { PasswordField } from "../components/PasswordField";
 import { useAuth } from "../hooks/useAuth";
 
@@ -13,27 +13,29 @@ export function LoginPage() {
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
   const [loading, setLoading] = useState(false);
-  const [erro, setErro] = useState(motivoLogout || "");
+
+  useEffect(() => {
+    if (motivoLogout) toast.info(motivoLogout, { toastId: "sessao-expirada" });
+  }, [motivoLogout]);
 
   const submit = async (event) => {
     event.preventDefault();
     if (cadastro && senha !== confirmarSenha) {
-      setErro("As senhas não coincidem.");
+      toast.error("As senhas não coincidem.");
       return;
     }
     if (cadastro && !senha.trim()) {
-      setErro("A senha não pode conter apenas espaços.");
+      toast.error("A senha não pode conter apenas espaços.");
       return;
     }
     setLoading(true);
-    setErro("");
     try {
       if (cadastro) await cadastrar(usuario, senha, confirmarSenha);
       else await login(usuario, senha);
       setSenha("");
       setConfirmarSenha("");
     } catch (error) {
-      setErro(mensagemAmigavel(error));
+      toast.error(mensagemAmigavel(error));
     } finally {
       setLoading(false);
     }
@@ -62,8 +64,7 @@ export function LoginPage() {
               ? "Cadastre suas credenciais para acessar o ICEIBank em qualquer agência."
               : "Selecione uma agência e use suas credenciais."}</p>
           </div>
-          <AlertMessage alert={erro ? { tipo: "erro", mensagem: erro } : null} />
-          <AgenciaSelector disabled={loading} onChange={() => setErro("")} />
+          <AgenciaSelector disabled={loading} />
           <label className="field">
             <span>Usuário</span>
             <input
@@ -117,7 +118,6 @@ export function LoginPage() {
               setUsuario("");
               setSenha("");
               setConfirmarSenha("");
-              setErro("");
             }}
           >
             {cadastro ? "Já tenho usuário. Entrar" : "Não tenho usuário. Cadastrar"}

@@ -1,9 +1,9 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "react-toastify";
 
 import { apiRequest } from "../api/cliente";
 import { mensagemAmigavel } from "../api/erros";
 import { AgenciaSelector } from "../components/AgenciaSelector";
-import { AlertMessage } from "../components/AlertMessage";
 import { CaixinhaPanel } from "../components/CaixinhaPanel";
 import { ContaCard } from "../components/ContaCard";
 import { DepositoForm } from "../components/DepositoForm";
@@ -29,7 +29,6 @@ export function DashboardPage() {
   const [contaAtualizada, setContaAtualizada] = useState(null);
   const [nomeAluno, setNomeAluno] = useState("");
   const [saldoInicial, setSaldoInicial] = useState("0");
-  const [alert, setAlert] = useState(null);
   const [loading, setLoading] = useState(false);
   const [competencia, setCompetencia] = useState("2026-09");
   const [resumo, setResumo] = useState(null);
@@ -53,23 +52,19 @@ export function DashboardPage() {
     onUnauthorized: () => logout("Sua sessão expirou. Entre novamente."),
   }), [agenciaId, logout, token]);
 
-  const executar = async (acao, sucesso, preservarAlert = false) => {
+  useEffect(() => {
+    if (listaContas.erro) toast.error(listaContas.erro);
+  }, [listaContas.erro]);
+
+  const executar = async (acao, sucesso) => {
     setLoading(true);
-    if (!preservarAlert) setAlert(null);
     try {
       const result = await acao();
-      if (sucesso) {
-        setAlert({
-          tipo: "sucesso",
-          mensagem: typeof sucesso === "function" ? sucesso(result) : sucesso,
-        });
-      }
+      if (sucesso) toast.success(typeof sucesso === "function" ? sucesso(result) : sucesso);
       return result;
     } catch (error) {
-      setAlert({
-        tipo: error?.codigo === "AGENCIA_DESTINO_INDISPONIVEL" ? "aviso" : "erro",
-        mensagem: mensagemAmigavel(error),
-      });
+      const notificar = error?.codigo === "AGENCIA_DESTINO_INDISPONIVEL" ? toast.warn : toast.error;
+      notificar(mensagemAmigavel(error));
       return null;
     } finally {
       setLoading(false);
@@ -131,12 +126,11 @@ export function DashboardPage() {
     return Boolean(result);
   };
 
-  const carregarResumo = async (preservarAlert = false) => {
+  const carregarResumo = async () => {
     if (!conta) return null;
     const result = await executar(
       () => request(`/contas/${conta.id}/controle-financeiro/${competencia}`),
       null,
-      preservarAlert,
     );
     if (result) setResumo(result);
     return result;
@@ -151,7 +145,7 @@ export function DashboardPage() {
       }),
       "Planejamento mensal salvo.",
     );
-    if (result) await carregarResumo(true);
+    if (result) await carregarResumo();
   };
 
   const registrarGasto = async (dados) => {
@@ -169,7 +163,6 @@ export function DashboardPage() {
       const atualizado = await executar(
         () => request(`/contas/${conta.id}/controle-financeiro/${dados.data.slice(0, 7)}`),
         null,
-        true,
       );
       if (atualizado) setResumo(atualizado);
       listaContas.atualizar();
@@ -179,11 +172,11 @@ export function DashboardPage() {
   const trocarAgencia = () => {
     setContaAtualizada(null);
     setResumo(null);
-    setAlert(null);
   };
 
   const mensagemCaixinha = useCallback((erro, sucesso) => {
-    setAlert(erro ? { tipo: "erro", mensagem: mensagemAmigavel(erro) } : { tipo: "sucesso", mensagem: sucesso });
+    if (erro) toast.error(mensagemAmigavel(erro));
+    else if (sucesso) toast.success(sucesso);
   }, []);
 
   return (
@@ -198,8 +191,6 @@ export function DashboardPage() {
           <div><p className="eyebrow">Visão geral</p><h1>Olá, {usuario}. 👋</h1><p className="muted">Gerencie sua conta e acompanhe a meta mensal em uma rede distribuída.</p></div>
           <div className="agency-status"><span className="status-dot" /><div><small>Conectado em</small><b>{agencia.nome} · porta {agencia.porta}</b></div></div>
         </section>
-        <AlertMessage alert={alert} onClose={() => setAlert(null)} />
-
         <section className="bank-grid">
           <article className="panel account-panel">
             <div className="section-heading"><div><p className="eyebrow">Conta bancária</p><h2>Saldo e titular</h2></div></div>
@@ -217,7 +208,6 @@ export function DashboardPage() {
             {abaAtiva === "movimentacoes" && <section className="workspace-content operations-panel" role="tabpanel">
               <div className="section-heading"><div><p className="eyebrow">Movimentações</p><h2>Operações rápidas</h2></div></div>
               {listaContas.carregando && <p className="muted" role="status">Carregando contas…</p>}
-              {listaContas.erro && <AlertMessage alert={{ tipo: "erro", mensagem: listaContas.erro }} />}
               {!conta && !listaContas.carregando && <p className="muted">Crie uma conta nesta agência para habilitar as operações.</p>}
               <button type="button" className="button ghost" onClick={listaContas.atualizar} disabled={loading || listaContas.carregando}>Atualizar contas</button>
               <div className="operation-columns"><div><h3><span className="op-icon income">↓</span> Depósito</h3><DepositoForm key={`d-${agenciaId}-${conta?.id}`} conta={conta} onSubmit={(id, valor) => movimentar("depositar", id, valor)} loading={loading} /></div><div><h3><span className="op-icon outcome">↑</span> Saque</h3><SaqueForm key={`s-${agenciaId}-${conta?.id}`} conta={conta} onSubmit={(id, valor) => movimentar("sacar", id, valor)} loading={loading} /></div></div>
