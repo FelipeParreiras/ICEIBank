@@ -4,7 +4,7 @@ Projeto acadêmico de banco distribuído desenvolvido incrementalmente em quatro
 
 ## Estado atual
 
-**Sprint 1 implementada e validada localmente em 7 de setembro de 2026.**
+**Sprint 2 implementada e validada por testes automatizados em 4 de outubro de 2026.**
 
 Decisões confirmadas:
 
@@ -17,10 +17,19 @@ Decisões confirmadas:
 Funcionalidade adicional confirmada:
 
 - Controle Financeiro Mensal, com renda prevista, meta de economia, gastos categorizados e recomendações de redução.
+- Caixinha, com CRUD por conta, lotes FIFO e rendimento composto de 10% a cada 48 horas.
 
 Decisão implementada:
 
 - JWT de usuário e credencial interna separada entre agências.
+- RabbitMQ para créditos remotos assíncronos e relógio vetorial de três posições.
+
+## Objetivo da Sprint 2
+
+Entregar mensageria RabbitMQ durável (exchange topic e uma fila por agência),
+substituição de Lamport por relógio vetorial, análise de concorrência causal e
+uma funcionalidade adicional. A validação com a instância CloudAMQP foi concluída;
+somente as capturas PNG exigidas permanecem pendentes.
 
 ## Objetivo da Sprint 1
 
@@ -43,9 +52,9 @@ flowchart LR
     R["React :5173"] --> A0["Agência 0 :4045"]
     R --> A1["Agência 1 :4046"]
     R --> A2["Agência 2 :4047"]
-    A0 <-->|"REST + Lamport"| A1
-    A0 <-->|"REST + Lamport"| A2
-    A1 <-->|"REST + Lamport"| A2
+    A0 -->|"RabbitMQ topic"| Q["iceibank.eventos"]
+    A1 -->|"RabbitMQ topic"| Q
+    A2 -->|"RabbitMQ topic"| Q
 ```
 
 O mesmo código FastAPI é executado três vezes com `AGENCIA_ID` diferente. Cada processo possui contas em memória, relógio e arquivo JSONL próprios. A aplicação deve rodar com apenas um worker por agência.
@@ -76,6 +85,8 @@ Documentos principais:
 - [Plano de commits e arquivos](docs/PLANO_DE_COMMITS_SPRINT_1.md)
 - [Requisitos e rastreabilidade](docs/REQUISITOS_E_RASTREABILIDADE_SPRINT_1.md)
 - [Respostas da Sprint 1](RESPOSTAS.md)
+- [Arquitetura de mensageria](docs/specs/SPEC-004-mensageria-e-relogio-vetorial.md)
+- [Contrato da API Sprint 2](docs/API_SPRINT_2.md)
 
 ## Execução
 
@@ -114,7 +125,7 @@ O cadastro cria credenciais de acesso; contas bancárias continuam sendo criadas
 - planejamentos e gastos do Controle Financeiro também não persistem;
 - não há replicação;
 - transferência remota não é atômica;
-- um 502 após o débito não devolve o dinheiro automaticamente;
+- entrega de RabbitMQ não é exatamente uma vez e não há confirmação reversa de crédito;
 - autenticação não implica autorização por titularidade;
 - o sistema é acadêmico e não deve ser usado com dados ou dinheiro reais.
 

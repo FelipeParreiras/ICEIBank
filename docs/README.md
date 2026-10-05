@@ -1,6 +1,6 @@
 # Documentação do ICEIBank
 
-Este diretório centraliza a documentação técnica, operacional e acadêmica do projeto. A implementação da Sprint 1 está concluída; capturas de evidência, vídeo e commits permanecem como atividades de entrega separadas.
+Este diretório centraliza a documentação técnica, operacional e acadêmica do projeto. As Sprints 1 e 2 estão implementadas; as capturas reais de evidência continuam como atividade de entrega separada.
 
 ## Estado atual
 
@@ -13,13 +13,17 @@ Este diretório centraliza a documentação técnica, operacional e acadêmica d
 | JWT de usuário e token interno separado | Aceito e implementado |
 | Proxy Vite preservando 4045–4047 no Chrome | Aceito e implementado |
 | Código da Sprint 1 | Implementado |
-| Testes automatizados | 15 aprovados; cobertura backend de 92%; lint/build aprovados |
+| Código da Sprint 2 | Implementado |
+| Testes automatizados da Sprint 2 | 41 aprovados; lint backend/frontend e build frontend aprovados |
 | Evidências PNG e vídeo | Pendentes de captura para entrega |
 
 ## Como navegar
 
 ### Visão geral e planejamento
 
+- [Roadmap da Sprint 2](../ROADMAP_SPRINT_2.md): escopo, implementação e pendências de evidência.
+- [SPEC-003 — Caixinha](specs/SPEC-003-caixinha.md): regras e validações da funcionalidade adicional.
+- [SPEC-004 — Mensageria e relógio vetorial](specs/SPEC-004-mensageria-e-relogio-vetorial.md): arquitetura distribuída da Sprint 2.
 - [README principal](../README.md): apresentação e entrada do repositório.
 - [Roadmap da Sprint 1](../ROADMAP_SPRINT_1.md): sequência de trabalho em três semanas.
 - [SPEC-001 — Arquitetura da Sprint 1](specs/SPEC-001-arquitetura-sprint-1.md): arquitetura, componentes, fluxos e restrições.
@@ -27,11 +31,13 @@ Este diretório centraliza a documentação técnica, operacional e acadêmica d
 
 ### Implementação
 
+- [Configuração da Sprint 2](CONFIGURACAO_SPRINT_2.md): RabbitMQ e execução das agências.
 - [Guia de desenvolvimento](GUIA_DE_DESENVOLVIMENTO.md): responsabilidades, convenções e fluxo de trabalho.
 - [Plano de commits](PLANO_DE_COMMITS_SPRINT_1.md): mensagens, arquivos, testes e evidências previstos por commit.
 - [Blueprint do backend FastAPI](BACKEND_FASTAPI.md): ciclo de vida, interfaces, dependências e concorrência.
 - [Blueprint do frontend React](FRONTEND_REACT.md): estado, componentes, fluxos e erros.
 - [Contrato da API](API_SPRINT_1.md): endpoints, corpos, respostas e erros.
+- [Contrato da API Sprint 2](API_SPRINT_2.md): mensageria e Caixinhas.
 - [Configuração e execução](CONFIGURACAO_E_EXECUCAO.md): variáveis, portas, proxy e comandos validados.
 - [Segurança](SEGURANCA.md): JWT, credencial interna, CORS, segredos e limitações.
 - [Lamport e observabilidade](LAMPORT_E_OBSERVABILIDADE.md): regras do relógio, eventos e linha do tempo.
@@ -46,6 +52,9 @@ Este diretório centraliza a documentação técnica, operacional e acadêmica d
 
 ### Decisões arquiteturais
 
+- [ADR-006 — Caixinha por lotes e resgate FIFO](decisions/ADR-006-caixinha-lotes-fifo.md) — Aceito e implementado.
+- [ADR-007 — Mensageria e relógio vetorial](decisions/ADR-007-mensageria-rabbitmq-e-relogio-vetorial.md) — Aceito e implementado.
+- [ADR-008 — Tempo e exclusão da Caixinha](decisions/ADR-008-caixinha-tempo-arredondamento-e-exclusao.md) — Aceito e implementado.
 - [Índice de ADRs](decisions/README.md)
 - [ADR-001 — Python/FastAPI e React](decisions/ADR-001-stack-python-fastapi-react.md) — Aceito.
 - [ADR-002 — Health-check adicional](decisions/ADR-002-funcionalidade-adicional-health-check.md) — Substituído.
