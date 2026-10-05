@@ -33,6 +33,9 @@ export function CaixinhaPanel({ conta, request, loading, onMessage, onContaAtual
   const [cor, setCor] = useState("verde");
   const [valor, setValor] = useState("");
   const [carregando, setCarregando] = useState(false);
+  const [modoOrganizacao, setModoOrganizacao] = useState(false);
+  const [ordemRascunho, setOrdemRascunho] = useState([]);
+  const [caixinhaArrastada, setCaixinhaArrastada] = useState("");
 
   const carregar = useCallback(async (preferida) => {
     if (!conta) return;
@@ -104,21 +107,75 @@ export function CaixinhaPanel({ conta, request, loading, onMessage, onContaAtual
     abrirModalRaiz("detalhes");
   };
 
+  const iniciarOrganizacao = () => {
+    setOrdemRascunho(caixinhas);
+    setModoOrganizacao(true);
+  };
+
+  const cancelarOrganizacao = () => {
+    setModoOrganizacao(false);
+    setOrdemRascunho([]);
+    setCaixinhaArrastada("");
+  };
+
+  const reordenarRascunho = (destinoId) => {
+    if (!caixinhaArrastada || caixinhaArrastada === destinoId) return;
+    setOrdemRascunho((atual) => {
+      const indiceOrigem = atual.findIndex((item) => item.id === caixinhaArrastada);
+      const indiceDestino = atual.findIndex((item) => item.id === destinoId);
+      const proxima = [...atual];
+      const [movida] = proxima.splice(indiceOrigem, 1);
+      proxima.splice(indiceDestino, 0, movida);
+      return proxima;
+    });
+    setCaixinhaArrastada("");
+  };
+
+  const moverNaOrdem = (caixinhaId, direcao) => {
+    setOrdemRascunho((atual) => {
+      const indice = atual.findIndex((item) => item.id === caixinhaId);
+      const destino = indice + direcao;
+      if (destino < 0 || destino >= atual.length) return atual;
+      const proxima = [...atual];
+      [proxima[indice], proxima[destino]] = [proxima[destino], proxima[indice]];
+      return proxima;
+    });
+  };
+
+  const salvarOrdem = async () => {
+    const resultado = await executar(
+      () => request(`/contas/${conta.id}/caixinhas/ordem`, {
+        method: "PUT",
+        body: { caixinhasIds: ordemRascunho.map((item) => item.id) },
+      }),
+      "Ordem das Caixinhas atualizada.",
+    );
+    if (resultado) cancelarOrganizacao();
+  };
+
+  const itensExibidos = modoOrganizacao ? ordemRascunho : caixinhas;
+  const conteudoDaCaixinha = (item) => <>
+    <span className="caixinha-lid" />
+    <span className="caixinha-sticker">{item.nome}</span>
+    <span className="caixinha-balance">{formatarDinheiro(item.saldo)}</span>
+    <span className="caixinha-caption">{modoOrganizacao ? "Arraste para definir a ordem" : "Toque para visualizar"}</span>
+  </>;
+
   return (
     <div className="caixinha-layout">
       <div className="caixinha-toolbar">
-        <p className="muted">Escolha uma Caixinha para acompanhar a reserva e movimentá-la.</p>
-        <button type="button" className="button primary" onClick={abrirCriacao} disabled={desabilitado}>+ Criar Caixinha</button>
+        <p className="muted">{modoOrganizacao ? "Arraste as Caixinhas ou use as setas para definir a ordem de exibição." : "Escolha uma Caixinha para acompanhar a reserva e movimentá-la."}</p>
+        <div className="caixinha-toolbar-actions">
+          {modoOrganizacao ? <><button type="button" className="button secondary" onClick={cancelarOrganizacao} disabled={desabilitado}>Cancelar</button><button type="button" className="button primary" onClick={salvarOrdem} disabled={desabilitado}>Salvar ordem</button></> : <><button type="button" className="button secondary" onClick={iniciarOrganizacao} disabled={desabilitado || caixinhas.length < 2}>Organizar ordem</button><button type="button" className="button primary" onClick={abrirCriacao} disabled={desabilitado}>+ Criar Caixinha</button></>}
+        </div>
       </div>
 
       <div className="caixinha-grid" aria-live="polite">
         {caixinhas.length === 0 && <p className="muted caixinha-empty">Nenhuma Caixinha criada nesta conta.</p>}
-        {caixinhas.map((item) => <button type="button" key={item.id} className={`caixinha-box color-${item.cor || "verde"} ${selecionadaId === item.id ? "selected" : ""}`} onClick={() => abrirDetalhes(item.id)} aria-pressed={selecionadaId === item.id}>
-          <span className="caixinha-lid" />
-          <span className="caixinha-sticker">{item.nome}</span>
-          <span className="caixinha-balance">{formatarDinheiro(item.saldo)}</span>
-          <span className="caixinha-caption">Toque para visualizar</span>
-        </button>)}
+        {itensExibidos.map((item, indice) => modoOrganizacao ? <div key={item.id} className={`caixinha-box organizing color-${item.cor || "verde"}`} draggable onDragStart={() => setCaixinhaArrastada(item.id)} onDragEnd={() => setCaixinhaArrastada("")} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); reordenarRascunho(item.id); }}>
+          <div className="caixinha-order-controls"><span aria-label={`Posição ${indice + 1}`}>{indice + 1}</span><button type="button" aria-label={`Mover ${item.nome} para cima`} disabled={indice === 0} onClick={() => moverNaOrdem(item.id, -1)}>↑</button><button type="button" aria-label={`Mover ${item.nome} para baixo`} disabled={indice === itensExibidos.length - 1} onClick={() => moverNaOrdem(item.id, 1)}>↓</button></div>
+          {conteudoDaCaixinha(item)}
+        </div> : <button type="button" key={item.id} className={`caixinha-box color-${item.cor || "verde"} ${selecionadaId === item.id ? "selected" : ""}`} onClick={() => abrirDetalhes(item.id)} aria-pressed={selecionadaId === item.id}>{conteudoDaCaixinha(item)}</button>)}
       </div>
 
       {modal && <div className="modal-backdrop" role="presentation"><section className={`caixinha-modal ${modal === "detalhes" ? "caixinha-modal-details" : ""}`} role="dialog" aria-modal="true" aria-labelledby="modal-caixinha-titulo"><div className="modal-header"><h3 id="modal-caixinha-titulo">{modal === "criar" ? "Criar Caixinha" : modal === "editar" ? "Editar Caixinha" : modal === "detalhes" ? "Detalhes da Caixinha" : "Gerenciar Caixinha"}</h3>{pilhaDeModais.length > 1 ? <button type="button" className="button ghost modal-back" onClick={voltarModal}>← Voltar</button> : <button type="button" className="button ghost modal-close" onClick={fecharModais} aria-label="Fechar">×</button>}</div>

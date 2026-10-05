@@ -58,6 +58,10 @@ class MovimentoCaixinhaRequest(ApiSchema):
         return normalizar_dinheiro(valor)
 
 
+class ReordenarCaixinhasRequest(ApiSchema):
+    caixinhas_ids: list[UUID] = Field(alias="caixinhasIds")
+
+
 class LoteCaixinhaResponse(ApiSchema):
     id: UUID
     saldo: Decimal
@@ -75,6 +79,7 @@ class CaixinhaResponse(ApiSchema):
     conta_id: int = Field(alias="contaId")
     nome: str
     cor: str
+    ordem: int
     saldo: Decimal
     rendimento_total: Decimal = Field(alias="rendimentoTotal")
     lotes: list[LoteCaixinhaResponse]

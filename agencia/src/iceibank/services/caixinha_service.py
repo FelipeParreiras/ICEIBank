@@ -52,7 +52,12 @@ class CaixinhaService:
                 for item in self.repository.listar_por_conta(conta_id)
             ):
                 raise CaixinhaInvalida("Já existe uma Caixinha com este nome nesta conta.")
-            caixinha = self.repository.inserir(Caixinha(conta_id=conta_id, nome=nome))
+            ordem = max(
+                (item.ordem for item in self.repository.listar_por_conta(conta_id)), default=-1
+            ) + 1
+            caixinha = self.repository.inserir(
+                Caixinha(conta_id=conta_id, nome=nome, ordem=ordem)
+            )
             self._evento(
                 "CRIAR_CAIXINHA", {"contaId": conta_id, "caixinhaId": caixinha.id, "nome": nome}
             )
@@ -90,6 +95,28 @@ class CaixinhaService:
                 {"contaId": conta_id, "caixinhaId": caixinha.id, "nome": nome, "cor": cor},
             )
             return caixinha
+
+    def reordenar(self, conta_id: int, caixinhas_ids: list[UUID]) -> tuple[Caixinha, ...]:
+        self._validar_conta(conta_id)
+        with self.repository.transacao():
+            existentes = {item.id: item for item in self.repository.listar_por_conta(conta_id)}
+            ids_recebidos = set(caixinhas_ids)
+            if len(ids_recebidos) != len(caixinhas_ids) or ids_recebidos != set(existentes):
+                raise CaixinhaInvalida(
+                    "A ordem deve conter cada Caixinha da conta uma única vez."
+                )
+            for ordem, caixinha_id in enumerate(caixinhas_ids):
+                caixinha = existentes[caixinha_id]
+                caixinha.ordem = ordem
+                self.repository.atualizar(caixinha)
+            self._evento(
+                "REORDENAR_CAIXINHAS",
+                {
+                    "contaId": conta_id,
+                    "caixinhasIds": [str(caixinha_id) for caixinha_id in caixinhas_ids],
+                },
+            )
+            return self.repository.listar_por_conta(conta_id)
 
     def excluir(self, conta_id: int, caixinha_id: UUID) -> tuple[Decimal, Decimal]:
         self._validar_conta(conta_id)

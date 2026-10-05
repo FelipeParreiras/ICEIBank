@@ -98,3 +98,36 @@ def test_caixinha_nao_vaza_entre_contas(client: TestClient, auth_headers: dict[s
     criada = client.post("/contas/0/caixinhas", headers=auth_headers, json={"nome": "Privada"})
     caixinha_id = criada.json()["id"]
     assert client.get(f"/contas/3/caixinhas/{caixinha_id}", headers=auth_headers).status_code == 404
+
+
+def test_caixinha_persiste_ordem_personalizada(
+    client: TestClient, auth_headers: dict[str, str]
+) -> None:
+    _criar_conta(client, auth_headers, 0, 100)
+    viagem = client.post("/contas/0/caixinhas", headers=auth_headers, json={"nome": "Viagem"})
+    reserva = client.post("/contas/0/caixinhas", headers=auth_headers, json={"nome": "Reserva"})
+    estudos = client.post("/contas/0/caixinhas", headers=auth_headers, json={"nome": "Estudos"})
+    ids = [viagem.json()["id"], reserva.json()["id"], estudos.json()["id"]]
+
+    resposta = client.put(
+        "/contas/0/caixinhas/ordem",
+        headers=auth_headers,
+        json={"caixinhasIds": [ids[2], ids[0], ids[1]]},
+    )
+
+    assert resposta.status_code == 200
+    assert [item["nome"] for item in resposta.json()] == ["Estudos", "Viagem", "Reserva"]
+    assert [item["ordem"] for item in resposta.json()] == [0, 1, 2]
+    listagem = client.get("/contas/0/caixinhas", headers=auth_headers).json()
+    assert [item["nome"] for item in listagem] == [
+        "Estudos",
+        "Viagem",
+        "Reserva",
+    ]
+
+    invalida = client.put(
+        "/contas/0/caixinhas/ordem",
+        headers=auth_headers,
+        json={"caixinhasIds": [ids[0], ids[0], ids[1]]},
+    )
+    assert invalida.status_code == 400

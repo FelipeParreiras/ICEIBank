@@ -34,7 +34,8 @@ class CaixinhaRepository:
             return tuple(
                 deepcopy(caixinha)
                 for caixinha in sorted(
-                    self._caixinhas.values(), key=lambda item: (item.nome.casefold(), str(item.id))
+                    self._caixinhas.values(),
+                    key=lambda item: (item.ordem, item.nome.casefold(), str(item.id)),
                 )
                 if caixinha.conta_id == conta_id
             )

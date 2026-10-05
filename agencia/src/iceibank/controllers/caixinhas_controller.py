@@ -14,6 +14,7 @@ from iceibank.schemas.caixinha import (
     LoteCaixinhaResponse,
     MovimentoCaixinhaRequest,
     MovimentoCaixinhaResponse,
+    ReordenarCaixinhasRequest,
 )
 from iceibank.services.caixinha_service import CaixinhaService
 
@@ -28,6 +29,7 @@ def _response(caixinha: Caixinha) -> CaixinhaResponse:
         contaId=caixinha.conta_id,
         nome=caixinha.nome,
         cor=caixinha.cor,
+        ordem=caixinha.ordem,
         saldo=caixinha.saldo,
         rendimentoTotal=caixinha.rendimento_total,
         lotes=[
@@ -58,6 +60,18 @@ def listar(
     service: Annotated[CaixinhaService, Depends(get_caixinha_service)],
 ) -> list[CaixinhaResponse]:
     return [_response(caixinha) for caixinha in service.listar(conta_id)]
+
+
+@router.put("/ordem", response_model=list[CaixinhaResponse])
+def reordenar(
+    conta_id: Annotated[int, Path(ge=0)],
+    dados: ReordenarCaixinhasRequest,
+    service: Annotated[CaixinhaService, Depends(get_caixinha_service)],
+) -> list[CaixinhaResponse]:
+    return [
+        _response(caixinha)
+        for caixinha in service.reordenar(conta_id, dados.caixinhas_ids)
+    ]
 
 
 @router.get("/{caixinha_id}", response_model=CaixinhaResponse)
