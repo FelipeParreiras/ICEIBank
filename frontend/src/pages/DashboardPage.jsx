@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import { apiRequest } from "../api/cliente";
 import { mensagemAmigavel } from "../api/erros";
 import { AgenciaSelector } from "../components/AgenciaSelector";
 import { AlertMessage } from "../components/AlertMessage";
 import { ContaCard } from "../components/ContaCard";
+import { CaixinhaPanel } from "../components/CaixinhaPanel";
 import { DepositoForm } from "../components/DepositoForm";
 import { GastoForm } from "../components/GastoForm";
 import { PlanejamentoMensalForm } from "../components/PlanejamentoMensalForm";
@@ -29,13 +30,13 @@ export function DashboardPage() {
   const [competencia, setCompetencia] = useState("2026-09");
   const [resumo, setResumo] = useState(null);
 
-  const request = (path, options = {}) =>
+  const request = useCallback((path, options = {}) =>
     apiRequest(path, {
       agenciaId,
       ...options,
       token,
       onUnauthorized: () => logout("Sua sessão expirou. Entre novamente."),
-    });
+    }), [agenciaId, logout, token]);
 
   const executar = async (acao, sucesso, preservarAlert = false) => {
     setLoading(true);
@@ -147,6 +148,10 @@ export function DashboardPage() {
     setAlert(null);
   };
 
+  const mensagemCaixinha = useCallback((erro, sucesso) => {
+    setAlert(erro ? { tipo: "erro", mensagem: mensagemAmigavel(erro) } : { tipo: "sucesso", mensagem: sucesso });
+  }, []);
+
   return (
     <div className="app-shell">
       <header className="topbar">
@@ -184,6 +189,11 @@ export function DashboardPage() {
           </article>
         </section>
 
+        <section className="panel caixinha-panel">
+          <div className="section-heading"><div><p className="eyebrow">Reserva financeira</p><h2>Caixinhas com rendimento</h2><p className="muted">Rendimento composto de 10% a cada 48 horas por depósito.</p></div></div>
+          <CaixinhaPanel key={conta?.id ?? "sem-conta"} conta={conta} request={request} loading={loading} onMessage={mensagemCaixinha} onContaAtualizada={setConta} />
+        </section>
+
         <section className="panel finance-panel">
           <div className="section-heading finance-heading"><div><p className="eyebrow">Controle financeiro</p><h2>Meta mensal de economia</h2><p className="muted">Defina quanto quer guardar e receba sugestões transparentes de ajuste.</p></div><div className="finance-filters"><label className="field"><span>Conta</span><input type="number" min="0" value={financeContaId} onChange={(e) => { setFinanceContaId(e.target.value); setResumo(null); }} /></label><label className="field"><span>Competência</span><input type="month" value={competencia} onChange={(e) => { setCompetencia(e.target.value); setResumo(null); }} /></label><button className="button secondary" onClick={() => carregarResumo()} disabled={loading}>Consultar mês</button></div></div>
           <div className="finance-layout">
@@ -192,7 +202,7 @@ export function DashboardPage() {
           </div>
         </section>
       </main>
-      <footer><span>ICEIBank · Laboratório de Desenvolvimento de Software</span><span>FastAPI + React + Lamport</span></footer>
+      <footer><span>ICEIBank · Laboratório de Desenvolvimento de Software</span><span>FastAPI + React + RabbitMQ + relógio vetorial</span></footer>
     </div>
   );
 }

@@ -12,6 +12,7 @@ from fastapi.responses import JSONResponse
 from iceibank.api.router import api_router
 from iceibank.core.config import Settings
 from iceibank.core.exceptions import DomainError
+from iceibank.repositories.caixinha_repository import CaixinhaRepository
 from iceibank.repositories.conta_repository import ContaRepository
 from iceibank.repositories.controle_financeiro_repository import (
     ControleFinanceiroRepository,
@@ -19,6 +20,7 @@ from iceibank.repositories.controle_financeiro_repository import (
 from iceibank.repositories.usuario_repository import UsuarioRepository
 from iceibank.services.auth_client import AuthClient
 from iceibank.services.auth_service import AuthService
+from iceibank.services.caixinha_service import CaixinhaService
 from iceibank.services.conta_service import ContaService
 from iceibank.services.controle_financeiro_service import ControleFinanceiroService
 from iceibank.services.mensageria import MensageriaRabbitMQ
@@ -60,6 +62,7 @@ def create_app(
 
     state_lock = RLock()
     conta_repository = ContaRepository(state_lock)
+    caixinha_repository = CaixinhaRepository(state_lock)
     financeiro_repository = ControleFinanceiroRepository(state_lock)
     clock = RelogioVetorial(settings.agencia_id, settings.numero_agencias)
     logger = EventLogger(settings.data_dir, settings.agencia_id)
@@ -76,6 +79,7 @@ def create_app(
     app.state.clock = clock
     app.state.mensageria = mensageria
     app.state.conta_repository = conta_repository
+    app.state.caixinha_repository = caixinha_repository
     app.state.financeiro_repository = financeiro_repository
     app.state.auth_service = AuthService(
         settings, UsuarioRepository(), auth_client or AuthClient(settings)
@@ -91,6 +95,9 @@ def create_app(
         RecomendacaoEconomiaService(),
         clock,
         logger,
+    )
+    app.state.caixinha_service = CaixinhaService(
+        caixinha_repository, conta_repository, conta_service, clock, logger, settings
     )
 
     @app.exception_handler(DomainError)
