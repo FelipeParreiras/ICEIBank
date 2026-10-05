@@ -4,7 +4,8 @@ Projeto acadêmico de banco distribuído desenvolvido incrementalmente em quatro
 
 ## Estado atual
 
-**Sprint 2 implementada e validada por testes automatizados em 4 de outubro de 2026.**
+**Sprints 1 e 2 implementadas e validadas em 5 de outubro de 2026: 43 testes
+do backend, lint e build do frontend aprovados.**
 
 Decisões confirmadas:
 
@@ -17,12 +18,15 @@ Decisões confirmadas:
 Funcionalidade adicional confirmada:
 
 - Controle Financeiro Mensal, com renda prevista, meta de economia, gastos categorizados e recomendações de redução.
-- Caixinha, com CRUD por conta, lotes FIFO e rendimento composto de 10% a cada 48 horas.
+- Caixinha, com CRUD por conta, lotes FIFO, rendimento composto de 10% a cada
+  48 horas, cor e ordem personalizáveis.
 
 Decisão implementada:
 
 - JWT de usuário e credencial interna separada entre agências.
 - RabbitMQ para créditos remotos assíncronos e relógio vetorial de três posições.
+- React com abas de trabalho, notificações Toastify, modais de Caixinha e barra
+  superior sticky.
 
 ## Objetivo da Sprint 2
 
@@ -74,6 +78,7 @@ Comece pelo [índice completo da documentação](docs/README.md).
 Documentos principais:
 
 - [Roadmap da Sprint 1](ROADMAP_SPRINT_1.md)
+- [Estado atual do projeto](docs/ESTADO_ATUAL_DO_PROJETO.md)
 - [Arquitetura FastAPI/React](docs/specs/SPEC-001-arquitetura-sprint-1.md)
 - [Controle Financeiro Mensal](docs/specs/SPEC-002-controle-financeiro-mensal.md)
 - [Contrato da API](docs/API_SPRINT_1.md)
@@ -123,6 +128,7 @@ O cadastro cria credenciais de acesso; contas bancárias continuam sendo criadas
 - usuários cadastrados não persistem após reinício da agência 0; o usuário de demonstração permanece;
 - novos cadastros e logins dependem da agência 0; JWTs já emitidos continuam válidos até expirar;
 - planejamentos e gastos do Controle Financeiro também não persistem;
+- Caixinhas, seus lotes, histórico, cores e ordem também não persistem;
 - não há replicação;
 - transferência remota não é atômica;
 - entrega de RabbitMQ não é exatamente uma vez e não há confirmação reversa de crédito;

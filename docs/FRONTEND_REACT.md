@@ -2,7 +2,8 @@
 
 ## Status
 
-Implementado e validado no Google Chrome por meio do servidor Vite em `http://localhost:5173`.
+Implementado e validado com lint e build de produção em 05/10/2026. O estado
+atual de todas as funcionalidades está em [Estado atual do projeto](ESTADO_ATUAL_DO_PROJETO.md).
 
 ## Objetivo
 
@@ -18,13 +19,13 @@ frontend/src/
 ├── components/
 │   ├── AgenciaSelector.jsx
 │   ├── AlertMessage.jsx
+│   ├── CaixinhaPanel.jsx
 │   ├── ContaCard.jsx
 │   ├── GastoForm.jsx
-│   ├── DepositoForm.jsx
+│   ├── MovimentacaoForm.jsx
 │   ├── PlanejamentoMensalForm.jsx
 │   ├── RecomendacoesEconomia.jsx
 │   ├── ResumoFinanceiro.jsx
-│   ├── SaqueForm.jsx
 │   ├── TransferenciaForm.jsx
 │   └── GastosDoMesList.jsx
 ├── context/
@@ -32,7 +33,8 @@ frontend/src/
 │   └── AgenciaContext.jsx
 ├── hooks/
 │   ├── useAuth.js
-│   └── useAgencia.js
+│   ├── useAgencia.js
+│   └── useContas.js
 ├── pages/
 │   ├── LoginPage.jsx
 │   └── DashboardPage.jsx
@@ -161,14 +163,14 @@ Regras:
 
 Blocos mínimos:
 
-1. cabeçalho com agência, usuário e logout;
-2. seletor de agência;
-3. consulta e exibição de conta;
-4. depósito;
-5. saque;
-6. transferência;
-7. controle financeiro mensal;
-8. região comum de alertas.
+1. cabeçalho sticky com agência, usuário e logout;
+2. conta carregada automaticamente para a agência selecionada e criação apenas
+   quando não há conta local;
+3. abas para Movimentações, Reserva financeira e Controle financeiro;
+4. formulário único para depósito/saque e formulário de transferência;
+5. Caixinhas com cartões, modal de detalhes, gerenciamento e organização;
+6. controle financeiro mensal e gastos categorizados;
+7. Toastify para retorno de sucesso, aviso e erro.
 
 Uma única página é suficiente. O design deve priorizar clareza do fluxo e legibilidade dos resultados.
 
@@ -176,13 +178,14 @@ Uma única página é suficiente. O design deve priorizar clareza do fluxo e leg
 
 ### Conta
 
-- ID inteiro e não negativo;
-- consulta explícita;
-- exibir titular e saldo retornados.
+- a conta da agência selecionada é carregada automaticamente;
+- se a agência não tiver conta, a interface oferece criação com nome e saldo inicial;
+- o saldo é atualizado após movimentação de conta, gasto ou atividade relevante
+  de Caixinha.
 
-### Depósito/saque
+### Movimentação de saldo
 
-- ID da conta;
+- um seletor define depósito ou saque para a conta carregada;
 - valor maior que zero;
 - desabilitar durante chamada;
 - atualizar saldo exibido após sucesso;
@@ -201,12 +204,21 @@ Uma única página é suficiente. O design deve priorizar clareza do fluxo e leg
 
 - selecionar conta e competência;
 - informar renda prevista e meta de economia;
-- configurar limites e categorias flexíveis;
+- gerenciar categorias personalizadas, limites, flexibilidade e prioridade por
+  arrastar/soltar;
 - registrar descrição, valor, categoria e data de cada gasto;
 - exibir limite mensal, total gasto, economia projetada e valor de ajuste;
 - mostrar recomendações com categoria, valor sugerido e motivo;
 - deixar claro que recomendações são matemáticas e não aconselhamento profissional;
 - se o débito do gasto for confirmado, atualizar também o saldo exibido da conta.
+
+### Caixinhas
+
+- criar Caixinha em modal e selecioná-la pelo cartão;
+- consultar valor armazenado, rendimento e histórico em modal amplo;
+- guardar ou resgatar valor, atualizando o saldo da conta;
+- editar nome/cor e excluir com resgate automático;
+- organizar cartões por arrastar/soltar ou setas e salvar a ordem.
 
 ## MVC no frontend
 
@@ -253,15 +265,13 @@ React mistura View e Controller com facilidade. Extrair lógica repetida para ho
 - lint e build de produção;
 - capturas obrigatórias.
 
-## Fora do escopo visual
+## Limites atuais da interface
 
-- identidade visual elaborada;
-- animações complexas;
-- responsividade perfeita;
-- biblioteca de componentes pesada;
-- testes end-to-end obrigatórios.
-
-Esses itens podem ser adicionados somente depois do fluxo obrigatório estar validado.
+- não há testes end-to-end automatizados;
+- a ordem e os dados das Caixinhas são persistidos apenas enquanto a agência
+  permanece em execução;
+- os tokens de paleta ainda não foram centralizados além dos tokens CSS atuais;
+- não há tema escuro nem biblioteca de componentes externa.
 
 ## Referências
 

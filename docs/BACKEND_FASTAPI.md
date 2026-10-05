@@ -2,7 +2,10 @@
 
 ## Status
 
-Implementado em `agencia/src/iceibank`, com controllers, services, repositories, models/schemas e dependências FastAPI separadas.
+Implementado em `agencia/src/iceibank`, com controllers, services, repositories,
+models/schemas e dependências FastAPI separadas. Este documento preserva o
+blueprint da Sprint 1; para as decisões atuais de mensageria, relógio vetorial,
+Caixinhas e controle financeiro, consultar [Estado atual do projeto](ESTADO_ATUAL_DO_PROJETO.md).
 
 ## Objetivo
 
@@ -15,10 +18,11 @@ Cada processo cria exatamente uma instância de:
 - `Settings` validada;
 - `ContaRepository` em memória;
 - `ControleFinanceiroRepository` em memória;
-- `RelogioLamport`;
-- `RegistroEventos`;
-- `AgenciaClient`;
-- serviços de contas, transferência, autenticação, controle financeiro e recomendações.
+- `RelogioVetorial`;
+- `EventLogger` em JSONL;
+- `MensageriaRabbitMQ`, quando `RABBITMQ_URL` estiver configurada;
+- serviços de contas, transferência, autenticação, Caixinhas, controle
+  financeiro e recomendações.
 
 Essas instâncias vivem durante todo o processo. Não devem ser recriadas por requisição.
 
@@ -44,8 +48,8 @@ flowchart LR
     C --> S["Service"]
     S --> P["Partição/regra"]
     P --> D["Repository"]
-    S --> L["Lamport/eventos"]
-    S --> H["AgenciaClient quando remoto"]
+    S --> L["Relógio vetorial/eventos"]
+    S --> H["RabbitMQ quando remoto"]
     C --> E["Schema/resposta HTTP"]
 ```
 
@@ -137,7 +141,7 @@ Responsabilidades:
 - validar partição;
 - criar/consultar conta;
 - depositar/sacar;
-- coordenar repositório, Lamport e log;
+- coordenar repositório, relógio vetorial e log;
 - lançar exceções de domínio.
 
 ### TransferenciaService
@@ -147,10 +151,10 @@ Responsabilidades:
 - validar origem, destino, valor e saldo;
 - distinguir fluxo local/remoto;
 - aplicar débito e crédito local;
-- gerar timestamp de envio;
-- chamar `AgenciaClient`;
-- registrar falha remota e preservar débito;
-- nunca implementar compensação automática nesta sprint.
+- gerar timestamp vetorial de envio;
+- publicar crédito no RabbitMQ com publisher confirm;
+- retornar indisponibilidade sem debitar quando o broker não confirmar;
+- processar o crédito no consumidor da agência de destino.
 
 ### AuthService
 
@@ -171,7 +175,7 @@ Responsabilidades:
 - registrar gasto categorizado;
 - coordenar gasto e débito de saldo na mesma seção crítica, se essa semântica for confirmada;
 - calcular totais e economia projetada;
-- registrar os eventos Lamport do extra.
+- registrar eventos vetoriais do extra.
 
 ### RecomendacaoEconomiaService
 
@@ -220,7 +224,7 @@ Autenticação possui tratamento separado para produzir 401 e o cabeçalho aprop
 1. validar;
 2. entrar na seção crítica;
 3. alterar estado;
-4. incrementar Lamport;
+4. incrementar o relógio vetorial local;
 5. registrar evento;
 6. liberar seção crítica e responder.
 
@@ -228,15 +232,15 @@ Se a escrita do JSONL falhar, a exceção é propagada como erro interno e o sis
 
 ### Transferência local
 
-Validar as duas contas antes de alterar qualquer saldo. Débito e crédito pertencem a uma única operação crítica local, embora gerem dois eventos Lamport consecutivos.
+Validar as duas contas antes de alterar qualquer saldo. Débito e crédito pertencem
+a uma única operação crítica local e geram eventos vetoriais locais.
 
 ### Transferência remota
 
-- débito local é confirmado antes da rede;
-- nenhum lock de saldo fica aberto durante `await` da rede;
-- falha de rede não reverte o débito;
-- timeout vira 502 controlado;
-- resposta 4xx do destino também é tratada como falha remota na origem, preservando a limitação do roteiro.
+- a origem publica uma mensagem persistente após validar e debitar;
+- o publisher confirm é necessário para responder sucesso;
+- o destino consome a fila própria e aplica o crédito localmente;
+- não existe confirmação reversa para a origem nem exatamente uma vez.
 
 ## Sincronização
 

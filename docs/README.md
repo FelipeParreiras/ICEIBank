@@ -14,13 +14,15 @@ Este diretório centraliza a documentação técnica, operacional e acadêmica d
 | Proxy Vite preservando 4045–4047 no Chrome | Aceito e implementado |
 | Código da Sprint 1 | Implementado |
 | Código da Sprint 2 | Implementado |
-| Testes automatizados da Sprint 2 | 41 aprovados; lint backend/frontend e build frontend aprovados |
+| Testes automatizados do estado atual | 43 aprovados; lint backend/frontend e build frontend aprovados |
 | Evidências PNG e vídeo | Pendentes de captura para entrega |
 
 ## Como navegar
 
 ### Visão geral e planejamento
 
+- [Estado atual do projeto](ESTADO_ATUAL_DO_PROJETO.md): funcionalidades,
+  contratos, interface, limitações e situação de qualidade em 05/10/2026.
 - [Roadmap da Sprint 2](../ROADMAP_SPRINT_2.md): escopo, implementação e pendências de evidência.
 - [SPEC-003 — Caixinha](specs/SPEC-003-caixinha.md): regras e validações da funcionalidade adicional.
 - [SPEC-004 — Mensageria e relógio vetorial](specs/SPEC-004-mensageria-e-relogio-vetorial.md): arquitetura distribuída da Sprint 2.
@@ -40,7 +42,8 @@ Este diretório centraliza a documentação técnica, operacional e acadêmica d
 - [Contrato da API Sprint 2](API_SPRINT_2.md): mensageria e Caixinhas.
 - [Configuração e execução](CONFIGURACAO_E_EXECUCAO.md): variáveis, portas, proxy e comandos validados.
 - [Segurança](SEGURANCA.md): JWT, credencial interna, CORS, segredos e limitações.
-- [Lamport e observabilidade](LAMPORT_E_OBSERVABILIDADE.md): regras do relógio, eventos e linha do tempo.
+- [Lamport e observabilidade](LAMPORT_E_OBSERVABILIDADE.md): referência
+  histórica da Sprint 1; a implementação atual usa relógio vetorial.
 
 ### Qualidade e entrega
 

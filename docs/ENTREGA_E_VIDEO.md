@@ -119,25 +119,27 @@ A duração deve seguir a orientação dos professores, se houver. O vídeo prec
 - transferência local;
 - transferência entre agências mostrando dois terminais.
 
-### 4. Lamport
+### 4. Relógio vetorial e mensageria
 
-- apontar timestamps na origem e destino;
+- apontar os vetores na origem e no evento de crédito remoto;
 - executar/mostrar linha do tempo unificada;
-- explicar por que timestamp menor não prova ausência/presença de causalidade na direção inversa.
+- explicar eventos causais e concorrentes;
+- mostrar que uma transferência remota confirma a publicação no RabbitMQ, não
+  o crédito já observado pelo cliente de origem.
 
-### 5. Falha conhecida
+### 5. Indisponibilidade da mensageria
 
-- desligar uma agência de destino;
-- executar transferência;
-- mostrar 502, saldo debitado e `TRANSFERENCIA_FALHOU`;
-- explicar que 2PC/Saga ficam para a Sprint 4.
+- executar transferência sem `RABBITMQ_URL` ou com broker indisponível;
+- mostrar 503 `MENSAGERIA_INDISPONIVEL` e saldo de origem intacto;
+- explicar que a entrega não é exatamente uma vez e não há confirmação reversa
+  de crédito.
 
 ### 6. JWT e frontend
 
 - login;
 - ação autenticada;
 - tratamento visual de erro;
-- explicar token do usuário versus token interno.
+- explicar token do usuário versus credenciais do RabbitMQ mantidas no backend.
 
 ### 7. Funcionalidade adicional
 
@@ -145,7 +147,7 @@ A duração deve seguir a orientação dos professores, se houver. O vídeo prec
 - registrar gastos categorizados;
 - mostrar limite, economia projetada e ajuste necessário;
 - explicar por que Delivery/Lazer receberam sugestões de redução;
-- mostrar que a consulta não incrementa Lamport;
+- mostrar que a consulta não incrementa o relógio vetorial;
 - explicar que a recomendação é determinística e limitada aos dados cadastrados.
 
 ### 8. Fechamento

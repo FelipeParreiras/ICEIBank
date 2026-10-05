@@ -25,7 +25,7 @@ Implementar um Controle Financeiro Mensal por conta com:
 - resumo do total gasto, economia projetada e distância da meta;
 - recomendações transparentes de redução por categoria;
 - visualização no frontend React;
-- eventos Lamport para alterações do planejamento e registros de gastos;
+- eventos vetoriais para alterações do planejamento e registros de gastos;
 - estado mantido em memória na agência responsável pela conta.
 
 As recomendações serão produzidas por regras matemáticas explicáveis. A funcionalidade não chamará um modelo de IA ou serviço externo.

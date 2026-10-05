@@ -25,7 +25,7 @@ Exemplo: para uma renda prevista de R$ 500,00 e meta de economia de R$ 100,00, o
 - cálculo de limite mensal, total gasto, economia projetada e valor faltante;
 - recomendações determinísticas de redução;
 - débito do valor registrado no saldo da conta;
-- eventos Lamport para planejamento e gasto;
+- eventos vetoriais para planejamento e gasto;
 - API protegida por JWT;
 - interface React;
 - armazenamento em memória na agência da conta;
@@ -42,7 +42,7 @@ Exemplo: para uma renda prevista de R$ 500,00 e meta de economia de R$ 100,00, o
 - uso automático de saque/transferência como gasto categorizado;
 - integração com cartões ou Open Finance;
 - gráficos avançados;
-- notificações;
+- notificações fora do escopo de domínio; o frontend usa Toastify para retorno de operações;
 - previsão por aprendizado de máquina ou IA generativa;
 - aconselhamento financeiro profissional.
 
@@ -50,7 +50,7 @@ Exemplo: para uma renda prevista de R$ 500,00 e meta de economia de R$ 100,00, o
 
 - A Sprint 1 armazena contas em memória por agência.
 - Cada conta pertence a `id_conta % 3`.
-- Operações que alteram estado são registradas com Lamport.
+- Operações que alteram estado são registradas com relógio vetorial.
 - O frontend React acessa qualquer agência usando JWT.
 - O extra anterior de health-check foi substituído pelo ADR-004.
 
@@ -117,7 +117,7 @@ A consulta retorna:
 - recomendações;
 - lista de gastos da competência.
 
-A consulta é somente leitura e não incrementa Lamport.
+A consulta é somente leitura e não incrementa o relógio vetorial.
 
 ## Modelo de domínio
 
@@ -267,7 +267,7 @@ O serviço financeiro coordena o `ContaRepository` ao registrar gasto. Os dois r
 - lista de recomendações;
 - histórico de gastos do mês.
 
-## Eventos Lamport
+## Eventos vetoriais
 
 ### `DEFINIR_PLANEJAMENTO_MENSAL`
 
@@ -345,7 +345,7 @@ Consultas de resumo não geram evento porque não alteram estado.
 - rejeitar novo gasto em categoria ausente do planejamento;
 - no frontend, adicionar, remover e reordenar uma categoria sem perder seus dados de limite e flexibilidade;
 - retornar valor não coberto quando necessário;
-- consulta não incrementa Lamport;
+- consulta não incrementa o relógio vetorial;
 - frontend mostra meta de R$ 100,00, gastos e recomendações;
 - salvar `evidencias/sprint1/funcionalidade-adicional.png`;
 - manter tudo no commit exclusivo do extra.

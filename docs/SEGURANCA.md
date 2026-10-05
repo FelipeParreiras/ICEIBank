@@ -14,7 +14,7 @@ Atender aos requisitos acadêmicos de autenticação JWT e proteger a comunicaç
 flowchart LR
     U["Pessoa usuária"] -->|"credenciais/JWT"| F["React no navegador"]
     F -->|"JWT"| A["API da agência"]
-    A -->|"token interno + Lamport"| B["API de outra agência"]
+    A -->|"AMQP + relógio vetorial"| B["RabbitMQ / agência de destino"]
     A -->|"sem segredos"| L["JSONL/terminal"]
 ```
 
@@ -41,7 +41,8 @@ flowchart LR
 - resposta genérica para usuário ou senha inválidos;
 - nenhuma senha escrita em logs ou retornada pela API.
 
-Essa decisão reduz o escopo. Ela não implementa cadastro, recuperação de senha ou vínculo entre usuário e conta.
+Também existe cadastro público que cria credenciais em memória na agência 0 e
+inicia a sessão. Não há recuperação de senha nem vínculo entre usuário e conta.
 
 ### JWT
 
@@ -75,28 +76,15 @@ Essa limitação é aceitável para o roteiro, desde que:
 
 ## Comunicação interna
 
-`POST /contas/{id}/creditar-remoto` não usa o JWT do navegador. Ela exige o cabeçalho:
+O crédito remoto não é mais exposto por rota HTTP. A origem publica uma mensagem
+AMQP no RabbitMQ; cada agência consome somente sua fila. `RABBITMQ_URL` contém
+credenciais do broker, fica apenas no ambiente local e nunca deve aparecer em
+logs, commits, frontend ou evidências. A validação do formato da mensagem ocorre
+antes de aplicar o crédito e o relógio vetorial é atualizado no recebimento.
 
-```text
-X-ICEIBANK-INTERNAL-TOKEN: <token-configurado-localmente>
-```
-
-Razões:
-
-- identidade de serviço é diferente da identidade do usuário;
-- a agência de origem não precisa propagar o JWT recebido;
-- o segredo interno nunca chega ao frontend;
-- chamadas diretas não autenticadas ficam bloqueadas.
-
-Regras:
-
-- comparar tokens de forma resistente a diferenças de tempo quando suportado;
-- rejeitar antes de aplicar crédito;
-- usar o mesmo token interno nas três instâncias locais;
-- não incluir o valor do token em exceções;
-- testar ausência, valor incorreto e valor correto.
-
-Em produção, esse mecanismo simples seria substituído por mTLS, identidade de workload ou tokens de serviço com rotação e escopo.
+Em produção, a URL do broker deve ser fornecida por um gerenciador de segredos,
+com rotação e TLS. O desenho acadêmico não implementa autenticação mútua entre
+serviços nem autorização por titularidade.
 
 ## Armazenamento do token no React
 
@@ -151,7 +139,7 @@ Em um banco real, a preferência seria cookie `HttpOnly`, `Secure` e `SameSite`,
 
 Pode registrar:
 
-- agência, tipo, Lamport e hora UTC;
+- agência, tipo, timestamp vetorial e hora UTC;
 - IDs de conta necessários para o exercício;
 - valor e saldo conforme o roteiro;
 - competência, categoria e valores agregados do controle financeiro;
@@ -188,9 +176,9 @@ Apagar somente o commit mais recente não torna um segredo antigo automaticament
 | SEG-02 | rota de conta sem JWT | 401 |
 | SEG-03 | JWT alterado | 401 |
 | SEG-04 | JWT expirado | 401 e frontend retorna ao login |
-| SEG-05 | rota interna sem token | 401 e saldo intacto |
-| SEG-06 | rota interna com token errado | 401 e saldo intacto |
-| SEG-07 | rota interna com token correto | crédito aplicado |
+| SEG-05 | `RABBITMQ_URL` ausente | transferência remota retorna 503 e saldo de origem intacto |
+| SEG-06 | publicação AMQP sem confirmação | transferência retorna erro e saldo de origem intacto |
+| SEG-07 | mensagem AMQP válida na fila do destino | crédito aplicado pelo consumidor |
 | SEG-08 | origem CORS não permitida | bloqueio pelo navegador |
 | SEG-09 | logs após todos os testes | nenhum segredo encontrado |
 | SEG-10 | controle financeiro sem JWT | 401 e nenhum dado retornado/alterado |

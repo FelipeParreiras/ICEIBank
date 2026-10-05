@@ -40,6 +40,7 @@ AUTH_PASSWORD_HASH=substitua-por-hash-local
 INTERNAL_TOKEN=substitua-por-token-interno-local
 FRONTEND_ORIGIN=http://localhost:5173
 TIMEOUT_AGENCIA_SEGUNDOS=3
+RABBITMQ_URL=amqps://usuario:senha@host.cloudamqp.com/vhost
 ```
 
 `AGENCIA_ID` será configurado separadamente em cada terminal e não precisa ficar no `.env` compartilhado.
@@ -207,7 +208,10 @@ npm run lint
 npm run build
 ```
 
-Resultado de referência em 7 de setembro de 2026: 15 testes backend aprovados, 92% de cobertura, ESLint aprovado e build Vite aprovado.
+Resultado de referência em 5 de outubro de 2026: 43 testes backend aprovados,
+`ruff check src tests`, ESLint e build Vite aprovados. Para validar o backend
+no ambiente virtual, executar `python -m ruff check src tests` e
+`python -m pytest tests` dentro de `agencia`.
 
 ## Reinicialização do ambiente
 

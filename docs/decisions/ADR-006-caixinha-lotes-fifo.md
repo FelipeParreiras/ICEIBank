@@ -2,7 +2,8 @@
 
 ## Status
 
-Aceito pelo aluno na mentoria. Implementação pendente.
+Aceito e implementado. A especificação vigente inclui também cor, gerenciamento,
+resgate automático na exclusão e ordenação personalizada das Caixinhas.
 
 ## Data
 
