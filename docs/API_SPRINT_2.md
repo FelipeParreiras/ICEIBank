@@ -25,6 +25,7 @@ Todas as rotas exigem JWT e a conta deve pertencer à agência atual.
 |---|---|---|
 | POST | `/contas/{contaId}/caixinhas` | Cria com `{ "nome": "Viagem" }`. |
 | GET | `/contas/{contaId}/caixinhas` | Lista apenas as Caixinhas da conta. |
+| PUT | `/contas/{contaId}/caixinhas/ordem` | Persiste a ordem visual com `{ "caixinhasIds": ["uuid-1", "uuid-2"] }`. A lista deve conter cada Caixinha da conta uma única vez. |
 | GET | `/contas/{contaId}/caixinhas/{caixinhaId}` | Consulta uma Caixinha vinculada. |
 | PATCH | `/contas/{contaId}/caixinhas/{caixinhaId}` | Atualiza nome e/ou cor, por exemplo `{ "nome": "Férias" }` ou `{ "cor": "azul" }`. |
 | DELETE | `/contas/{contaId}/caixinhas/{caixinhaId}` | Aplica rendimento, resgata todo o saldo e exclui. |
@@ -38,7 +39,9 @@ novas Caixinhas usam `verde` por padrão e a atualização aceita `caramelo`,
 `verde`, `azul`, `roxo` ou `coral`. O
 `DELETE` retorna `saldoConta` e `valorResgatado`. Nomes têm de 1 a 80 caracteres após espaços externos e são
 únicos por conta sem diferenciar maiúsculas. Os erros de domínio incluem
-`CAIXINHA_NAO_ENCONTRADA`, `CAIXINHA_INVALIDA` e `SALDO_INSUFICIENTE`.
+`CAIXINHA_NAO_ENCONTRADA`, `CAIXINHA_INVALIDA` e `SALDO_INSUFICIENTE`. A
+resposta da Caixinha inclui `ordem`, usada pela listagem para manter a posição
+definida pela pessoa usuária.
 
 ## Referências
 

@@ -22,6 +22,9 @@ pelo aluno para a Sprint 2, não uma funcionalidade específica imposta pelo rot
 - Listar somente as caixinhas da conta selecionada. Consulta, edição, exclusão,
   depósito e saque devem validar no backend que a caixinha pertence à conta
   informada, antes de acessar ou alterar seus dados.
+- A pessoa usuária pode abrir o modo de organização, arrastar as Caixinhas ou
+  usar controles de subida/descida e salvar a sequência. A lista ordenada é
+  validada no backend e persiste como atributo `ordem` de cada Caixinha.
 - Depósitos saem exclusivamente da conta vinculada e saques retornam a ela.
   Uma conta não pode operar a caixinha de outra, mesmo informando seu identificador.
 - Dentro da caixinha selecionada, escolher a operação `Depósito` ou `Saque`
@@ -61,6 +64,9 @@ O saldo de outra caixinha não complementa automaticamente a retirada.
    saldos, lotes ou prazos.
 6. Ao excluir, aplicar rendimento vencido, resgatar todo o saldo para a conta e
    remover a Caixinha na mesma transação local.
+7. Para reorganizar, enviar todos os identificadores das Caixinhas da conta na
+   sequência desejada. A requisição é recusada se houver identificador repetido,
+   ausente ou pertencente a outra conta.
 
 Caixinha e lote possuem responsabilidades distintas: a caixinha organiza a
 reserva por nome; cada lote registra um depósito e controla seu próprio prazo.
@@ -122,6 +128,8 @@ essa limitação existente deve continuar explícita.
   arbitrários e mantém contraste previsível entre etiqueta, caixa e saldo.
 - A exclusão com saldo resgata automaticamente o valor integral para a conta,
   conforme ADR-009.
+- A ordem é visual e não altera saldo, lotes, rendimento, histórico ou a conta
+  vinculada. Caixinhas recém-criadas são adicionadas ao final da ordem atual.
 
 ## Validação planejada
 
@@ -134,6 +142,8 @@ essa limitação existente deve continuar explícita.
   da vinculada à caixinha; rejeitar sem expor dados nem alterar saldos ou lotes.
 - Verificar que a edição de nome ou cor não permite trocar a conta vinculada,
   nem altera saldo, lotes, rendimentos ou prazos.
+- Reordenar três Caixinhas, consultar novamente e confirmar que a sequência
+  persiste; rejeitar lista com item duplicado ou faltante.
 - Verificar no frontend a seleção de `Depósito` e `Saque` dentro da caixinha,
   com o valor informado encaminhado à operação correspondente.
 - Renomear uma caixinha preserva seus lotes, rendimentos e prazos.
