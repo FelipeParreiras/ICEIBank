@@ -268,9 +268,8 @@ React mistura View e Controller com facilidade. Extrair lógica repetida para ho
 ## Limites atuais da interface
 
 - não há testes end-to-end automatizados;
-- a ordem e os dados das Caixinhas são persistidos apenas enquanto a agência
-  permanece em execução;
-- os tokens de paleta ainda não foram centralizados além dos tokens CSS atuais;
+- a ordem e os dados das Caixinhas persistem no SQLite local da agência;
+- a paleta verde-pastel e dourada está centralizada em tokens CSS globais;
 - não há tema escuro nem biblioteca de componentes externa.
 
 ## Referências

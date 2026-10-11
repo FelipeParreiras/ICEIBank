@@ -94,9 +94,8 @@ não o crédito já efetivado no destino. Sem `RABBITMQ_URL`, as agências conti
   e gerenciamento e dimensões padronizadas;
 - barra superior sticky, layout vertical e regras responsivas para telas
   estreitas;
-- identidade visual baseada em verdes pastéis e dourado para destaques. A
-  proposta de paleta está em `paleta-iceibank.html` na visualização da conversa;
-  a adoção dos tokens completos ainda é uma evolução de interface.
+- identidade visual aplicada por tokens CSS: verde e verde-pastel formam a
+  base, enquanto o dourado marca destaque, prioridade, foco e recomendações.
 
 ## Contratos HTTP principais
 
