@@ -4,7 +4,8 @@
 
 Instância RabbitMQ criada pelo aluno e conexão AMQP validada pela aplicação em
 04/10/2026. A topologia foi declarada pelo código e transferências reais foram
-processadas. As capturas PNG da entrega permanecem pendentes.
+processadas. Revisado em 11/10/2026; as capturas PNG da entrega permanecem
+pendentes.
 
 ## Etapa 1: preparar a instância
 

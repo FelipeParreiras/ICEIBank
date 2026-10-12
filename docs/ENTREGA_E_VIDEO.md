@@ -1,5 +1,10 @@
 # Guia de entrega e vídeo — Sprint 1
 
+> Este roteiro preserva a entrega histórica da Sprint 1. Para demonstrar a
+> execução atual, incluir também RabbitMQ, relógio vetorial, SQLite, Caixinhas
+> e a interface revisada da Sprint 2. Evidências reais continuam pendentes.
+> Revisado em 11/10/2026.
+
 ## Objetivo
 
 Garantir que o código funcional também seja reproduzível, explicável e alinhado aos 20 pontos da avaliação.

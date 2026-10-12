@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Transformar o roteiro em requisitos verificáveis e ligar cada requisito à arquitetura, ao teste e à evidência correspondente. Os estados abaixo refletem a execução de 7 de setembro de 2026; PNGs, vídeo e histórico incremental continuam pendentes.
+Transformar o roteiro em requisitos verificáveis e ligar cada requisito à arquitetura, ao teste e à evidência correspondente. Os estados abaixo refletem a execução histórica da Sprint 1; a branch evoluiu para a Sprint 2. PNGs e vídeo continuam pendentes. Revisado em 11/10/2026.
 
 ## Legenda
 

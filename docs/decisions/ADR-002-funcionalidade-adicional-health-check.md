@@ -2,7 +2,7 @@
 
 ## Status
 
-Substituído por ADR-004
+Substituído por ADR-004. Revisado em 11/10/2026 como registro histórico.
 
 ## Data
 

@@ -2,7 +2,9 @@
 
 ## Status
 
-Planejado. **Nenhum comando de staging ou commit foi executado ao criar este documento.**
+Planejamento histórico da Sprint 1. Os commits efetivamente realizados devem
+ser consultados no histórico Git; este plano não é o registro da implementação
+vigente. Revisado em 11/10/2026.
 
 ## Objetivo
 

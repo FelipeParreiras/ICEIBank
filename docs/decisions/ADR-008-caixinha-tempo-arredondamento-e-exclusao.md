@@ -2,7 +2,7 @@
 
 ## Status
 
-Aceito e implementado em 04/10/2026. A regra de exclusão foi substituída pelo
+Aceito e implementado em 04/10/2026; revisado em 11/10/2026. A regra de exclusão foi substituída pelo
 [ADR-009](ADR-009-exclusao-caixinha-com-resgate-automatico.md); as regras de
 tempo e arredondamento permanecem aceitas.
 
@@ -44,7 +44,8 @@ a medição de dois dias, o arredondamento e a exclusão com saldo.
 - Leitura pode materializar rendimento vencido e registrar evento vetorial.
 - Valores compostos são estáveis em centavos, mas acumulam os efeitos naturais
   de arredondamento a cada ciclo.
-- Persistência será necessária antes de tratar reinício como cenário bancário real.
+- A persistência foi adicionada no ADR-010; reiniciar preserva o estado local,
+  ainda sem backup automático, replicação ou garantia distribuída.
 
 ## Referências
 

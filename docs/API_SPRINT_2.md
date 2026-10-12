@@ -1,5 +1,11 @@
 # Contrato da API - Sprint 2
 
+## Status
+
+Implementado e revisado em 11/10/2026. Complementa a API da Sprint 1 para o
+fluxo remoto assíncrono e para Caixinhas; a rota HTTP legada de crédito remoto
+não existe na execução vigente.
+
 ## Transferências
 
 `POST /transferencias` continua exigindo JWT e recebe `idOrigem`, `idDestino` e

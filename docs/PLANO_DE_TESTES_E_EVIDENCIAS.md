@@ -13,7 +13,12 @@ salvos em `evidencias/sprint1/`.
 > controle financeiro, mas não declara como reproduzidos os cenários históricos
 > de HTTP direto, falha HTTP `502` e Lamport.
 
-## Resultado da execução de referência
+Na regressão documental de 11/10/2026, a suíte atual do backend teve 45 testes
+aprovados e `ruff check src tests` passou; o frontend passou em lint e build.
+Esses comandos verificam o estado vigente, mas não substituem as capturas reais
+que permanecem pendentes.
+
+## Resultado histórico da execução de referência
 
 | Verificação | Resultado |
 |---|---|
@@ -27,6 +32,19 @@ salvos em `evidencias/sprint1/`.
 | linha do tempo | arquivos das três agências lidos e ordenados pelo Lamport |
 
 O Google Chrome bloqueou o acesso direto à porta 4045. O reteste pelo proxy Vite em 5173 passou; a decisão está registrada no ADR-005.
+
+## Regressão da implementação vigente
+
+| Verificação | Resultado em 11/10/2026 |
+|---|---|
+| `agencia/.venv/Scripts/python.exe -m pytest -q` | 45 testes aprovados |
+| `agencia/.venv/Scripts/python.exe -m ruff check src tests` | aprovado |
+| `frontend/npm run lint` | aprovado |
+| `frontend/npm run build` | aprovado |
+
+O lint amplo de `agencia/scripts/mesclar_logs.py` não integra este resultado;
+suas pendências de estilo devem ser corrigidas antes de afirmar `ruff check .`
+como aprovado.
 
 ## Objetivo
 

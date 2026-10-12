@@ -2,11 +2,18 @@
 
 ## Status
 
-Implementada e validada localmente.
+Implementada como baseline histórica da Sprint 1. A execução vigente evoluiu
+para a Sprint 2: RabbitMQ e relógio vetorial substituíram o crédito remoto HTTP
+e o relógio de Lamport. Revisada em 11/10/2026; ver SPEC-004 e ADR-007 para o
+fluxo operacional atual.
 
 ## Objetivo
 
-Definir a arquitetura executável da Sprint 1 do ICEIBank usando Python com FastAPI no backend e React no frontend, mantendo os requisitos de API REST/MVC, particionamento de contas, relógio lógico de Lamport, comunicação direta entre três agências, autenticação JWT, observabilidade, evidências e funcionalidade adicional.
+Registrar a arquitetura executável entregue na Sprint 1 do ICEIBank usando
+Python/FastAPI e React. Esta especificação preserva a baseline de API
+REST/MVC, particionamento, Lamport e comunicação HTTP direta; a arquitetura
+ativa após a Sprint 2 é complementada e, nos pontos de mensageria e relógio,
+substituída pela SPEC-004.
 
 ## Escopo
 
@@ -52,9 +59,10 @@ particionadas e validam JWT localmente. A agência 0 é um ponto único de falha
 logins e cadastros; reiniciá-la preserva os usuários criados no SQLite local. Essa escolha
 mantém uma única fonte de verdade para credenciais sem senhas divergentes entre processos.
 
-## Contexto atual
+## Contexto da baseline Sprint 1
 
-- O repositório contém apenas os documentos iniciais e ainda não possui aplicação.
+- O repositório possui a aplicação implementada, testes e documentação das
+  Sprints 1 e 2.
 - O roteiro proíbe backend em Node.js e aceita Java ou Python.
 - A decisão do aluno é usar Python/FastAPI por familiaridade e praticidade.
 - A decisão do aluno é usar React por experiência prévia.
@@ -67,9 +75,12 @@ mantém uma única fonte de verdade para credenciais sem senhas divergentes entr
 - [ADR-002: proposta de health-check substituída](../decisions/ADR-002-funcionalidade-adicional-health-check.md)
 - [ADR-003: JWT e autenticação interna](../decisions/ADR-003-autenticacao-e-comunicacao-interna.md)
 - [ADR-004: Controle Financeiro Mensal](../decisions/ADR-004-controle-financeiro-mensal.md)
+- [ADR-007: RabbitMQ e relógio vetorial](../decisions/ADR-007-mensageria-rabbitmq-e-relogio-vetorial.md)
+- [ADR-010: Persistência SQLite por agência](../decisions/ADR-010-persistencia-sqlite-por-agencia.md)
 - [SPEC-002: Controle Financeiro Mensal](SPEC-002-controle-financeiro-mensal.md)
+- [SPEC-004: Mensageria e relógio vetorial](SPEC-004-mensageria-e-relogio-vetorial.md)
 
-## Visão de execução
+## Visão de execução da Sprint 1 (histórica)
 
 ```mermaid
 flowchart LR
@@ -280,7 +291,7 @@ Valores monetários devem usar `Decimal`, e não `float`, para evitar erros de r
 
 O formato deve permanecer compatível entre as três agências para permitir a mesclagem dos logs.
 
-## Contrato HTTP
+## Contrato HTTP da Sprint 1 (histórico)
 
 ### Rotas públicas e autenticadas
 
@@ -296,13 +307,15 @@ O formato deve permanecer compatível entre as três agências para permitir a m
 | `POST` | `/contas/{id}/controle-financeiro/gastos` | JWT | 201 | registrar gasto categorizado |
 | `GET` | `/contas/{id}/controle-financeiro/{competencia}` | JWT | 200 | consultar resumo e recomendações |
 
-### Rota interna
+### Rota interna da baseline
 
 | Método | Rota | Proteção | Sucesso | Responsabilidade |
 |---|---|---|---:|---|
 | `POST` | `/contas/{id}/creditar-remoto` | token interno | 200 | aplicar crédito recebido de outra agência |
 
-A rota interna preserva o caminho estabelecido no roteiro. Ela não deve aceitar JWT de usuário como substituto da credencial interna.
+A rota interna preserva o caminho estabelecido no roteiro da Sprint 1. Ela foi
+removida da execução atual pelo ADR-007; créditos remotos agora chegam pela
+fila RabbitMQ da agência de destino.
 
 ### Erros padronizados
 
@@ -317,7 +330,7 @@ A rota interna preserva o caminho estabelecido no roteiro. Ela não deve aceitar
 
 O corpo de erro deve possuir ao menos `erro` e, quando útil, `codigo` para o frontend mapear mensagens sem depender do texto.
 
-## Fluxos funcionais
+## Fluxos funcionais da Sprint 1 (históricos)
 
 ### Operação local
 
@@ -366,7 +379,7 @@ Se a chamada ao destino falhar, a origem registra `TRANSFERENCIA_FALHOU` e respo
 
 A autenticação interna e a validação estrutural do corpo acontecem antes do controller. Depois que uma mensagem válida de outra agência é aceita, o destino executa `ao_receber` **antes** de consultar e creditar a conta, como no roteiro. Se a conta não existir, o relógio ainda avança porque a mensagem foi recebida, embora o crédito seja rejeitado.
 
-## Relógio de Lamport e concorrência
+## Relógio de Lamport e concorrência (histórico)
 
 Cada processo inicia seu contador em zero:
 
@@ -551,6 +564,15 @@ Os arquivos JSONL não serão versionados. As evidências visuais serão version
 - controle financeiro calcula a meta de economia e recomenda cortes verificáveis;
 - mesclador produz linha do tempo das três agências;
 - evidências, respostas, commits e vídeo atendem ao roteiro.
+
+## Estado operacional vigente
+
+O código atual preserva as decisões de stack, MVC, JWT, partição de contas e
+proxy Vite desta SPEC. O crédito remoto HTTP, `timestampLamport` e a falha
+502 com débito não revertido não são o fluxo ativo: a execução usa publisher
+confirm, RabbitMQ e `timestampVetorial`. Dados operacionais são persistidos em
+SQLite por agência. Consultar a SPEC-004, o ADR-007, o ADR-010 e o documento
+de estado atual antes de alterar o comportamento em produção local.
 
 ## Referências
 

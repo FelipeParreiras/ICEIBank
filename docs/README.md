@@ -15,7 +15,7 @@ Este diretório centraliza a documentação técnica, operacional e acadêmica d
 | Código da Sprint 1 | Implementado |
 | Código da Sprint 2 | Implementado |
 | Persistência local SQLite por agência | Aceito e implementado |
-| Testes automatizados do estado atual | 45 aprovados; lint backend/frontend e build frontend aprovados |
+| Testes automatizados do estado atual | 45 testes backend; `ruff check src tests`, lint e build frontend aprovados em 11/10/2026 |
 | Evidências PNG e vídeo | Pendentes de captura para entrega |
 
 ## Como navegar
@@ -23,7 +23,9 @@ Este diretório centraliza a documentação técnica, operacional e acadêmica d
 ### Visão geral e planejamento
 
 - [Estado atual do projeto](ESTADO_ATUAL_DO_PROJETO.md): funcionalidades,
-  contratos, interface, limitações e situação de qualidade em 05/10/2026.
+  contratos, interface, limitações e situação de qualidade em 11/10/2026.
+- [Auditoria documental de 11/10/2026](AUDITORIA_DOCUMENTAL_2026-10-11.md):
+  escopo revisado, fontes históricas e verificação executada.
 - [Roadmap da Sprint 2](../ROADMAP_SPRINT_2.md): escopo, implementação e pendências de evidência.
 - [SPEC-003 — Caixinha](specs/SPEC-003-caixinha.md): regras e validações da funcionalidade adicional.
 - [SPEC-004 — Mensageria e relógio vetorial](specs/SPEC-004-mensageria-e-relogio-vetorial.md): arquitetura distribuída da Sprint 2.

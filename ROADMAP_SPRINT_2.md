@@ -2,9 +2,10 @@
 
 ## Estado
 
-Implementação concluída em 04/10/2026. O backend, frontend, testes e documentação
-foram atualizados; a conexão à instância RabbitMQ real foi validada. As evidências
-PNG seguem pendentes de captura manual, sem alegação de que já existem.
+Implementação concluída e documentação revisada em 11/10/2026. O backend,
+frontend, testes e documentação foram atualizados; a conexão à instância
+RabbitMQ real foi validada. As evidências PNG seguem pendentes de captura
+manual, sem alegação de que já existem.
 
 Fonte: `Sprint 2 - ICEIBank.pdf`, fornecido pelo aluno, seções 2 a 11.
 O PDF informa entrega em 5 de outubro, às 23h59. Seu cronograma de três semanas
@@ -60,7 +61,8 @@ tem prazo próprio; resgates consomem lotes por FIFO e preservam o prazo do sald
 remanescente, conforme o [ADR-006](docs/decisions/ADR-006-caixinha-lotes-fifo.md).
 
 As regras adotadas são ciclo de 48 horas, `ROUND_HALF_UP`, cálculo sob demanda
-com relógio injetável e armazenamento somente em memória. Ver ADR-008.
+com relógio injetável e persistência SQLite local por agência. Ver ADR-008 e
+ADR-010.
 
 ## Base existente e pontos de integração
 
@@ -120,6 +122,7 @@ o resultado. Commits seguem incrementais, após revisão do diff.
 | 28/09/2026 | Leitura do roteiro e inspeção da arquitetura; roadmap inicial | Comparação documental com configuração, repositório de contas e serviços; testes não executados | Aluno propor como o fluxo remoto muda com a fila |
 | 28/09/2026 | Instância CloudAMQP RabbitMQ criada no plano Little Lemur | Confirmação do aluno; acesso ao Manager e conexão da aplicação pendentes | Abrir RabbitMQ Manager e identificar painel de exchanges/filas |
 | 04/10/2026 | Relógio vetorial, RabbitMQ, mesclador causal e Caixinha implementados | 41 testes, lint backend/frontend, build e RabbitMQ real aprovados | Capturar evidências PNG reais |
+| 11/10/2026 | Auditoria das fontes de verdade, persistência, frontend e identidade visual | 45 testes; `ruff check src tests`; lint e build frontend aprovados | Capturar evidências PNG reais |
 
 ## Referências
 

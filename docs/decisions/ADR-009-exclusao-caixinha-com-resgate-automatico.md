@@ -2,7 +2,7 @@
 
 ## Status
 
-Aceito e implementado em 05/10/2026. Substitui apenas a decisão de exclusão
+Aceito e implementado em 05/10/2026; revisado em 11/10/2026. Substitui apenas a decisão de exclusão
 protegida do ADR-008.
 
 ## Contexto

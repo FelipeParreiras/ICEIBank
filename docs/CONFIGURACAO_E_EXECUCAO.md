@@ -2,7 +2,7 @@
 
 ## Status
 
-Guia implementado e validado localmente em 7 de setembro de 2026.
+Guia revisado para a implementação das Sprints 1 e 2 em 11 de outubro de 2026.
 
 ## Pré-requisitos
 
@@ -209,7 +209,7 @@ npm run lint
 npm run build
 ```
 
-Resultado de referência em 5 de outubro de 2026: 43 testes backend aprovados,
+Resultado de referência em 11 de outubro de 2026: 45 testes backend aprovados,
 `ruff check src tests`, ESLint e build Vite aprovados. Para validar o backend
 no ambiente virtual, executar `python -m ruff check src tests` e
 `python -m pytest tests` dentro de `agencia`.

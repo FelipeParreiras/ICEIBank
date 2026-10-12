@@ -2,7 +2,7 @@
 
 ## Status
 
-Implementado e validado com lint e build de produção em 05/10/2026. O estado
+Implementado e revisado com lint e build de produção em 11/10/2026. O estado
 atual de todas as funcionalidades está em [Estado atual do projeto](ESTADO_ATUAL_DO_PROJETO.md).
 
 ## Objetivo

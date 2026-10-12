@@ -2,7 +2,7 @@
 
 ## Status
 
-Aceito e implementado em 04/10/2026.
+Aceito e implementado em 04/10/2026; revisado em 11/10/2026.
 
 ## Contexto
 

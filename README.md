@@ -4,8 +4,9 @@ Projeto acadêmico de banco distribuído desenvolvido incrementalmente em quatro
 
 ## Estado atual
 
-**Sprints 1 e 2 implementadas e validadas em 5 de outubro de 2026: 43 testes
-do backend, lint e build do frontend aprovados.**
+**Sprints 1 e 2 implementadas. Na revisão documental de 11 de outubro de
+2026, 45 testes do backend, `ruff check src tests`, lint e build do frontend
+foram aprovados.**
 
 Decisões confirmadas:
 
@@ -26,7 +27,9 @@ Decisão implementada:
 - JWT de usuário e credencial interna separada entre agências.
 - RabbitMQ para créditos remotos assíncronos e relógio vetorial de três posições.
 - React com abas de trabalho, notificações Toastify, modais de Caixinha e barra
-  superior sticky.
+  superior sticky, logo oficial e tema verde/dourado por tokens.
+- `SelectField` com menu próprio; a variante rolável é usada apenas em listas
+  de categorias que podem crescer.
 
 ## Objetivo da Sprint 2
 
@@ -84,6 +87,8 @@ Documentos principais:
 - [Contrato da API](docs/API_SPRINT_1.md)
 - [Blueprint do backend FastAPI](docs/BACKEND_FASTAPI.md)
 - [Blueprint do frontend React](docs/FRONTEND_REACT.md)
+- [Paleta de cores](docs/PALETA_DE_CORES.md)
+- [Auditoria documental de 11/10/2026](docs/AUDITORIA_DOCUMENTAL_2026-10-11.md)
 - [Configuração e execução](docs/CONFIGURACAO_E_EXECUCAO.md)
 - [Guia de desenvolvimento](docs/GUIA_DE_DESENVOLVIMENTO.md)
 - [Plano de testes e evidências](docs/PLANO_DE_TESTES_E_EVIDENCIAS.md)

@@ -2,7 +2,10 @@
 
 ## Status
 
-Contrato implementado e coberto pelos testes de integração da Sprint 1.
+Contrato histórico da Sprint 1, implementado e coberto pelos testes de
+integração. O crédito remoto HTTP e `timestampLamport` foram substituídos na
+execução atual por RabbitMQ e `timestampVetorial`; consultar a API Sprint 2
+antes de consumir transferências entre agências. Revisado em 11/10/2026.
 
 ## Convenções
 

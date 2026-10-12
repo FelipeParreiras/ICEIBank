@@ -2,9 +2,9 @@
 
 ## Status
 
-Implementado e coberto por testes automatizados em 04/10/2026. As decisões de
-tempo e arredondamento foram consolidadas no ADR-008; a exclusão com resgate
-automático foi definida no ADR-009.
+Implementado e revisado em 11/10/2026. A suíte atual do backend possui 45
+testes; as decisões de tempo e arredondamento foram consolidadas no ADR-008, a
+exclusão com resgate automático no ADR-009 e a persistência no ADR-010.
 
 ## Objetivo e escopo
 
@@ -131,7 +131,7 @@ essa limitação existente deve continuar explícita.
 - A ordem é visual e não altera saldo, lotes, rendimento, histórico ou a conta
   vinculada. Caixinhas recém-criadas são adicionadas ao final da ordem atual.
 
-## Validação planejada
+## Validação implementada e manual pendente
 
 - Criar, listar, consultar, renomear e excluir Caixinhas, confirmando o resgate
   automático do saldo na exclusão.
@@ -158,6 +158,9 @@ essa limitação existente deve continuar explícita.
   inicial de R$ 100,00; antes do vencimento, rejeitar esse valor.
 - Após processamento automático do mesmo período, o resgate não reaplica os 10%.
 - Cobrir saldo insuficiente, valores inválidos, vencimento exato e concorrência local.
+- Validar na interface os cartões em formato de caixa, modais de detalhes e
+  gerenciamento, paleta de cores e reordenação persistida. Capturas de entrega
+  continuam pendentes e não são substituídas por testes automatizados.
 
 ## Referências
 

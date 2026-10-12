@@ -6,6 +6,7 @@ Implementado em `agencia/src/iceibank`, com controllers, services, repositories,
 models/schemas e dependências FastAPI separadas. Este documento preserva o
 blueprint da Sprint 1; para as decisões atuais de mensageria, relógio vetorial,
 Caixinhas e controle financeiro, consultar [Estado atual do projeto](ESTADO_ATUAL_DO_PROJETO.md).
+Revisado em 11/10/2026.
 
 ## Objetivo
 
@@ -73,14 +74,16 @@ Falha de configuração deve impedir o início, não aparecer somente na primeir
 
 ## Interfaces implementadas
 
-As assinaturas abaixo definem intenção, não código final.
+As assinaturas abaixo definem intenção. Onde a Sprint 1 descreve Lamport ou
+cliente HTTP interno, a implementação final usa `RelogioVetorial` e
+`PublicadorCredito` sobre RabbitMQ.
 
 ### Relógio
 
 ```text
-evento_local() -> int
-ao_enviar() -> int
-ao_receber(timestamp_recebido: int) -> int
+evento_local() -> list[int]
+ao_enviar() -> list[int]
+ao_receber(timestamp_recebido: list[int]) -> list[int]
 ```
 
 As três operações usam o mesmo lock.
@@ -101,25 +104,27 @@ O repositório não retorna o dicionário interno. Operações compostas precisa
 ### Registro de eventos
 
 ```text
-registrar(tipo: TipoEvento, timestamp: int, detalhes: dict) -> Evento
+registrar(tipo: TipoEvento, timestamp: list[int], detalhes: dict) -> Evento
 caminho_arquivo() -> Path
 ```
 
 O registro serializa `Decimal`, horário UTC e detalhes de forma consistente.
 
-### Cliente de agência
+### Publicação para agência
 
 ```text
-creditar_remoto(
+publicar_credito(
     agencia_destino: int,
     id_conta: int,
     valor: Decimal,
-    timestamp_lamport: int,
+    timestamp_vetorial: list[int],
     origem_agencia: int
 ) -> CreditoRemotoResponse
 ```
 
-Ele resolve a URL a partir da configuração, nunca de entrada arbitrária do usuário.
+O adaptador declara exchange, filas e bindings duráveis e aguarda publisher
+confirm antes de o serviço debitar a origem. O React não fornece URL, routing
+key ou credenciais AMQP arbitrárias.
 
 ### Repositório de controle financeiro
 

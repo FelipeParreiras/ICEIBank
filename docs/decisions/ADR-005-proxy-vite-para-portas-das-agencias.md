@@ -2,7 +2,7 @@
 
 ## Status
 
-Aceito
+Aceito e implementado. Revisado em 11/10/2026.
 
 ## Data
 

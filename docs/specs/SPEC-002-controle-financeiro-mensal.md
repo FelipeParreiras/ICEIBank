@@ -2,7 +2,8 @@
 
 ## Status
 
-Implementado. Registrar gasto debita o saldo da conta na mesma seção crítica usada pelo repositório financeiro.
+Implementado e revisado em 11/10/2026. Registrar gasto debita o saldo da conta
+na mesma transação SQLite local que persiste o gasto.
 
 ## Objetivo
 
@@ -54,11 +55,13 @@ Exemplo: para uma renda prevista de R$ 500,00 e meta de economia de R$ 100,00, o
 - O frontend React acessa qualquer agência usando JWT.
 - O extra anterior de health-check foi substituído pelo ADR-004.
 
-## Premissa que requer confirmação
+## Decisão confirmada
 
 Na implementação, **registrar um gasto representa uma despesa bancária real e também reduz o saldo da conta**. A operação é atômica dentro da agência: ou o gasto é registrado e o saldo debitado, ou nenhum dos dois acontece.
 
-Se a intenção do aluno for apenas catalogar gastos já ocorridos sem tocar no saldo, essa regra deverá ser alterada antes da implementação, pois afeta domínio, testes, eventos e interface.
+Esta é a semântica vigente; não é apenas uma premissa de planejamento. Catalogar
+gastos já ocorridos sem tocar no saldo exigiria uma nova decisão e alteração de
+contrato, testes, eventos e interface.
 
 ## Comportamento funcional
 
@@ -321,7 +324,7 @@ Consultas de resumo não geram evento porque não alteram estado.
 | recomendações parecem arbitrárias | algoritmo explícito e motivos retornados |
 | limites de categoria não cobrem o ajuste | retornar parcela ainda não coberta |
 | usuário confunde renda com saldo | textos claros na interface |
-| reinício apaga planejamento | mensagem no README/interface de desenvolvimento |
+| reinício sem backup externo | SQLite preserva o estado local; cópia/backup e migrações versionadas seguem fora do escopo |
 | uso de `float` altera cálculos | `Decimal` em todo o domínio |
 | descrição expõe informação pessoal | evitar logs e evidências com dados reais |
 | reenvio duplica gasto e débito | desabilitar envio durante carregamento e documentar ausência de idempotência |

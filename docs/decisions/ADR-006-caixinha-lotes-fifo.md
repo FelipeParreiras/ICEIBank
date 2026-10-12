@@ -2,8 +2,9 @@
 
 ## Status
 
-Aceito e implementado. A especificação vigente inclui também cor, gerenciamento,
-resgate automático na exclusão e ordenação personalizada das Caixinhas.
+Aceito e implementado. Revisado em 11/10/2026. A especificação vigente inclui
+também cor, gerenciamento, resgate automático na exclusão, ordenação
+personalizada e persistência SQLite local das Caixinhas.
 
 ## Data
 
@@ -30,10 +31,10 @@ não preserva a idade dos depósitos nem determina qual prazo sobrevive ao resga
   o saldo e consumir lotes, incluindo vencimentos exatamente naquele instante.
   Não reaplicar períodos já remunerados.
 
-A decisão registra as regras explicitamente confirmadas pelo aluno. Não define
-persistência, agendamento, endpoints ou arredondamento.
-Essas questões continuam abertas na SPEC-003. O Controle Financeiro Mensal
-da Sprint 1 permanece uma funcionalidade independente.
+A decisão registra as regras explicitamente confirmadas pelo aluno. À época ela
+não definia persistência, agendamento, endpoints ou arredondamento. O estado
+implementado resolveu esses pontos na SPEC-003: SQLite local, atualização de
+rendimento sob demanda, contratos HTTP próprios e `ROUND_HALF_UP`.
 
 Complemento de escopo informado pelo aluno: haverá várias caixinhas nomeadas
 por conta, com CRUD completo e seleção da caixinha no depósito. Cada lote
@@ -74,8 +75,8 @@ limitação existente de autorização por titularidade do usuário autenticado.
   atomicamente com a Caixinha, seguindo a sincronização local do projeto.
 - A implementação deverá definir um desempate estável para depósitos com a mesma
   data/hora e testar resgates que atravessam vários lotes.
-- Agendamento e eventual mensageria deverão impedir pagamento duplicado do mesmo
-  período; o mecanismo ainda não foi escolhido.
+- O mecanismo implementado é sob demanda: `proximo_rendimento_em` persiste por
+  lote e avança a cada ciclo aplicado, impedindo dupla remuneração no período.
 
 ## Referências
 

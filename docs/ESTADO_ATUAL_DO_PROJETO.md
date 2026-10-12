@@ -2,10 +2,11 @@
 
 ## Status
 
-Referência técnica do estado implementado em 05/10/2026. As Sprints 1 e 2
-estão implementadas. O backend possui 43 testes automatizados aprovados; o
-frontend passa em lint e no build de produção. Capturas e vídeo de entrega são
-atividades separadas e devem ser feitos com dados fictícios.
+Referência técnica revisada em 11/10/2026. As Sprints 1 e 2 estão
+implementadas. A revisão executou 45 testes automatizados do backend e
+`ruff check src tests`; o frontend passou em lint e no build de produção.
+Capturas e vídeo de entrega são atividades separadas e devem ser feitos com
+dados fictícios.
 
 ## Visão do sistema
 
@@ -95,7 +96,11 @@ não o crédito já efetivado no destino. Sem `RABBITMQ_URL`, as agências conti
 - barra superior sticky, layout vertical e regras responsivas para telas
   estreitas;
 - identidade visual aplicada por tokens CSS: verde e verde-pastel formam a
-  base, enquanto o dourado marca destaque, prioridade, foco e recomendações.
+  base, enquanto o dourado marca destaque, prioridade, foco e recomendações;
+- logotipo oficial usado no acesso e no cabeçalho; o nome textual permanece
+  presente para acessibilidade;
+- `SelectField` com menu próprio e variante rolável exclusiva para categorias
+  de gasto, cuja lista pode crescer.
 
 ## Contratos HTTP principais
 

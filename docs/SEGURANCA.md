@@ -2,7 +2,9 @@
 
 ## Status
 
-Modelo implementado e validado. O ADR-003 está aceito.
+Modelo implementado e revisado em 11/10/2026. O JWT permanece regido pelo
+ADR-003; o crédito remoto HTTP descrito na baseline foi substituído pelo canal
+RabbitMQ definido no ADR-007.
 
 ## Objetivo
 
@@ -19,7 +21,8 @@ flowchart LR
 ```
 
 - Navegador e entrada HTTP são não confiáveis.
-- Uma agência confia em outra somente após validar a credencial interna.
+- Uma agência só processa crédito remoto recebido pela sua fila AMQP configurada
+  e após validar o formato da mensagem.
 - Logs e evidências são considerados públicos para fins acadêmicos; não podem conter segredos.
 - Arquivos `.env` são locais e não devem entrar no Git.
 
@@ -28,7 +31,8 @@ flowchart LR
 - saldo e integridade das contas persistidos no SQLite local;
 - chave de assinatura JWT;
 - hash da senha de demonstração;
-- token interno entre agências;
+- credenciais AMQP do broker; o token interno da Sprint 1 permanece apenas como
+  compatibilidade de configuração e não protege o fluxo remoto vigente;
 - tokens JWT emitidos;
 - detalhes operacionais que não precisam ser expostos.
 

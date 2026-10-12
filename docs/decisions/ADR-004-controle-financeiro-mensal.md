@@ -2,7 +2,7 @@
 
 ## Status
 
-Aceito
+Aceito e implementado. Revisado em 11/10/2026.
 
 ## Data
 
@@ -60,7 +60,8 @@ O catálogo fixo foi substituído por categorias gerenciadas no próprio planeja
 - A funcionalidade adicional passa a exigir modelos, repositório, serviço, controller, componentes React e testes próprios.
 - O commit do extra será maior que o antigo health-check, mas continuará isolado.
 - O aluno precisará explicar o algoritmo de recomendação e suas limitações.
-- Gastos e planejamentos serão perdidos quando a agência reiniciar, como as contas da Sprint 1.
+- Gastos e planejamentos persistem no SQLite local por agência desde o ADR-010;
+  não há backup automático, replicação ou migração versionada.
 - A implementação deve evitar que o extra atrase os requisitos que valem 19 pontos.
 - Registrar um gasto debita o saldo da conta atomicamente com a inclusão no repositório financeiro, conforme implementado na SPEC-002.
 
