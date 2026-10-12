@@ -45,7 +45,7 @@ frontend/src/
 └── main.jsx
 ```
 
-Os nomes podem mudar, mas cliente HTTP, autenticação e seleção de agência precisam continuar centralizados. `SelectField` é o componente visual reutilizável dos selects: aplica rótulo, foco, estado desabilitado e menu acessível próprio com a identidade verde-pastel e dourada. Isso evita a seleção azul do controle nativo e preserva operação por teclado.
+Os nomes podem mudar, mas cliente HTTP, autenticação e seleção de agência precisam continuar centralizados. `SelectField` é o componente visual reutilizável dos selects: aplica rótulo, foco, estado desabilitado e menu acessível próprio com a identidade verde-pastel e dourada. Isso evita a seleção azul do controle nativo e preserva operação por teclado. A prop opcional `scrollable` cria a variante com altura limitada e barra de rolagem na paleta; ela é usada no campo de categorias, pois essa lista pode crescer, e não deve ser habilitada para menus curtos.
 
 ## Identidade visual
 

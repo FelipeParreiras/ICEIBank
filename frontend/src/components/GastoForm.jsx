@@ -22,6 +22,7 @@ export function GastoForm({ contaId, categorias = [], onSubmit, loading }) {
       <SelectField
         label="Categoria"
         required
+        scrollable
         value={categoriaSelecionada}
         onChange={(event) => setCategoria(event.target.value)}
         disabled={categorias.length === 0}

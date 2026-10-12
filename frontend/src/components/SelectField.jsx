@@ -27,6 +27,7 @@ export function SelectField({
   value,
   onChange,
   disabled = false,
+  scrollable = false,
   ...selectProps
 }) {
   const [aberto, setAberto] = useState(false);
@@ -78,7 +79,12 @@ export function SelectField({
         <span aria-hidden="true" className="select-icon" />
       </button>
       {aberto && (
-        <div aria-label={label} className="select-menu" id={listboxId} role="listbox">
+        <div
+          aria-label={label}
+          className={`select-menu${scrollable ? " select-menu-scrollable" : ""}`}
+          id={listboxId}
+          role="listbox"
+        >
           {opcoes.map((opcao, indice) => (
             <div className="select-menu-item" key={`${opcao.grupo}-${opcao.value}`}>
               {opcao.grupo && (indice === 0 || opcoes[indice - 1].grupo !== opcao.grupo) && (
