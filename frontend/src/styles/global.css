@@ -17,6 +17,7 @@
   --gold: #c59a3c;
   --gold-dark: #8c671d;
   --gold-pastel: #e1cc79;
+  --gold-panel: #dfc779;
   --gold-soft: #fff2d8;
   --lime: #e1cc79;
   --cream: #f7f7ef;
@@ -194,6 +195,7 @@ body { color:var(--green-dark); background:var(--background-base); }
 .login-brand > p:not(.eyebrow) { color:#d7e9da; }
 .network-preview span { background:var(--green-dark); }
 .network-preview i { background:linear-gradient(90deg,var(--gold-pastel),rgba(245,231,190,.25)); }
+.login-panel { background:var(--gold-panel); }
 .login-card { border-color:var(--line); background:rgba(255,255,255,.9); box-shadow:0 24px 70px rgba(18,62,42,.12); }
 .field { color:#3d5548; }
 .field input,.field select { border-color:#cedccf; color:var(--green-dark); background:#fffefa; }

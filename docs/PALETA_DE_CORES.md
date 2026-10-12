@@ -31,6 +31,7 @@ os nomes de design; os tokens são a referência a ser usada no CSS.
 | Ouro profundo | `--gold-dark` | `#8C671D` | Texto de destaque e detalhes de ícone |
 | Ouro ICEI | `--gold` | `#C59A3C` | Destaque principal, progresso e prioridade |
 | Dourado pastel | `--gold-pastel` | `#E1CC79` | Ênfase suave em fundos escuros |
+| Dourado de painel | `--gold-panel` | `#DFC779` | Fundo da área de acesso, em contraste com a marca verde |
 | Creme dourado | `--gold-soft` | `#FFF2D8` | Fundo de ícones, recomendações e controles auxiliares |
 | Creme neutro | — | `#F7F7EF` | Equilíbrio visual em áreas de leitura e fundos claros |
 
@@ -49,6 +50,7 @@ os nomes de design; os tokens são a referência a ser usada no CSS.
 | Elemento | Cor predominante | Papel visual |
 |---|---|---|
 | Fundo externo e áreas de marca | Verde profundo e Verde ICEI | Define identidade, profundidade e continuidade visual |
+| Área de acesso | Dourado de painel | Separa visualmente o formulário da área institucional sem recorrer ao branco |
 | Painéis, cards e modais | Menta clara e Verde névoa | Mantém a leitura leve sem recorrer a grandes blocos brancos |
 | Campos e opções de seleção | Menta clara, borda Verde sálvia | Indica interação sem competir com a ação principal |
 | Ações primárias e opção selecionada | Verde ICEI com texto branco | Evidencia a ação que confirma ou altera dados |
