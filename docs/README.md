@@ -39,6 +39,7 @@ Este diretório centraliza a documentação técnica, operacional e acadêmica d
 - [Plano de commits](PLANO_DE_COMMITS_SPRINT_1.md): mensagens, arquivos, testes e evidências previstos por commit.
 - [Blueprint do backend FastAPI](BACKEND_FASTAPI.md): ciclo de vida, interfaces, dependências e concorrência.
 - [Blueprint do frontend React](FRONTEND_REACT.md): estado, componentes, fluxos e erros.
+- [Paleta de cores](PALETA_DE_CORES.md): tokens visuais, usos e regras de contraste.
 - [Contrato da API](API_SPRINT_1.md): endpoints, corpos, respostas e erros.
 - [Contrato da API Sprint 2](API_SPRINT_2.md): mensageria e Caixinhas.
 - [Configuração e execução](CONFIGURACAO_E_EXECUCAO.md): variáveis, portas, proxy e comandos validados.

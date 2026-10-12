@@ -43,7 +43,7 @@ frontend/src/
 └── main.jsx
 ```
 
-Os nomes podem mudar, mas cliente HTTP, autenticação e seleção de agência precisam continuar centralizados. `SelectField` é o componente visual reutilizável dos selects: aplica rótulo, foco, estado desabilitado e a seta da identidade verde-pastel e dourada sem substituir o comportamento nativo de teclado do navegador.
+Os nomes podem mudar, mas cliente HTTP, autenticação e seleção de agência precisam continuar centralizados. `SelectField` é o componente visual reutilizável dos selects: aplica rótulo, foco, estado desabilitado e menu acessível próprio com a identidade verde-pastel e dourada. Isso evita a seleção azul do controle nativo e preserva operação por teclado.
 
 ## Navegação
 
