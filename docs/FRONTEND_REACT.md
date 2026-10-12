@@ -16,6 +16,8 @@ frontend/src/
 ├── api/
 │   ├── cliente.js
 │   └── erros.js
+├── assets/
+│   └── iceibank-logo.png
 ├── components/
 │   ├── AgenciaSelector.jsx
 │   ├── AlertMessage.jsx
@@ -44,6 +46,15 @@ frontend/src/
 ```
 
 Os nomes podem mudar, mas cliente HTTP, autenticação e seleção de agência precisam continuar centralizados. `SelectField` é o componente visual reutilizável dos selects: aplica rótulo, foco, estado desabilitado e menu acessível próprio com a identidade verde-pastel e dourada. Isso evita a seleção azul do controle nativo e preserva operação por teclado.
+
+## Identidade visual
+
+O logotipo oficial fornecido para o projeto fica em `src/assets/iceibank-logo.png`.
+As telas de login e dashboard o usam como símbolo de marca, recortado dentro de
+um contêiner responsivo. O texto "ICEIBank" permanece adjacente no cabeçalho,
+de modo que o nome da aplicação continue disponível para leitores de tela e
+quando a imagem não puder ser carregada. A assinatura completa do ativo não
+deve ser redesenhada em CSS nem substituída por iniciais manuais.
 
 ## Navegação
 

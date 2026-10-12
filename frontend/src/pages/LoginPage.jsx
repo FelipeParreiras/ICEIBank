@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 import { mensagemAmigavel } from "../api/erros";
+import iceibankLogo from "../assets/iceibank-logo.png";
 import { AgenciaSelector } from "../components/AgenciaSelector";
 import { PasswordField } from "../components/PasswordField";
 import { useAuth } from "../hooks/useAuth";
@@ -44,7 +45,7 @@ export function LoginPage() {
   return (
     <main className="login-shell">
       <section className="login-brand" aria-label="Apresentação do ICEIBank">
-        <div className="brand-mark">IB</div>
+        <div className="brand-symbol brand-symbol-login" aria-hidden="true"><img src={iceibankLogo} alt="" /></div>
         <p className="eyebrow">Laboratório de sistemas distribuídos</p>
         <h1>Seu dinheiro, seus eventos, uma ordem lógica.</h1>
         <p>

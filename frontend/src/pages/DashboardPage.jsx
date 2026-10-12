@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 
 import { apiRequest } from "../api/cliente";
 import { mensagemAmigavel } from "../api/erros";
+import iceibankLogo from "../assets/iceibank-logo.png";
 import { AgenciaSelector } from "../components/AgenciaSelector";
 import { CaixinhaPanel } from "../components/CaixinhaPanel";
 import { ContaCard } from "../components/ContaCard";
@@ -179,7 +180,7 @@ export function DashboardPage() {
   return (
     <div className="app-shell">
       <header className="topbar">
-        <div className="brand"><span className="brand-mark small">IB</span><div><b>ICEIBank</b><small>Sprint 2 · RA 45</small></div></div>
+        <div className="brand"><span className="brand-symbol small" aria-hidden="true"><img src={iceibankLogo} alt="" /></span><div><b>ICEIBank</b><small>Sprint 2 · RA 45</small></div></div>
         <div className="topbar-actions"><AgenciaSelector disabled={loading} onChange={trocarAgencia} /><div className="user-chip"><span>{usuario?.slice(0, 1).toUpperCase()}</span><div><b>{usuario}</b><small>{agencia.nome}</small></div></div><button className="button ghost" onClick={() => logout()}>Sair</button></div>
       </header>
 
