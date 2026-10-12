@@ -81,7 +81,7 @@ h1, h2 { font-family: "Manrope", sans-serif; letter-spacing: -.035em; }
 .brand small,.user-chip small { color:#78827c; font-size:.7rem; }
 .brand b { font:800 1.05rem "Manrope"; }
 .topbar-actions { gap:1.2rem; }
-.topbar .compact-field span { display:none; }
+.topbar .compact-field > span:first-child { display:none; }
 .user-chip { gap:.55rem; padding-left:1rem; border-left:1px solid var(--line); }
 .user-chip > span { display:grid; width:34px; height:34px; place-items:center; border-radius:50%; color:var(--green); background:#e3efe6; font-weight:800; }
 .dashboard { width:min(1480px,calc(100% - 2rem)); margin:0 auto; padding:2.2rem 0 4rem; }
@@ -194,6 +194,12 @@ body { color:var(--green-dark); background:var(--cream); }
 .field { color:#3d5548; }
 .field input,.field select { border-color:#cedccf; color:var(--green-dark); background:#fffefa; }
 .field input:focus,.field select:focus { border-color:var(--green-medium); box-shadow:0 0 0 3px rgba(77,139,104,.18); }
+.select-field .select-control { position:relative; display:block; min-height:43px; overflow:hidden; border:1px solid #bdd4c1; border-radius:10px; background:var(--green-soft); transition:.15s; }
+.select-field .select-control::after { content:""; position:absolute; top:50%; right:.5rem; width:29px; height:29px; border-radius:7px; background:var(--gold-soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='m1 1 5 5 5-5' fill='none' stroke='%23805d18' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'/%3E%3C/svg%3E") center/12px 8px no-repeat; pointer-events:none; transform:translateY(-50%); }
+.select-field select { min-height:41px; padding:.68rem 3rem .68rem .8rem; border:0!important; border-radius:0; color:var(--green-dark); background:transparent!important; box-shadow:none!important; appearance:none; }
+.select-field .select-control:focus-within { border-color:var(--green-medium); box-shadow:0 0 0 3px rgba(77,139,104,.18); }
+.select-field .select-control:has(select:disabled) { border-color:#d6e2d7; background:#eef3ee; opacity:.72; }
+.select-field select option,.select-field select optgroup { color:var(--green-dark); background:var(--surface); }
 .button.primary { background:var(--green); box-shadow:0 6px 15px rgba(31,106,70,.18); }
 .button.secondary { color:var(--green-dark); border-color:#bdd4c1; background:var(--green-soft); }
 .button.ghost { color:var(--gold-dark); }

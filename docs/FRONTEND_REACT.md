@@ -26,6 +26,7 @@ frontend/src/
 │   ├── PlanejamentoMensalForm.jsx
 │   ├── RecomendacoesEconomia.jsx
 │   ├── ResumoFinanceiro.jsx
+│   ├── SelectField.jsx
 │   ├── TransferenciaForm.jsx
 │   └── GastosDoMesList.jsx
 ├── context/
@@ -42,7 +43,7 @@ frontend/src/
 └── main.jsx
 ```
 
-Os nomes podem mudar, mas cliente HTTP, autenticação e seleção de agência precisam continuar centralizados.
+Os nomes podem mudar, mas cliente HTTP, autenticação e seleção de agência precisam continuar centralizados. `SelectField` é o componente visual reutilizável dos selects: aplica rótulo, foco, estado desabilitado e a seta da identidade verde-pastel e dourada sem substituir o comportamento nativo de teclado do navegador.
 
 ## Navegação
 

@@ -1,10 +1,15 @@
 import { AGENCIAS } from "../api/cliente";
+import { SelectField } from "./SelectField";
 
 export function ContaSelector({ contas, value, onChange, disabled, label = "Conta" }) {
   return (
-    <label className="field">
-      <span>{label}</span>
-      <select required value={value} onChange={onChange} disabled={disabled || !contas.length}>
+    <SelectField
+      label={label}
+      required
+      value={value}
+      onChange={onChange}
+      disabled={disabled || !contas.length}
+    >
         <option value="">{contas.length ? "Selecione uma conta" : "Nenhuma conta cadastrada"}</option>
         {AGENCIAS.map((agencia) => {
           const contasDaAgencia = contas.filter((conta) => conta.agenciaId === agencia.id);
@@ -18,7 +23,6 @@ export function ContaSelector({ contas, value, onChange, disabled, label = "Cont
             </optgroup>
           );
         })}
-      </select>
-    </label>
+    </SelectField>
   );
 }
