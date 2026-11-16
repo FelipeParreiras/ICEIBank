@@ -4,7 +4,13 @@ from fastapi import APIRouter, Depends, Path, status
 
 from iceibank.api.dependencies import get_conta_service, usuario_atual
 from iceibank.models.conta import Conta
-from iceibank.schemas.conta import ContaResponse, CriarContaRequest, ValorRequest
+from iceibank.schemas.conta import (
+    ContaComVetorResponse,
+    ContaResponse,
+    CriarContaRequest,
+    SincronizarOperacaoRequest,
+    ValorRequest,
+)
 from iceibank.services.conta_service import ContaService
 
 router = APIRouter(
@@ -16,6 +22,15 @@ router = APIRouter(
 
 def _response(conta: Conta) -> ContaResponse:
     return ContaResponse(id=conta.id, nomeAluno=conta.nome_aluno, saldo=conta.saldo)
+
+
+def _response_com_vetor(conta: Conta, service: ContaService) -> ContaComVetorResponse:
+    return ContaComVetorResponse(
+        id=conta.id,
+        nomeAluno=conta.nome_aluno,
+        saldo=conta.saldo,
+        vetorAtual=service.clock.obter_vetor_atual(),
+    )
 
 
 @router.post("", response_model=ContaResponse, status_code=status.HTTP_201_CREATED)
@@ -33,12 +48,12 @@ def listar_contas(
     return [_response(conta) for conta in service.listar()]
 
 
-@router.get("/{conta_id}", response_model=ContaResponse)
+@router.get("/{conta_id}", response_model=ContaComVetorResponse)
 def buscar_conta(
     conta_id: Annotated[int, Path(ge=0)],
     service: Annotated[ContaService, Depends(get_conta_service)],
-) -> ContaResponse:
-    return _response(service.buscar(conta_id))
+) -> ContaComVetorResponse:
+    return _response_com_vetor(service.buscar(conta_id), service)
 
 
 @router.post("/{conta_id}/depositar", response_model=ContaResponse)
@@ -57,3 +72,15 @@ def sacar(
     service: Annotated[ContaService, Depends(get_conta_service)],
 ) -> ContaResponse:
     return _response(service.sacar(conta_id, dados.valor))
+
+
+@router.post("/{conta_id}/sincronizar", response_model=ContaComVetorResponse)
+def sincronizar_operacao_pendente(
+    conta_id: Annotated[int, Path(ge=0)],
+    dados: SincronizarOperacaoRequest,
+    service: Annotated[ContaService, Depends(get_conta_service)],
+) -> ContaComVetorResponse:
+    conta = service.sincronizar_operacao_pendente(
+        conta_id, dados.tipo, dados.valor, dados.vetor_conhecido
+    )
+    return _response_com_vetor(conta, service)

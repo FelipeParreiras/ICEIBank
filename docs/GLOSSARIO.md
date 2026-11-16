@@ -2,7 +2,8 @@
 
 ## Agência
 
-Instância independente do serviço bancário. Na Sprint 1 existem três, cada uma com identidade, porta, contas, relógio e log próprios.
+Instância independente do serviço bancário. Existem três, cada uma com
+identidade, porta, contas, relógio vetorial, SQLite e log próprios.
 
 ## Partição
 
@@ -18,7 +19,9 @@ Contador usado para ordenar eventos com base em causalidade conhecida, sem depen
 
 ## Relógio de Lamport
 
-Relógio lógico escalar que incrementa em eventos locais/envios e usa `max(local, recebido) + 1` ao receber mensagens.
+Relógio lógico escalar que incrementa em eventos locais/envios e usa
+`max(local, recebido) + 1` ao receber mensagens. É referência histórica da
+Sprint 1; a implementação atual usa relógio vetorial.
 
 ## Causalidade
 
@@ -62,7 +65,9 @@ Processo de decidir se uma identidade autenticada pode executar determinada aç�
 
 ## Token interno
 
-Credencial compartilhada apenas entre backends para proteger a rota de crédito remoto. Não é o mesmo JWT enviado pelo React.
+Credencial compartilhada apenas entre backends para proteger a rota de crédito
+remoto da Sprint 1. É diferente do JWT enviado pelo React, mas não participa do
+fluxo vigente: a rota HTTP foi substituída por RabbitMQ na Sprint 2.
 
 ## CORS
 
@@ -110,7 +115,9 @@ Categoria que a pessoa autoriza o sistema a considerar em recomendações de red
 
 ## Worker
 
-Processo que atende requisições. Mais de um worker para a mesma agência criaria estados em memória independentes e, por isso, não será usado na Sprint 1.
+Processo que atende requisições. Mais de um worker para a mesma agência criaria
+relógios independentes e concorrência fora do modelo operacional do SQLite
+local; por isso, não será usado na Sprint 1.
 
 ## Lock
 

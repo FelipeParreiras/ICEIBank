@@ -1,4 +1,10 @@
-# Relógio de Lamport e observabilidade
+# Relógio de Lamport e observabilidade — referência histórica da Sprint 1
+
+> A implementação atual da Sprint 2 substituiu Lamport por relógio vetorial e
+> RabbitMQ para créditos remotos. Este documento é mantido como registro do
+> requisito da Sprint 1; para o comportamento vigente, consulte
+> [SPEC-004](specs/SPEC-004-mensageria-e-relogio-vetorial.md) e
+> [Estado atual do projeto](ESTADO_ATUAL_DO_PROJETO.md).
 
 ## Objetivo
 

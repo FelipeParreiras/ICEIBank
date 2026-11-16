@@ -2,7 +2,10 @@
 
 ## Status
 
-Contrato implementado e coberto pelos testes de integração da Sprint 1.
+Contrato histórico da Sprint 1, implementado e coberto pelos testes de
+integração. O crédito remoto HTTP e `timestampLamport` foram substituídos na
+execução atual por RabbitMQ e `timestampVetorial`; consultar a API Sprint 2
+antes de consumir transferências entre agências. Revisado em 11/10/2026.
 
 ## Convenções
 
@@ -13,7 +16,8 @@ Contrato implementado e coberto pelos testes de integração da Sprint 1.
 - Valores monetários no domínio: `Decimal`.
 - Datas: ISO-8601 em UTC.
 - Autenticação de usuário: `Authorization: Bearer <JWT>`.
-- Autenticação interna: `X-ICEIBANK-INTERNAL-TOKEN: <token>`.
+- Créditos entre agências: RabbitMQ configurado por `RABBITMQ_URL`; não há rota
+  HTTP interna pública.
 - A agência de uma conta é `id % 3`.
 
 ## URLs-base
@@ -96,11 +100,11 @@ Rota pública disponível nas três agências. Cria credenciais e retorna 201 co
 - 422 `REQUISICAO_INVALIDA`: formato, campos obrigatórios ou limites inválidos.
 - 503 `AUTENTICACAO_INDISPONIVEL`: agência 0 indisponível ao encaminhar a requisição.
 
-A agência 0 mantém usuários em memória com inserção atômica e senha em hash PBKDF2.
-Reiniciá-la apaga os cadastros. As agências 1 e 2 encaminham cadastro e login por HTTP;
+A agência 0 mantém usuários no SQLite local com inserção atômica e senha em hash PBKDF2.
+Reiniciá-la preserva os cadastros. As agências 1 e 2 encaminham cadastro e login por HTTP;
 JWTs são aceitos pelas três instâncias. Nenhuma resposta de validação de autenticação
 inclui os valores recebidos de senha ou confirmação. Cadastro e login não alteram
-saldo nem o relógio de Lamport das operações bancárias.
+saldo nem o relógio vetorial das operações bancárias.
 
 ## Contas
 
@@ -108,7 +112,7 @@ saldo nem o relógio de Lamport das operações bancárias.
 
 Proteção: JWT. Retorna 200 com a lista de contas da agência consultada, ordenada por ID.
 Cada item contém `id`, `nomeAluno` e `saldo`, como na consulta individual.
-Uma agência sem contas retorna `[]`. A consulta não incrementa o relógio de Lamport.
+Uma agência sem contas retorna `[]`. A consulta não incrementa o relógio vetorial.
 O frontend consulta as três agências e agrupa suas contas nos seletores de origem e
 destino da transferência. A requisição é enviada à agência da conta de origem. Nos
 formulários de depósito e saque, a conta é definida automaticamente pela consulta
@@ -272,7 +276,7 @@ Resposta 200 remota:
 
 ```json
 {
-  "mensagem": "Transferência concluída (entre agências).",
+  "mensagem": "Transferência publicada para a agência de destino (entrega assíncrona).",
   "tipo": "ENTRE_AGENCIAS"
 }
 ```
@@ -284,7 +288,8 @@ Regras:
 - origem pertence à agência chamada;
 - origem existe e possui saldo;
 - destino local é validado antes de qualquer mutação;
-- no fluxo remoto, o débito ocorre antes da chamada ao destino, conforme o roteiro.
+- no fluxo remoto, o broker confirma a publicação antes de o débito ser aplicado;
+- o crédito é consumido de modo assíncrono pela agência de destino.
 
 Erros:
 
@@ -295,62 +300,22 @@ Erros:
 - 401 `NAO_AUTENTICADO`.
 - 404 `CONTA_ORIGEM_NAO_ENCONTRADA`.
 - 404 `CONTA_DESTINO_NAO_ENCONTRADA` no fluxo local.
-- 502 `AGENCIA_DESTINO_INDISPONIVEL` no fluxo remoto.
+- 503 `MENSAGERIA_INDISPONIVEL` se o RabbitMQ não estiver configurado ou não
+  confirmar a publicação; nesse caso, o débito não é aplicado.
 
-Resposta 502 esperada:
-
-```json
-{
-  "erro": "Falha ao contatar agência de destino. Débito já aplicado — inconsistência conhecida da Sprint 1.",
-  "codigo": "AGENCIA_DESTINO_INDISPONIVEL",
-  "detalhes": {
-    "debitoRevertido": false
-  }
-}
-```
-
-Essa resposta não representa um bug a ser corrigido nesta sprint. Ela documenta a limitação que será tratada com transações distribuídas na Sprint 4.
-
-### `POST /contas/{id}/creditar-remoto`
-
-Rota de uso exclusivo entre agências.
-
-Proteção: token interno.
-
-Requisição:
+Resposta 503 esperada:
 
 ```json
 {
-  "valor": 30.00,
-  "timestampLamport": 7,
-  "origemAgencia": 0
+  "erro": "Não foi possível publicar a transferência no RabbitMQ. O débito não foi aplicado.",
+  "codigo": "MENSAGERIA_INDISPONIVEL",
+  "detalhes": null
 }
 ```
 
-Resposta 200:
-
-```json
-{
-  "mensagem": "Crédito remoto aplicado.",
-  "saldoAtual": 110.00
-}
-```
-
-Ordem obrigatória:
-
-1. validar token interno e estrutura da mensagem;
-2. executar `ao_receber(timestampLamport)`;
-3. localizar a conta local;
-4. aplicar o crédito;
-5. registrar `TRANSFERENCIA_CREDITO_REMOTO` com o timestamp resultante.
-
-Erros:
-
-- 400 `CONTA_FORA_DA_PARTICAO`.
-- 400 `VALOR_INVALIDO`.
-- 401 `TOKEN_INTERNO_INVALIDO`.
-- 404 `CONTA_NAO_ENCONTRADA`.
-- 422 `REQUISICAO_INVALIDA`.
+Uma resposta 200 confirma apenas a publicação no broker. A entrega não é
+exatamente uma vez e não há confirmação reversa de crédito. A topologia AMQP e
+o formato da mensagem estão documentados na [SPEC-004](specs/SPEC-004-mensageria-e-relogio-vetorial.md).
 
 ## Funcionalidade adicional — Controle Financeiro Mensal
 
@@ -367,12 +332,13 @@ Requisição:
   "rendaPrevista": 500.00,
   "metaEconomia": 100.00,
   "limitesPorCategoria": {
-    "ALIMENTACAO": 150.00,
-    "TRANSPORTE": 100.00,
-    "DELIVERY": 80.00,
-    "LAZER": 70.00
+    "Alimentação": 150.00,
+    "Transporte": 100.00,
+    "Delivery": 80.00,
+    "Lazer": 70.00
   },
-  "categoriasFlexiveis": ["DELIVERY", "LAZER", "COMPRAS", "ASSINATURAS"]
+  "categoriasFlexiveis": ["Delivery", "Lazer", "Compras", "Assinaturas"],
+  "categoriasOrdenadas": ["Alimentação", "Transporte", "Delivery", "Lazer", "Compras", "Assinaturas"]
 }
 ```
 
@@ -386,12 +352,13 @@ Resposta 200:
   "metaEconomia": 100.00,
   "limiteGastoMensal": 400.00,
   "limitesPorCategoria": {
-    "ALIMENTACAO": 150.00,
-    "TRANSPORTE": 100.00,
-    "DELIVERY": 80.00,
-    "LAZER": 70.00
+    "Alimentação": 150.00,
+    "Transporte": 100.00,
+    "Delivery": 80.00,
+    "Lazer": 70.00
   },
-  "categoriasFlexiveis": ["DELIVERY", "LAZER", "COMPRAS", "ASSINATURAS"]
+  "categoriasFlexiveis": ["Delivery", "Lazer", "Compras", "Assinaturas"],
+  "categoriasOrdenadas": ["Alimentação", "Transporte", "Delivery", "Lazer", "Compras", "Assinaturas"]
 }
 ```
 
@@ -400,7 +367,9 @@ Regras:
 - renda maior que zero;
 - meta entre zero e a renda;
 - competência válida;
-- limites não negativos e categorias reconhecidas;
+- nome de categoria não vazio, normalizado e com no máximo 60 caracteres;
+- `categoriasOrdenadas` define todas as categorias do planejamento; as categorias presentes nos limites ou marcadas como flexíveis são incluídas nela quando omitidas;
+- a primeira categoria de `categoriasOrdenadas` é a mais importante;
 - soma dos limites por categoria não superior ao limite mensal;
 - atualização não apaga gastos existentes;
 - registrar `DEFINIR_PLANEJAMENTO_MENSAL` com evento local.
@@ -449,7 +418,7 @@ Regras:
 
 - planejamento da competência deve existir;
 - valor positivo com até duas casas;
-- categoria pertencente ao catálogo;
+- categoria configurada no planejamento da mesma competência;
 - saldo suficiente;
 - gasto e débito são uma única operação local;
 - registrar `REGISTRAR_GASTO` com novo saldo.
@@ -466,7 +435,7 @@ Erros:
 
 ### `GET /contas/{id}/controle-financeiro/{competencia}`
 
-Consulta planejamento, gastos, totais e recomendações. A operação não incrementa Lamport.
+Consulta planejamento, gastos, totais e recomendações. A operação não incrementa o relógio vetorial.
 
 Resposta 200 resumida:
 
@@ -483,19 +452,20 @@ Resposta 200 resumida:
   "valorAjuste": 50.00,
   "status": "AJUSTE_NECESSARIO",
   "totaisPorCategoria": {
-    "ALIMENTACAO": 150.00,
-    "TRANSPORTE": 80.00,
-    "DELIVERY": 120.00,
-    "LAZER": 100.00
+    "Alimentação": 150.00,
+    "Transporte": 80.00,
+    "Delivery": 120.00,
+    "Lazer": 100.00
   },
+  "categoriasOrdenadas": ["Alimentação", "Transporte", "Delivery", "Lazer", "Compras", "Assinaturas"],
   "recomendacoes": [
     {
-      "categoria": "DELIVERY",
+      "categoria": "Delivery",
       "reducaoSugerida": 40.00,
       "motivo": "ACIMA_DO_LIMITE"
     },
     {
-      "categoria": "LAZER",
+      "categoria": "Lazer",
       "reducaoSugerida": 10.00,
       "motivo": "ACIMA_DO_LIMITE"
     }
@@ -514,7 +484,7 @@ Erros:
 - 404 `PLANEJAMENTO_NAO_ENCONTRADO`.
 - 422 `COMPETENCIA_INVALIDA`.
 
-O algoritmo e o catálogo de categorias estão definidos na [SPEC-002](specs/SPEC-002-controle-financeiro-mensal.md).
+O algoritmo e as regras de categorias estão definidos na [SPEC-002](specs/SPEC-002-controle-financeiro-mensal.md).
 
 ## Códigos de autenticação
 

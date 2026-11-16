@@ -7,13 +7,12 @@ from uuid import UUID
 
 from iceibank.core.config import Settings
 from iceibank.core.exceptions import (
-    CaixinhaComSaldo,
     CaixinhaInvalida,
     CaixinhaNaoEncontrada,
     ContaNaoEncontrada,
     SaldoInsuficiente,
 )
-from iceibank.models.caixinha import Caixinha, LoteCaixinha
+from iceibank.models.caixinha import Caixinha, LoteCaixinha, MovimentoCaixinha
 from iceibank.models.evento import Evento
 from iceibank.repositories.caixinha_repository import CaixinhaRepository
 from iceibank.repositories.conta_repository import ContaRepository
@@ -53,7 +52,12 @@ class CaixinhaService:
                 for item in self.repository.listar_por_conta(conta_id)
             ):
                 raise CaixinhaInvalida("Já existe uma Caixinha com este nome nesta conta.")
-            caixinha = self.repository.inserir(Caixinha(conta_id=conta_id, nome=nome))
+            ordem = max(
+                (item.ordem for item in self.repository.listar_por_conta(conta_id)), default=-1
+            ) + 1
+            caixinha = self.repository.inserir(
+                Caixinha(conta_id=conta_id, nome=nome, ordem=ordem)
+            )
             self._evento(
                 "CRIAR_CAIXINHA", {"contaId": conta_id, "caixinhaId": caixinha.id, "nome": nome}
             )
@@ -70,30 +74,73 @@ class CaixinhaService:
         with self.repository.transacao():
             return self._atualizar_rendimento(self._buscar_da_conta(conta_id, caixinha_id))
 
-    def renomear(self, conta_id: int, caixinha_id: UUID, nome: str) -> Caixinha:
+    def atualizar(
+        self, conta_id: int, caixinha_id: UUID, nome: str | None, cor: str | None
+    ) -> Caixinha:
         self._validar_conta(conta_id)
         with self.repository.transacao():
             caixinha = self._buscar_da_conta(conta_id, caixinha_id)
-            if any(
-                item.id != caixinha_id and item.nome.casefold() == nome.casefold()
-                for item in self.repository.listar_por_conta(conta_id)
-            ):
-                raise CaixinhaInvalida("Já existe uma Caixinha com este nome nesta conta.")
-            caixinha.nome = nome
+            if nome is not None:
+                if any(
+                    item.id != caixinha_id and item.nome.casefold() == nome.casefold()
+                    for item in self.repository.listar_por_conta(conta_id)
+                ):
+                    raise CaixinhaInvalida("Já existe uma Caixinha com este nome nesta conta.")
+                caixinha.nome = nome
+            if cor is not None:
+                caixinha.cor = cor
             caixinha = self.repository.atualizar(caixinha)
             self._evento(
-                "RENOMEAR_CAIXINHA", {"contaId": conta_id, "caixinhaId": caixinha.id, "nome": nome}
+                "ATUALIZAR_CAIXINHA",
+                {"contaId": conta_id, "caixinhaId": caixinha.id, "nome": nome, "cor": cor},
             )
             return caixinha
 
-    def excluir(self, conta_id: int, caixinha_id: UUID) -> None:
+    def reordenar(self, conta_id: int, caixinhas_ids: list[UUID]) -> tuple[Caixinha, ...]:
         self._validar_conta(conta_id)
         with self.repository.transacao():
+            existentes = {item.id: item for item in self.repository.listar_por_conta(conta_id)}
+            ids_recebidos = set(caixinhas_ids)
+            if len(ids_recebidos) != len(caixinhas_ids) or ids_recebidos != set(existentes):
+                raise CaixinhaInvalida(
+                    "A ordem deve conter cada Caixinha da conta uma única vez."
+                )
+            for ordem, caixinha_id in enumerate(caixinhas_ids):
+                caixinha = existentes[caixinha_id]
+                caixinha.ordem = ordem
+                self.repository.atualizar(caixinha)
+            self._evento(
+                "REORDENAR_CAIXINHAS",
+                {
+                    "contaId": conta_id,
+                    "caixinhasIds": [str(caixinha_id) for caixinha_id in caixinhas_ids],
+                },
+            )
+            return self.repository.listar_por_conta(conta_id)
+
+    def excluir(self, conta_id: int, caixinha_id: UUID) -> tuple[Decimal, Decimal]:
+        self._validar_conta(conta_id)
+        with self.repository.transacao(), self.conta_repository.transacao():
             caixinha = self._atualizar_rendimento(self._buscar_da_conta(conta_id, caixinha_id))
-            if caixinha.saldo > 0:
-                raise CaixinhaComSaldo()
+            valor_resgatado = caixinha.saldo
+            conta = self._conta_existente(conta_id)
+            conta.saldo += valor_resgatado
+            conta = self.conta_repository.atualizar(conta)
+            if valor_resgatado:
+                caixinha.movimentos.append(
+                    MovimentoCaixinha("EXCLUSAO_RESGATE", valor_resgatado, self.agora())
+                )
             self.repository.remover(caixinha_id)
-            self._evento("EXCLUIR_CAIXINHA", {"contaId": conta_id, "caixinhaId": caixinha_id})
+            self._evento(
+                "EXCLUIR_CAIXINHA",
+                {
+                    "contaId": conta_id,
+                    "caixinhaId": caixinha_id,
+                    "valorResgatado": valor_resgatado,
+                    "saldoConta": conta.saldo,
+                },
+            )
+            return conta.saldo, valor_resgatado
 
     def guardar(self, conta_id: int, caixinha_id: UUID, valor: Decimal) -> tuple[Caixinha, Decimal]:
         self._validar_conta(conta_id)
@@ -106,6 +153,7 @@ class CaixinhaService:
             caixinha.lotes.append(
                 LoteCaixinha(saldo=valor, proximo_rendimento_em=self.agora() + PERIODO_RENDIMENTO)
             )
+            caixinha.movimentos.append(MovimentoCaixinha("DEPOSITO", valor, self.agora()))
             caixinha = self.repository.atualizar(caixinha)
             conta = self.conta_repository.atualizar(conta)
             self._evento(
@@ -138,6 +186,7 @@ class CaixinhaService:
             caixinha.lotes = lotes_restantes
             conta = self._conta_existente(conta_id)
             conta.saldo += valor
+            caixinha.movimentos.append(MovimentoCaixinha("RETIRADA", valor, self.agora()))
             caixinha = self.repository.atualizar(caixinha)
             conta = self.conta_repository.atualizar(conta)
             self._evento(
@@ -163,6 +212,7 @@ class CaixinhaService:
                 rendimento += lote.saldo - anterior
                 lote.proximo_rendimento_em += PERIODO_RENDIMENTO
         if rendimento:
+            caixinha.movimentos.append(MovimentoCaixinha("RENDIMENTO", rendimento, agora))
             caixinha = self.repository.atualizar(caixinha)
             self._evento(
                 "RENDIMENTO_CAIXINHA",

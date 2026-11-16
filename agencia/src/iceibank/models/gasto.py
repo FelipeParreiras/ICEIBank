@@ -24,7 +24,7 @@ class Gasto:
     conta_id: int
     descricao: str
     valor: Decimal
-    categoria: CategoriaGasto
+    categoria: str
     data: date
     registrado_em: datetime
 

@@ -8,6 +8,7 @@ from iceibank.core.config import Settings
 from iceibank.core.exceptions import UsuarioJaExiste
 from iceibank.core.security import decode_access_token, verify_password
 from iceibank.main import create_app
+from iceibank.repositories.sqlite_database import SQLiteDatabase
 from iceibank.repositories.usuario_repository import UsuarioRepository
 from iceibank.services.auth_client import AuthClient
 from iceibank.services.auth_service import AuthService
@@ -75,7 +76,7 @@ def test_cadastro_invalido_nao_cria_usuario(client: TestClient, alteracao: dict,
 
 
 def test_cadastro_armazena_hash_e_impede_duplicacao_concorrente(settings: Settings):
-    repository = UsuarioRepository()
+    repository = UsuarioRepository(SQLiteDatabase(settings.database_path))
     service = AuthService(settings, repository, AuthClient(settings))
 
     def cadastrar(_: int) -> str:

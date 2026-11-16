@@ -2,8 +2,9 @@
 
 ## Status
 
-Implementado e validado por testes automatizados e RabbitMQ real em 04/10/2026.
-As capturas PNG exigidas permanecem pendentes; não foram sintetizadas.
+Implementado e revisado em 11/10/2026. A suíte atual possui 45 testes do
+backend; a validação com RabbitMQ real ocorreu em 04/10/2026. As capturas PNG
+exigidas permanecem pendentes; não foram sintetizadas.
 
 ## Objetivo
 
@@ -20,8 +21,9 @@ e registrar causalidade com relógios vetoriais de três posições.
 - Campo JSONL `timestampVetorial`; `timestampLamport` não é mais emitido.
 - Linha do tempo ordenada por hora de parede e análise de pares concorrentes.
 
-Não inclui persistência das contas, autorização por titularidade, confirmação de
-crédito ao remetente ou dead-letter queue.
+Não inclui autorização por titularidade, confirmação de crédito ao remetente ou
+dead-letter queue. A persistência das contas e demais dados locais foi incluída
+posteriormente no ADR-010, sem criar replicação entre agências.
 
 ## Comportamento funcional
 
@@ -32,9 +34,9 @@ informa que a mensagem foi publicada, não que o crédito terminou.
 
 O consumidor combina cada posição do vetor recebido com o vetor local usando
 o máximo e incrementa sua própria posição antes de aplicar o crédito. Se a
-conta não existir após um reinício, registra `CREDITO_REMOTO_FALHOU` e confirma
-a mensagem para evitar reentrega infinita. A mensagem chegou; a ausência da
-conta é consequência do armazenamento ainda ser em memória.
+conta não existir, registra `CREDITO_REMOTO_FALHOU` e confirma a mensagem para
+evitar reentrega infinita. A ausência pode decorrer de uma conta nunca criada
+ou da remoção consciente do SQLite local da agência.
 
 ## Design técnico
 

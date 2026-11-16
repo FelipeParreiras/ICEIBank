@@ -2,8 +2,9 @@
 
 ## Status
 
-Implementado e coberto por testes automatizados em 04/10/2026. As decisões de
-tempo, arredondamento e exclusão foram consolidadas no ADR-008.
+Implementado e revisado em 11/10/2026. A suíte atual do backend possui 45
+testes; as decisões de tempo e arredondamento foram consolidadas no ADR-008, a
+exclusão com resgate automático no ADR-009 e a persistência no ADR-010.
 
 ## Objetivo e escopo
 
@@ -16,10 +17,14 @@ pelo aluno para a Sprint 2, não uma funcionalidade específica imposta pelo rot
 - Uma conta pode ter várias caixinhas identificadas por nome, com CRUD completo:
   criar, listar/consultar, editar o nome e excluir.
 - Cada caixinha pertence exclusivamente à conta que a criou. Esse vínculo é
-  obrigatório e não pode ser alterado pela edição da caixinha.
+  obrigatório e não pode ser alterado pela edição da caixinha. A edição permite
+  alterar nome e cor visual, sem afetar saldo, lotes ou prazos.
 - Listar somente as caixinhas da conta selecionada. Consulta, edição, exclusão,
   depósito e saque devem validar no backend que a caixinha pertence à conta
   informada, antes de acessar ou alterar seus dados.
+- A pessoa usuária pode abrir o modo de organização, arrastar as Caixinhas ou
+  usar controles de subida/descida e salvar a sequência. A lista ordenada é
+  validada no backend e persiste como atributo `ordem` de cada Caixinha.
 - Depósitos saem exclusivamente da conta vinculada e saques retornam a ela.
   Uma conta não pode operar a caixinha de outra, mesmo informando seu identificador.
 - Dentro da caixinha selecionada, escolher a operação `Depósito` ou `Saque`
@@ -53,8 +58,15 @@ O saldo de outra caixinha não complementa automaticamente a retirada.
    o novo lote na caixinha selecionada na mesma operação atômica local.
    Para saque, aplicar rendimentos vencidos, validar o saldo da caixinha e
    consumir seus lotes por FIFO, creditando a conta atomicamente com a retirada.
-5. Permitir editar o nome sem alterar saldos, lotes ou prazos.
-6. Bloquear exclusão enquanto houver saldo; o usuário precisa resgatar antes.
+5. No gerenciamento, permitir editar o nome e escolher uma cor de uma paleta
+   controlada (`caramelo`, `verde`, `azul`, `roxo` e `coral`), sendo `verde` o
+   padrão de criação, sem alterar
+   saldos, lotes ou prazos.
+6. Ao excluir, aplicar rendimento vencido, resgatar todo o saldo para a conta e
+   remover a Caixinha na mesma transação local.
+7. Para reorganizar, enviar todos os identificadores das Caixinhas da conta na
+   sequência desejada. A requisição é recusada se houver identificador repetido,
+   ausente ou pertencente a outra conta.
 
 Caixinha e lote possuem responsabilidades distintas: a caixinha organiza a
 reserva por nome; cada lote registra um depósito e controla seu próprio prazo.
@@ -89,9 +101,9 @@ técnica de efetivação dessa atualização em caso de rejeição ainda será d
 ## Contexto técnico
 
 O projeto usa Python/FastAPI, serviços para regras de negócio, repositórios
-sincronizados em memória e `Decimal` para dinheiro. A implementação da Caixinha
-deve seguir essas convenções. Ainda não foram definidos endpoints, modelos,
-agendamento ou integração com mensageria.
+SQLite locais por agência e `Decimal` para dinheiro. A implementação da Caixinha
+segue essas convenções e mantém endpoints, modelos e integração de mensageria
+separados das regras locais da reserva.
 
 O vínculo conta–caixinha é uma regra de domínio e deve ser validado no serviço,
 não apenas por filtragem no frontend. A autorização usuário–conta é uma questão
@@ -106,20 +118,32 @@ essa limitação existente deve continuar explícita.
   `ROUND_HALF_UP`.
 - Nomes possuem de 1 a 80 caracteres após trim e são únicos por conta sem
   diferenciação entre maiúsculas e minúsculas.
-- O próximo vencimento de cada lote é mantido em memória; rendimentos vencidos
+- O próximo vencimento de cada lote é persistido em SQLite; rendimentos vencidos
   são aplicados sob demanda e cada ciclo avança esse vencimento.
-- Reiniciar a agência apaga Caixinhas e lotes, como as demais estruturas em memória.
+- Reiniciar a agência preserva Caixinhas, lotes, ordem, cor e histórico local.
 - A Caixinha não usa RabbitMQ: é uma regra local e atômica da agência responsável.
+- Cada Caixinha persiste o histórico de depósitos, retiradas e rendimentos,
+  exibido no detalhe do cartão.
+- A cor é persistida como atributo da Caixinha; a paleta fechada evita valores
+  arbitrários e mantém contraste previsível entre etiqueta, caixa e saldo.
+- A exclusão com saldo resgata automaticamente o valor integral para a conta,
+  conforme ADR-009.
+- A ordem é visual e não altera saldo, lotes, rendimento, histórico ou a conta
+  vinculada. Caixinhas recém-criadas são adicionadas ao final da ordem atual.
 
-## Validação planejada
+## Validação implementada e manual pendente
 
-- Criar, listar, consultar, renomear e excluir Caixinhas vazias.
+- Criar, listar, consultar, renomear e excluir Caixinhas, confirmando o resgate
+  automático do saldo na exclusão.
 - Depositar na caixinha selecionada sem alterar saldos ou lotes das demais.
 - Criar caixinhas em duas contas e verificar que cada listagem contém somente
   as caixinhas da respectiva conta.
 - Tentar consultar, editar, excluir, depositar e sacar usando uma conta diferente
   da vinculada à caixinha; rejeitar sem expor dados nem alterar saldos ou lotes.
-- Verificar que a edição do nome não permite trocar a conta vinculada.
+- Verificar que a edição de nome ou cor não permite trocar a conta vinculada,
+  nem altera saldo, lotes, rendimentos ou prazos.
+- Reordenar três Caixinhas, consultar novamente e confirmar que a sequência
+  persiste; rejeitar lista com item duplicado ou faltante.
 - Verificar no frontend a seleção de `Depósito` e `Saque` dentro da caixinha,
   com o valor informado encaminhado à operação correspondente.
 - Renomear uma caixinha preserva seus lotes, rendimentos e prazos.
@@ -134,11 +158,15 @@ essa limitação existente deve continuar explícita.
   inicial de R$ 100,00; antes do vencimento, rejeitar esse valor.
 - Após processamento automático do mesmo período, o resgate não reaplica os 10%.
 - Cobrir saldo insuficiente, valores inválidos, vencimento exato e concorrência local.
+- Validar na interface os cartões em formato de caixa, modais de detalhes e
+  gerenciamento, paleta de cores e reordenação persistida. Capturas de entrega
+  continuam pendentes e não são substituídas por testes automatizados.
 
 ## Referências
 
 - [ADR-006 — Lotes e resgate FIFO](../decisions/ADR-006-caixinha-lotes-fifo.md)
-- [ADR-008 — Tempo e exclusão](../decisions/ADR-008-caixinha-tempo-arredondamento-e-exclusao.md)
+- [ADR-008 — Tempo e arredondamento](../decisions/ADR-008-caixinha-tempo-arredondamento-e-exclusao.md)
+- [ADR-009 — Exclusão com resgate automático](../decisions/ADR-009-exclusao-caixinha-com-resgate-automatico.md)
 - [Roadmap da Sprint 2](../../ROADMAP_SPRINT_2.md)
 - [Guia de desenvolvimento](../GUIA_DE_DESENVOLVIMENTO.md)
 - Confirmação do aluno na mentoria: guardar/resgatar movimenta o saldo da conta;

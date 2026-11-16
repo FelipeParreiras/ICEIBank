@@ -2,7 +2,7 @@
 
 ## Status
 
-Guia implementado e validado localmente em 7 de setembro de 2026.
+Guia revisado para a implementação das Sprints 1 e 2 em 11 de outubro de 2026.
 
 ## Pré-requisitos
 
@@ -40,6 +40,7 @@ AUTH_PASSWORD_HASH=substitua-por-hash-local
 INTERNAL_TOKEN=substitua-por-token-interno-local
 FRONTEND_ORIGIN=http://localhost:5173
 TIMEOUT_AGENCIA_SEGUNDOS=3
+RABBITMQ_URL=amqps://usuario:senha@host.cloudamqp.com/vhost
 ```
 
 `AGENCIA_ID` será configurado separadamente em cada terminal e não precisa ficar no `.env` compartilhado.
@@ -92,9 +93,9 @@ $env:AGENCIA_ID = "2"
 python -m uvicorn iceibank.main:app --app-dir src --host 127.0.0.1 --port 4047 --workers 1
 ```
 
-Não usar `--workers` maior que 1. Cada worker teria seu próprio dicionário de contas e relógio, dividindo incorretamente uma mesma agência.
+Não usar `--workers` maior que 1. Cada worker teria seu próprio relógio e uma conexão concorrente ao mesmo arquivo SQLite, o que está fora do modelo operacional desta entrega.
 
-O modo `--reload` é aceitável durante desenvolvimento, mas reinicializa o estado em memória quando detecta mudanças.
+O modo `--reload` é aceitável durante desenvolvimento: ao reiniciar, a agência reabre seu arquivo SQLite e preserva os dados locais.
 
 ## Configuração do frontend
 
@@ -138,8 +139,9 @@ automaticamente. Para validar o acesso entre agências, saia e entre com o mesmo
 selecionando outra agência. O usuário `aluno` continua disponível para demonstração.
 
 A agência 0 deve estar ativa para cadastro e login em qualquer agência. Ela mantém os
-usuários em memória; reiniciá-la remove os cadastros. As senhas não são salvas em `.env`
-nem em arquivos de log. Não é necessária instalação de banco de dados ou dependência nova.
+usuários no arquivo `data/iceibank-agencia-0.sqlite3`; reiniciá-la preserva os cadastros.
+As senhas não são salvas em `.env` nem em arquivos de log. SQLite usa a biblioteca padrão
+do Python e não exige servidor de banco adicional.
 
 ### Portas ocupadas
 
@@ -207,17 +209,24 @@ npm run lint
 npm run build
 ```
 
-Resultado de referência em 7 de setembro de 2026: 15 testes backend aprovados, 92% de cobertura, ESLint aprovado e build Vite aprovado.
+Resultado de referência em 11 de outubro de 2026: 45 testes backend aprovados,
+`ruff check src tests`, ESLint e build Vite aprovados. Para validar o backend
+no ambiente virtual, executar `python -m ruff check src tests` e
+`python -m pytest tests` dentro de `agencia`.
 
 ## Reinicialização do ambiente
 
-Contas existem apenas em memória. Reiniciar uma agência apaga as contas daquela instância, mas não deve apagar automaticamente os JSONL. Para uma demonstração previsível:
+Contas e demais dados locais persistem no arquivo SQLite de cada agência. Reiniciar uma
+agência não os apaga, nem deve apagar automaticamente os JSONL. Para reiniciar a massa de
+demonstração de modo previsível:
 
 1. encerrar somente os processos do ICEIBank;
 2. mover ou limpar conscientemente os logs da execução anterior;
-3. iniciar as três agências;
-4. recriar a massa de contas;
-5. executar os cenários na ordem do plano de testes.
+3. se desejar zerar uma agência, remover conscientemente apenas
+   `agencia/data/iceibank-agencia-{id}.sqlite3` com o processo dela parado;
+4. iniciar as três agências;
+5. recriar a massa de contas somente nas agências que foram zeradas;
+6. executar os cenários na ordem do plano de testes.
 
 Logs não devem ser removidos por um comando amplo ou recursivo. Confirmar sempre o diretório `agencia/data/` e os arquivos-alvo.
 
@@ -232,7 +241,7 @@ Logs não devem ser removidos por um comando amplo ou recursivo. Confirmar sempr
 | transferência remota retorna 401 | tokens internos diferentes | conferir configuração sem exibir valores |
 | transferência remota retorna 502 | destino parado, URL ou timeout | conferir terminal/porta do destino |
 | saldo desaparece após 502 | limitação intencional da sprint | registrar evidência; não implementar rollback |
-| contas desaparecem após edição | `--reload` reiniciou o processo | recriar massa de teste |
+| dados persistentes não aparecem | agência iniciou com outro `AGENCIA_ID` ou outro `data_dir` | conferir a identidade e o arquivo SQLite local |
 | clocks divergentes no mesmo ID | mais de um worker | iniciar exatamente um worker |
 
 ## Referências

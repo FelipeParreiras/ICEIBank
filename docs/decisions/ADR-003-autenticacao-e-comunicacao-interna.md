@@ -2,7 +2,8 @@
 
 ## Status
 
-Aceito
+Aceito para autenticação de usuários. A decisão sobre o crédito remoto HTTP foi
+substituída pelo ADR-007; revisado em 11/10/2026.
 
 ## Data
 
@@ -17,10 +18,16 @@ O roteiro exige JWT para as rotas que leem ou modificam contas e pede uma decis�
 - autenticar usuários por `POST /auth/login` e emitir JWT com expiração;
 - usar o mesmo segredo JWT nas três instâncias para permitir troca da agência de entrada;
 - proteger rotas de contas, transferências e controle financeiro com JWT;
-- proteger `/contas/{id}/creditar-remoto` com uma credencial interna compartilhada apenas pelos backends;
+- na baseline da Sprint 1, proteger `/contas/{id}/creditar-remoto` com uma
+  credencial interna compartilhada apenas pelos backends;
 - nunca enviar a credencial interna ao React;
 - configurar segredos por ambiente e ignorar `.env` no Git;
 - reconhecer que a Sprint 1 autentica o usuário, mas não autoriza operações por titularidade.
+
+Na implementação vigente, a rota de crédito remoto foi removida e a mensagem
+RabbitMQ não recebe JWT nem token interno do frontend. A separação entre
+identidade de usuário e comunicação de infraestrutura continua válida; ver
+ADR-007 para o canal assíncrono.
 
 ## Alternativas consideradas
 

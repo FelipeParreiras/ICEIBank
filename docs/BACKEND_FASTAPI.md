@@ -2,7 +2,11 @@
 
 ## Status
 
-Implementado em `agencia/src/iceibank`, com controllers, services, repositories, models/schemas e dependências FastAPI separadas.
+Implementado em `agencia/src/iceibank`, com controllers, services, repositories,
+models/schemas e dependências FastAPI separadas. Este documento preserva o
+blueprint da Sprint 1; para as decisões atuais de mensageria, relógio vetorial,
+Caixinhas e controle financeiro, consultar [Estado atual do projeto](ESTADO_ATUAL_DO_PROJETO.md).
+Revisado em 11/10/2026.
 
 ## Objetivo
 
@@ -13,12 +17,13 @@ Traduzir os exemplos Node.js do roteiro para FastAPI sem copiar sua estrutura li
 Cada processo cria exatamente uma instância de:
 
 - `Settings` validada;
-- `ContaRepository` em memória;
-- `ControleFinanceiroRepository` em memória;
-- `RelogioLamport`;
-- `RegistroEventos`;
-- `AgenciaClient`;
-- serviços de contas, transferência, autenticação, controle financeiro e recomendações.
+- `SQLiteDatabase` local da agência e os repositórios de conta, usuário,
+  controle financeiro e Caixinha;
+- `RelogioVetorial`;
+- `EventLogger` em JSONL;
+- `MensageriaRabbitMQ`, quando `RABBITMQ_URL` estiver configurada;
+- serviços de contas, transferência, autenticação, Caixinhas, controle
+  financeiro e recomendações.
 
 Essas instâncias vivem durante todo o processo. Não devem ser recriadas por requisição.
 
@@ -44,8 +49,8 @@ flowchart LR
     C --> S["Service"]
     S --> P["Partição/regra"]
     P --> D["Repository"]
-    S --> L["Lamport/eventos"]
-    S --> H["AgenciaClient quando remoto"]
+    S --> L["Relógio vetorial/eventos"]
+    S --> H["RabbitMQ quando remoto"]
     C --> E["Schema/resposta HTTP"]
 ```
 
@@ -69,14 +74,16 @@ Falha de configuração deve impedir o início, não aparecer somente na primeir
 
 ## Interfaces implementadas
 
-As assinaturas abaixo definem intenção, não código final.
+As assinaturas abaixo definem intenção. Onde a Sprint 1 descreve Lamport ou
+cliente HTTP interno, a implementação final usa `RelogioVetorial` e
+`PublicadorCredito` sobre RabbitMQ.
 
 ### Relógio
 
 ```text
-evento_local() -> int
-ao_enviar() -> int
-ao_receber(timestamp_recebido: int) -> int
+evento_local() -> list[int]
+ao_enviar() -> list[int]
+ao_receber(timestamp_recebido: list[int]) -> list[int]
 ```
 
 As três operações usam o mesmo lock.
@@ -97,25 +104,27 @@ O repositório não retorna o dicionário interno. Operações compostas precisa
 ### Registro de eventos
 
 ```text
-registrar(tipo: TipoEvento, timestamp: int, detalhes: dict) -> Evento
+registrar(tipo: TipoEvento, timestamp: list[int], detalhes: dict) -> Evento
 caminho_arquivo() -> Path
 ```
 
 O registro serializa `Decimal`, horário UTC e detalhes de forma consistente.
 
-### Cliente de agência
+### Publicação para agência
 
 ```text
-creditar_remoto(
+publicar_credito(
     agencia_destino: int,
     id_conta: int,
     valor: Decimal,
-    timestamp_lamport: int,
+    timestamp_vetorial: list[int],
     origem_agencia: int
 ) -> CreditoRemotoResponse
 ```
 
-Ele resolve a URL a partir da configuração, nunca de entrada arbitrária do usuário.
+O adaptador declara exchange, filas e bindings duráveis e aguarda publisher
+confirm antes de o serviço debitar a origem. O React não fornece URL, routing
+key ou credenciais AMQP arbitrárias.
 
 ### Repositório de controle financeiro
 
@@ -137,7 +146,7 @@ Responsabilidades:
 - validar partição;
 - criar/consultar conta;
 - depositar/sacar;
-- coordenar repositório, Lamport e log;
+- coordenar repositório, relógio vetorial e log;
 - lançar exceções de domínio.
 
 ### TransferenciaService
@@ -147,10 +156,10 @@ Responsabilidades:
 - validar origem, destino, valor e saldo;
 - distinguir fluxo local/remoto;
 - aplicar débito e crédito local;
-- gerar timestamp de envio;
-- chamar `AgenciaClient`;
-- registrar falha remota e preservar débito;
-- nunca implementar compensação automática nesta sprint.
+- gerar timestamp vetorial de envio;
+- publicar crédito no RabbitMQ com publisher confirm;
+- retornar indisponibilidade sem debitar quando o broker não confirmar;
+- processar o crédito no consumidor da agência de destino.
 
 ### AuthService
 
@@ -171,7 +180,7 @@ Responsabilidades:
 - registrar gasto categorizado;
 - coordenar gasto e débito de saldo na mesma seção crítica, se essa semântica for confirmada;
 - calcular totais e economia projetada;
-- registrar os eventos Lamport do extra.
+- registrar eventos vetoriais do extra.
 
 ### RecomendacaoEconomiaService
 
@@ -220,23 +229,23 @@ Autenticação possui tratamento separado para produzir 401 e o cabeçalho aprop
 1. validar;
 2. entrar na seção crítica;
 3. alterar estado;
-4. incrementar Lamport;
+4. incrementar o relógio vetorial local;
 5. registrar evento;
 6. liberar seção crítica e responder.
 
-Se a escrita do JSONL falhar, a exceção é propagada como erro interno e o sistema não finge que o evento foi persistido. Como o estado é apenas em memória e não existe transação com o arquivo, a mutação pode já ter ocorrido; essa é uma limitação operacional documentada da Sprint 1.
+Se a escrita do JSONL falhar, a exceção é propagada como erro interno e o sistema não finge que o evento foi persistido. O JSONL não participa da transação SQLite local; portanto, uma mutação pode já estar confirmada no banco quando a trilha de auditoria falha. Essa limitação operacional permanece explícita.
 
 ### Transferência local
 
-Validar as duas contas antes de alterar qualquer saldo. Débito e crédito pertencem a uma única operação crítica local, embora gerem dois eventos Lamport consecutivos.
+Validar as duas contas antes de alterar qualquer saldo. Débito e crédito pertencem
+a uma única operação crítica local e geram eventos vetoriais locais.
 
 ### Transferência remota
 
-- débito local é confirmado antes da rede;
-- nenhum lock de saldo fica aberto durante `await` da rede;
-- falha de rede não reverte o débito;
-- timeout vira 502 controlado;
-- resposta 4xx do destino também é tratada como falha remota na origem, preservando a limitação do roteiro.
+- a origem publica uma mensagem persistente após validar e debitar;
+- o publisher confirm é necessário para responder sucesso;
+- o destino consome a fila própria e aplica o crédito localmente;
+- não existe confirmação reversa para a origem nem exatamente uma vez.
 
 ## Sincronização
 

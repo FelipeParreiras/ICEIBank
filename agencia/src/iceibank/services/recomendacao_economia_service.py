@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-from iceibank.models.gasto import CategoriaGasto, Gasto
+from iceibank.models.gasto import Gasto
 from iceibank.models.planejamento_financeiro import (
     PlanejamentoMensal,
     RecomendacaoEconomia,
@@ -22,11 +22,15 @@ class RecomendacaoEconomiaService:
             return (), ZERO
 
         totais = self._totais(gastos)
-        recomendados: dict[CategoriaGasto, Decimal] = {}
-        motivos: dict[CategoriaGasto, str] = {}
+        recomendados: dict[str, Decimal] = {}
+        motivos: dict[str, str] = {}
         restante = valor_ajuste
+        prioridades = {
+            categoria: indice
+            for indice, categoria in enumerate(planejamento.categorias_ordenadas)
+        }
 
-        excessos: list[tuple[CategoriaGasto, Decimal]] = []
+        excessos: list[tuple[str, Decimal]] = []
         for categoria in planejamento.categorias_flexiveis:
             limite = planejamento.limites_por_categoria.get(categoria)
             if limite is None:
@@ -35,7 +39,14 @@ class RecomendacaoEconomiaService:
             if excesso > ZERO:
                 excessos.append((categoria, excesso))
 
-        for categoria, excesso in sorted(excessos, key=lambda item: (-item[1], item[0].value)):
+        for categoria, excesso in sorted(
+            excessos,
+            key=lambda item: (
+                -item[1],
+                -prioridades.get(str(item[0]), -1),
+                str(item[0]),
+            ),
+        ):
             reducao = min(excesso, restante)
             recomendados[categoria] = reducao
             motivos[categoria] = "ACIMA_DO_LIMITE"
@@ -46,7 +57,11 @@ class RecomendacaoEconomiaService:
         if restante > ZERO:
             flexiveis = sorted(
                 planejamento.categorias_flexiveis,
-                key=lambda categoria: (-totais.get(categoria, ZERO), categoria.value),
+                key=lambda categoria: (
+                    -totais.get(categoria, ZERO),
+                    -prioridades.get(str(categoria), -1),
+                    str(categoria),
+                ),
             )
             for categoria in flexiveis:
                 total = totais.get(categoria, ZERO)
@@ -74,8 +89,8 @@ class RecomendacaoEconomiaService:
         return recomendacoes, max(ZERO, restante).quantize(Decimal("0.01"))
 
     @staticmethod
-    def _totais(gastos: tuple[Gasto, ...]) -> dict[CategoriaGasto, Decimal]:
-        totais: dict[CategoriaGasto, Decimal] = {}
+    def _totais(gastos: tuple[Gasto, ...]) -> dict[str, Decimal]:
+        totais: dict[str, Decimal] = {}
         for gasto in gastos:
             totais[gasto.categoria] = totais.get(gasto.categoria, ZERO) + gasto.valor
         return totais

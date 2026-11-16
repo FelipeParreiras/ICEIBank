@@ -18,3 +18,10 @@ def test_recebimento_faz_maximo_e_incrementa_posicao_local() -> None:
 def test_rejeita_vetor_incompativel() -> None:
     with pytest.raises(ValueError):
         RelogioVetorial(0, 3).ao_receber([1, 2])
+
+
+def test_obter_vetor_atual_nao_incrementa_o_relogio() -> None:
+    clock = RelogioVetorial(1, 3)
+
+    assert clock.obter_vetor_atual() == [0, 0, 0]
+    assert clock.value == [0, 0, 0]

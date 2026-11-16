@@ -2,7 +2,7 @@
 
 ## Status
 
-Aceito
+Aceito e implementado. Revisado em 11/10/2026.
 
 ## Data
 
@@ -25,10 +25,15 @@ Implementar um Controle Financeiro Mensal por conta com:
 - resumo do total gasto, economia projetada e distância da meta;
 - recomendações transparentes de redução por categoria;
 - visualização no frontend React;
-- eventos Lamport para alterações do planejamento e registros de gastos;
-- estado mantido em memória na agência responsável pela conta.
+- eventos vetoriais para alterações do planejamento e registros de gastos;
+- estado local na agência responsável pela conta; a persistência SQLite foi
+  adicionada posteriormente pelo ADR-010.
 
 As recomendações serão produzidas por regras matemáticas explicáveis. A funcionalidade não chamará um modelo de IA ou serviço externo.
+
+### Evolução de categorias
+
+O catálogo fixo foi substituído por categorias gerenciadas no próprio planejamento mensal. Essa evolução preserva o caráter determinístico: cada planejamento persiste a lista ordenada `categoriasOrdenadas`; a primeira posição é a mais importante e só é usada para desempatar recomendações com o mesmo impacto financeiro. A mudança permite personalização sem introduzir dependência externa ou alterar gastos já registrados.
 
 ## Alternativas consideradas
 
@@ -55,7 +60,8 @@ As recomendações serão produzidas por regras matemáticas explicáveis. A fun
 - A funcionalidade adicional passa a exigir modelos, repositório, serviço, controller, componentes React e testes próprios.
 - O commit do extra será maior que o antigo health-check, mas continuará isolado.
 - O aluno precisará explicar o algoritmo de recomendação e suas limitações.
-- Gastos e planejamentos serão perdidos quando a agência reiniciar, como as contas da Sprint 1.
+- Gastos e planejamentos persistem no SQLite local por agência desde o ADR-010;
+  não há backup automático, replicação ou migração versionada.
 - A implementação deve evitar que o extra atrase os requisitos que valem 19 pontos.
 - Registrar um gasto debita o saldo da conta atomicamente com a inclusão no repositório financeiro, conforme implementado na SPEC-002.
 

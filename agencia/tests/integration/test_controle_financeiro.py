@@ -61,11 +61,41 @@ def test_planejamento_gastos_resumo_e_recomendacoes(
     assert body["economiaProjetada"] == "50.00"
     assert body["valorAjuste"] == "50.00"
     assert body["status"] == "AJUSTE_NECESSARIO"
+    assert body["categoriasOrdenadas"] == [
+        "ALIMENTACAO", "TRANSPORTE", "DELIVERY", "LAZER", "COMPRAS", "ASSINATURAS"
+    ]
     assert [(item["categoria"], item["reducaoSugerida"]) for item in body["recomendacoes"]] == [
         ("DELIVERY", "40.00"),
         ("LAZER", "10.00"),
     ]
     assert client.get("/contas/6", headers=auth_headers).json()["saldo"] == "550.00"
+
+
+def test_planejamento_aceita_categoria_personalizada_e_preserva_prioridade(
+    client: TestClient, auth_headers: dict[str, str]
+) -> None:
+    _criar_conta(client, auth_headers)
+    planejamento = client.put(
+        "/contas/6/controle-financeiro/2026-10/planejamento",
+        headers=auth_headers,
+        json={
+            "rendaPrevista": 1000,
+            "metaEconomia": 200,
+            "limitesPorCategoria": {"Pets": 180, "Cursos": 120},
+            "categoriasFlexiveis": ["Pets"],
+            "categoriasOrdenadas": ["Cursos", "Pets"],
+        },
+    )
+    assert planejamento.status_code == 200, planejamento.text
+    assert planejamento.json()["categoriasOrdenadas"] == ["Cursos", "Pets"]
+
+    gasto = client.post(
+        "/contas/6/controle-financeiro/gastos",
+        headers=auth_headers,
+        json={"descricao": "Veterinário", "valor": 80, "categoria": "Pets", "data": "2026-10-10"},
+    )
+    assert gasto.status_code == 201, gasto.text
+    assert gasto.json()["gasto"]["categoria"] == "Pets"
 
 
 def test_gasto_sem_planejamento_nao_debita(

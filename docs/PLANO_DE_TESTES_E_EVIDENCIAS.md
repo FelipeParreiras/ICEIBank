@@ -2,9 +2,23 @@
 
 ## Status
 
-Testes automatizados e fluxo integrado executados em 7 de setembro de 2026. As capturas PNG e o vídeo continuam pendentes e só devem ser marcados depois de salvos em `evidencias/sprint1/`.
+Testes automatizados e fluxo integrado executados em 7 de setembro de 2026. Uma
+rodada complementar real ocorreu em 5 de outubro de 2026 e está registrada em
+[`../evidencias/sprint1/registro-execucao-2026-10-05.md`](../evidencias/sprint1/registro-execucao-2026-10-05.md).
+As capturas PNG e o vídeo continuam pendentes e só devem ser marcados depois de
+salvos em `evidencias/sprint1/`.
 
-## Resultado da execução de referência
+> A branch atual evoluiu para a arquitetura da Sprint 2 (RabbitMQ e relógios
+> vetoriais). Assim, a rodada de 05/10 revalidou transferência local, JWT e
+> controle financeiro, mas não declara como reproduzidos os cenários históricos
+> de HTTP direto, falha HTTP `502` e Lamport.
+
+Na regressão documental de 11/10/2026, a suíte atual do backend teve 45 testes
+aprovados e `ruff check src tests` passou; o frontend passou em lint e build.
+Esses comandos verificam o estado vigente, mas não substituem as capturas reais
+que permanecem pendentes.
+
+## Resultado histórico da execução de referência
 
 | Verificação | Resultado |
 |---|---|
@@ -18,6 +32,19 @@ Testes automatizados e fluxo integrado executados em 7 de setembro de 2026. As c
 | linha do tempo | arquivos das três agências lidos e ordenados pelo Lamport |
 
 O Google Chrome bloqueou o acesso direto à porta 4045. O reteste pelo proxy Vite em 5173 passou; a decisão está registrada no ADR-005.
+
+## Regressão da implementação vigente
+
+| Verificação | Resultado em 11/10/2026 |
+|---|---|
+| `agencia/.venv/Scripts/python.exe -m pytest -q` | 45 testes aprovados |
+| `agencia/.venv/Scripts/python.exe -m ruff check src tests` | aprovado |
+| `frontend/npm run lint` | aprovado |
+| `frontend/npm run build` | aprovado |
+
+O lint amplo de `agencia/scripts/mesclar_logs.py` não integra este resultado;
+suas pendências de estilo devem ser corrigidas antes de afirmar `ruff check .`
+como aprovado.
 
 ## Objetivo
 
@@ -180,7 +207,8 @@ Invariante global observado: 145,00 + 110,00 = 255,00.
 
 Resultado didático: o débito de 10,00 não foi revertido. A inconsistência é intencional.
 
-Ao reiniciar a Agência 2, sua conta em memória terá sido perdida e precisará ser recriada para os testes seguintes.
+Ao reiniciar a Agência 2, confirmar que sua conta permanece no SQLite local. Não a
+recriar, salvo se o arquivo da agência tiver sido conscientemente resetado antes do teste.
 
 ### Cenário D — Linha do tempo
 
@@ -263,6 +291,7 @@ Preencher depois de cada rodada:
 | Rodada | Data/hora | Commit | Cenários | Resultado | Observações |
 |---|---|---|---|---|---|
 | 1 | Pendente | Pendente | Pendente | Pendente | Pendente |
+| 2 | 05/10/2026 15:24 -03:00 | `52af43a` | JWT, transferência local e controle financeiro | Aprovado nos cenários executados | Detalhes e limitações de arquitetura no registro de 05/10; PNGs ainda pendentes. |
 
 ## Critério de saída
 

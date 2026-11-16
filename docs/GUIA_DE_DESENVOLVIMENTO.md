@@ -1,5 +1,10 @@
 # Guia de desenvolvimento — Sprint 1
 
+> Referência histórica da sequência de implementação da Sprint 1. A execução
+> vigente usa relógio vetorial e RabbitMQ para transferências remotas; consultar
+> SPEC-004 e o Estado atual antes de seguir instruções sobre Lamport ou HTTP
+> interno. Revisado em 11/10/2026.
+
 ## Objetivo
 
 Orientar a implementação sem misturar responsabilidades ou perder a rastreabilidade acadêmica. Este projeto é individual; todo código entregue deve ser compreendido e defendido pelo aluno.
@@ -63,9 +68,9 @@ Devem:
 
 Devem:
 
-- encapsular armazenamento em memória;
-- impedir que o dicionário interno escape;
-- oferecer operações sincronizadas;
+- encapsular o armazenamento SQLite local;
+- mapear modelos de domínio sem expor detalhes SQL;
+- participar da transação compartilhada da agência;
 - não conhecer FastAPI, JWT ou HTTP.
 
 ### Models e schemas

@@ -2,7 +2,9 @@
 
 ## Status
 
-Aceito e implementado em 04/10/2026.
+Aceito e implementado em 04/10/2026; revisado em 11/10/2026. A regra de exclusão foi substituída pelo
+[ADR-009](ADR-009-exclusao-caixinha-com-resgate-automatico.md); as regras de
+tempo e arredondamento permanecem aceitas.
 
 ## Contexto
 
@@ -18,10 +20,10 @@ a medição de dois dias, o arredondamento e a exclusão com saldo.
 - Rendimento vencido é aplicado sob demanda antes de listar, consultar, guardar,
   resgatar ou excluir; cada lote guarda seu próximo vencimento, impedindo dupla
   aplicação no mesmo período.
-- Uma Caixinha com saldo maior que zero não pode ser excluída; o usuário deve
-  resgatar antes.
-- O relógio é injetável no serviço para testes determinísticos. Como todo estado
-  é em memória, reiniciar apaga Caixinhas e lotes, limitação mantida explícita.
+- A exclusão com saldo era bloqueada nesta decisão original. Foi substituída em
+  05/10/2026 pelo resgate automático descrito no ADR-009.
+- O relógio é injetável no serviço para testes determinísticos. A persistência
+  SQLite local passou a preservar Caixinhas e lotes após o ADR-010.
 
 ## Alternativas consideradas
 
@@ -42,7 +44,8 @@ a medição de dois dias, o arredondamento e a exclusão com saldo.
 - Leitura pode materializar rendimento vencido e registrar evento vetorial.
 - Valores compostos são estáveis em centavos, mas acumulam os efeitos naturais
   de arredondamento a cada ciclo.
-- Persistência será necessária antes de tratar reinício como cenário bancário real.
+- A persistência foi adicionada no ADR-010; reiniciar preserva o estado local,
+  ainda sem backup automático, replicação ou garantia distribuída.
 
 ## Referências
 

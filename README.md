@@ -4,7 +4,9 @@ Projeto acadêmico de banco distribuído desenvolvido incrementalmente em quatro
 
 ## Estado atual
 
-**Sprint 2 implementada e validada por testes automatizados em 4 de outubro de 2026.**
+**Sprints 1, 2 e 3 implementadas. Na validação da Sprint 3, 53 testes do
+backend, `ruff check src tests`, `flutter analyze` e `flutter test` foram
+aprovados.**
 
 Decisões confirmadas:
 
@@ -17,12 +19,27 @@ Decisões confirmadas:
 Funcionalidade adicional confirmada:
 
 - Controle Financeiro Mensal, com renda prevista, meta de economia, gastos categorizados e recomendações de redução.
-- Caixinha, com CRUD por conta, lotes FIFO e rendimento composto de 10% a cada 48 horas.
+- Caixinha, com CRUD por conta, lotes FIFO, rendimento composto de 10% a cada
+  48 horas, cor e ordem personalizáveis.
 
 Decisão implementada:
 
 - JWT de usuário e credencial interna separada entre agências.
 - RabbitMQ para créditos remotos assíncronos e relógio vetorial de três posições.
+- React com abas de trabalho, notificações Toastify, modais de Caixinha e barra
+  superior sticky, logo oficial e tema verde/dourado por tokens.
+- `SelectField` com menu próprio; a variante rolável é usada apenas em listas
+  de categorias que podem crescer.
+- Consenso Bully com heartbeat/failover, sincronização offline-first protegida
+  por relógio vetorial e cliente Flutter em `app_mobile/`.
+
+## Objetivo da Sprint 3
+
+Entregar uma eleição de líder entre as três agências, heartbeat com failover,
+histórico de liderança, sincronização offline-first com detecção de conflito e
+um app Flutter com fluxo bancário e painel de consenso. A implementação está
+concluída; as capturas reais no Android/emulador ainda dependem da configuração
+local do SDK Android.
 
 ## Objetivo da Sprint 2
 
@@ -57,7 +74,7 @@ flowchart LR
     A2 -->|"RabbitMQ topic"| Q
 ```
 
-O mesmo código FastAPI é executado três vezes com `AGENCIA_ID` diferente. Cada processo possui contas em memória, relógio e arquivo JSONL próprios. A aplicação deve rodar com apenas um worker por agência.
+O mesmo código FastAPI é executado três vezes com `AGENCIA_ID` diferente. Cada processo possui um banco SQLite local, relógio e arquivo JSONL próprios. A aplicação deve rodar com apenas um worker por agência.
 
 ## Portas e partições
 
@@ -74,11 +91,15 @@ Comece pelo [índice completo da documentação](docs/README.md).
 Documentos principais:
 
 - [Roadmap da Sprint 1](ROADMAP_SPRINT_1.md)
+- [Roadmap da Sprint 3](ROADMAP_SPRINT_3.md)
+- [Estado atual do projeto](docs/ESTADO_ATUAL_DO_PROJETO.md)
 - [Arquitetura FastAPI/React](docs/specs/SPEC-001-arquitetura-sprint-1.md)
 - [Controle Financeiro Mensal](docs/specs/SPEC-002-controle-financeiro-mensal.md)
 - [Contrato da API](docs/API_SPRINT_1.md)
 - [Blueprint do backend FastAPI](docs/BACKEND_FASTAPI.md)
 - [Blueprint do frontend React](docs/FRONTEND_REACT.md)
+- [Paleta de cores](docs/PALETA_DE_CORES.md)
+- [Auditoria documental de 11/10/2026](docs/AUDITORIA_DOCUMENTAL_2026-10-11.md)
 - [Configuração e execução](docs/CONFIGURACAO_E_EXECUCAO.md)
 - [Guia de desenvolvimento](docs/GUIA_DE_DESENVOLVIMENTO.md)
 - [Plano de testes e evidências](docs/PLANO_DE_TESTES_E_EVIDENCIAS.md)
@@ -87,6 +108,7 @@ Documentos principais:
 - [Respostas da Sprint 1](RESPOSTAS.md)
 - [Arquitetura de mensageria](docs/specs/SPEC-004-mensageria-e-relogio-vetorial.md)
 - [Contrato da API Sprint 2](docs/API_SPRINT_2.md)
+- [Contrato da API Sprint 3](docs/API_SPRINT_3.md)
 
 ## Execução
 
@@ -114,15 +136,14 @@ Também é possível usar **Não tenho usuário. Cadastrar** na tela de login. I
 senha e confirmação; o cadastro inicia a sessão automaticamente. O usuário pode entrar
 por qualquer agência. Cadastro e login são processados pela agência 0, que deve estar
 ativa; as agências 1 e 2 encaminham essas requisições por HTTP. As senhas são armazenadas
-somente como hashes PBKDF2 com salt aleatório, no repositório em memória da agência 0.
+somente como hashes PBKDF2 com salt aleatório, no banco SQLite local da agência 0.
 O cadastro cria credenciais de acesso; contas bancárias continuam sendo criadas no painel.
 
 ## Limitações intencionais
 
-- contas não persistem após reinício;
-- usuários cadastrados não persistem após reinício da agência 0; o usuário de demonstração permanece;
+- contas, usuários cadastrados, planejamentos, gastos e Caixinhas persistem no arquivo SQLite da agência correspondente;
 - novos cadastros e logins dependem da agência 0; JWTs já emitidos continuam válidos até expirar;
-- planejamentos e gastos do Controle Financeiro também não persistem;
+- não há migrações versionadas, criptografia em repouso ou backup automático do SQLite;
 - não há replicação;
 - transferência remota não é atômica;
 - entrega de RabbitMQ não é exatamente uma vez e não há confirmação reversa de crédito;

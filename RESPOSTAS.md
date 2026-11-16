@@ -180,6 +180,21 @@ React não impõe MVC clássico e pode misturar View e Controller dentro de comp
 | `frontend-erro.png` | Pendente | Pendente | Pendente |
 | `funcionalidade-adicional.png` | Pendente | Pendente | Meta, gastos e recomendações |
 
+### 7.1 Rodada complementar de 05/10/2026
+
+O registro verificável desta rodada está em
+[`evidencias/sprint1/registro-execucao-2026-10-05.md`](evidencias/sprint1/registro-execucao-2026-10-05.md).
+Foram reexecutados, na Agência 0, a consulta sem credencial (HTTP 401), o
+acesso autenticado, a transferência local 9900 → 9903 de R$ 25,00 (saldos
+finais R$ 175,00 e R$ 75,00) e o cenário financeiro da conta 9906 (total
+R$ 450,00, projeção R$ 50,00, Delivery R$ 40,00 e Lazer R$ 10,00).
+
+A árvore atual é a evolução da Sprint 2 e usa RabbitMQ/relógio vetorial. Logo,
+não se deve declarar que as capturas históricas de HTTP direto, falha 502 ou
+Lamport foram produzidas nesta rodada. Todas as imagens da tabela continuam
+pendentes até serem capturadas da versão apropriada, com os requisitos visuais
+do roteiro.
+
 ## 8. Declaração de uso de IA
 
 Rascunho a ser confirmado e ajustado pelo aluno antes da entrega:
@@ -227,8 +242,8 @@ o histórico do outro.
 
 ### 7.5.1 Retorno da agência de destino
 
-Na execução de 04/10/2026, a Agência 1 foi encerrada depois de criar a conta 4.
-Uma transferência de R$ 20,00 da conta 0 foi publicada com a Agência 1 offline
+Na execução de 05/10/2026, a Agência 1 foi encerrada depois de criar a conta 91.
+Uma transferência de R$ 20,00 da conta 90 foi publicada com a Agência 1 offline
 e a origem passou de R$ 170,00 para R$ 150,00. Ao reiniciar a Agência 1, a fila
 entregou a mensagem e o log registrou `CREDITO_REMOTO_FALHOU`, vetor `[3, 1, 0]`
 e motivo `CONTA_NAO_ENCONTRADA`. A mensageria não falhou: a conta tinha sido
@@ -260,7 +275,7 @@ portanto, concorrentes. Lamport escalar não mantém essas posições independen
 
 ### 8.3.2 Par concorrente observado
 
-No teste real de 04/10/2026, `CRIAR_CONTA` da Agência 0 teve vetor `[1, 0, 0]`
+No teste real de 05/10/2026, `CRIAR_CONTA` da Agência 0 teve vetor `[1, 0, 0]`
 e `CRIAR_CONTA` da Agência 1 teve `[0, 1, 0]`. O mesclador classificou o par como
 concorrente: a primeira posição é maior no primeiro vetor e a segunda é maior no
 segundo, portanto não há relação de causa e efeito entre as criações.
@@ -277,10 +292,12 @@ de análise distribuído. A ferramenta atual prioriza transparência acadêmica.
 A Caixinha permite criar, listar, consultar, renomear e excluir reservas de uma
 conta. Guardar debita a conta e cria um lote; resgatar aplica rendimentos vencidos
 e consome lotes por FIFO. Cada lote rende 10% composto a cada 48 horas, com
-arredondamento em centavos `ROUND_HALF_UP`. A exclusão é bloqueada enquanto
-existir saldo. A implementação e os testes estão documentados em SPEC-003,
-ADR-006 e ADR-008; a captura real `evidencias/sprint2/caixinha.png` continua
-pendente.
+arredondamento em centavos `ROUND_HALF_UP`. A exclusão resgata o saldo integral
+para a conta antes de remover a reserva. A implementação e os testes estão
+documentados em SPEC-003, ADR-006, ADR-008 e ADR-009. Na rodada de 05/10/2026,
+a conta 92 guardou R$ 120,00 e resgatou R$ 20,00, terminando com R$ 400,00 na
+conta e R$ 100,00 na Caixinha. A captura real `evidencias/sprint2/caixinha.png`
+continua pendente.
 
 ## Uso de IA - Sprint 2
 

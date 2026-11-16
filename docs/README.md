@@ -1,6 +1,6 @@
 # Documentação do ICEIBank
 
-Este diretório centraliza a documentação técnica, operacional e acadêmica do projeto. As Sprints 1 e 2 estão implementadas; as capturas reais de evidência continuam como atividade de entrega separada.
+Este diretório centraliza a documentação técnica, operacional e acadêmica do projeto. As Sprints 1, 2 e 3 estão implementadas; as capturas reais de evidência continuam como atividade de entrega separada.
 
 ## Estado atual
 
@@ -14,14 +14,21 @@ Este diretório centraliza a documentação técnica, operacional e acadêmica d
 | Proxy Vite preservando 4045–4047 no Chrome | Aceito e implementado |
 | Código da Sprint 1 | Implementado |
 | Código da Sprint 2 | Implementado |
-| Testes automatizados da Sprint 2 | 41 aprovados; lint backend/frontend e build frontend aprovados |
+| Código da Sprint 3 | Implementado; capturas Android pendentes |
+| Persistência local SQLite por agência | Aceito e implementado |
+| Testes automatizados do estado atual | 45 testes backend; `ruff check src tests`, lint e build frontend aprovados em 11/10/2026 |
 | Evidências PNG e vídeo | Pendentes de captura para entrega |
 
 ## Como navegar
 
 ### Visão geral e planejamento
 
+- [Estado atual do projeto](ESTADO_ATUAL_DO_PROJETO.md): funcionalidades,
+  contratos, interface, limitações e situação de qualidade em 11/10/2026.
+- [Auditoria documental de 11/10/2026](AUDITORIA_DOCUMENTAL_2026-10-11.md):
+  escopo revisado, fontes históricas e verificação executada.
 - [Roadmap da Sprint 2](../ROADMAP_SPRINT_2.md): escopo, implementação e pendências de evidência.
+- [Roadmap da Sprint 3](../ROADMAP_SPRINT_3.md): Bully, Flutter e offline-first.
 - [SPEC-003 — Caixinha](specs/SPEC-003-caixinha.md): regras e validações da funcionalidade adicional.
 - [SPEC-004 — Mensageria e relógio vetorial](specs/SPEC-004-mensageria-e-relogio-vetorial.md): arquitetura distribuída da Sprint 2.
 - [README principal](../README.md): apresentação e entrada do repositório.
@@ -36,11 +43,14 @@ Este diretório centraliza a documentação técnica, operacional e acadêmica d
 - [Plano de commits](PLANO_DE_COMMITS_SPRINT_1.md): mensagens, arquivos, testes e evidências previstos por commit.
 - [Blueprint do backend FastAPI](BACKEND_FASTAPI.md): ciclo de vida, interfaces, dependências e concorrência.
 - [Blueprint do frontend React](FRONTEND_REACT.md): estado, componentes, fluxos e erros.
+- [Paleta de cores](PALETA_DE_CORES.md): tokens visuais, usos e regras de contraste.
 - [Contrato da API](API_SPRINT_1.md): endpoints, corpos, respostas e erros.
 - [Contrato da API Sprint 2](API_SPRINT_2.md): mensageria e Caixinhas.
+- [Contrato da API Sprint 3](API_SPRINT_3.md): consenso Bully e sincronização offline-first.
 - [Configuração e execução](CONFIGURACAO_E_EXECUCAO.md): variáveis, portas, proxy e comandos validados.
 - [Segurança](SEGURANCA.md): JWT, credencial interna, CORS, segredos e limitações.
-- [Lamport e observabilidade](LAMPORT_E_OBSERVABILIDADE.md): regras do relógio, eventos e linha do tempo.
+- [Lamport e observabilidade](LAMPORT_E_OBSERVABILIDADE.md): referência
+  histórica da Sprint 1; a implementação atual usa relógio vetorial.
 
 ### Qualidade e entrega
 
@@ -55,6 +65,8 @@ Este diretório centraliza a documentação técnica, operacional e acadêmica d
 - [ADR-006 — Caixinha por lotes e resgate FIFO](decisions/ADR-006-caixinha-lotes-fifo.md) — Aceito e implementado.
 - [ADR-007 — Mensageria e relógio vetorial](decisions/ADR-007-mensageria-rabbitmq-e-relogio-vetorial.md) — Aceito e implementado.
 - [ADR-008 — Tempo e exclusão da Caixinha](decisions/ADR-008-caixinha-tempo-arredondamento-e-exclusao.md) — Aceito e implementado.
+- [ADR-009 — Exclusão com resgate automático](decisions/ADR-009-exclusao-caixinha-com-resgate-automatico.md) — Aceito e implementado.
+- [ADR-010 — Persistência SQLite por agência](decisions/ADR-010-persistencia-sqlite-por-agencia.md) — Aceito e implementado.
 - [Índice de ADRs](decisions/README.md)
 - [ADR-001 — Python/FastAPI e React](decisions/ADR-001-stack-python-fastapi-react.md) — Aceito.
 - [ADR-002 — Health-check adicional](decisions/ADR-002-funcionalidade-adicional-health-check.md) — Substituído.

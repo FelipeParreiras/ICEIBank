@@ -9,9 +9,12 @@ from iceibank.schemas.caixinha import (
     AtualizarCaixinhaRequest,
     CaixinhaResponse,
     CriarCaixinhaRequest,
+    ExcluirCaixinhaResponse,
+    HistoricoCaixinhaResponse,
     LoteCaixinhaResponse,
     MovimentoCaixinhaRequest,
     MovimentoCaixinhaResponse,
+    ReordenarCaixinhasRequest,
 )
 from iceibank.services.caixinha_service import CaixinhaService
 
@@ -25,12 +28,19 @@ def _response(caixinha: Caixinha) -> CaixinhaResponse:
         id=caixinha.id,
         contaId=caixinha.conta_id,
         nome=caixinha.nome,
+        cor=caixinha.cor,
+        ordem=caixinha.ordem,
         saldo=caixinha.saldo,
+        rendimentoTotal=caixinha.rendimento_total,
         lotes=[
             LoteCaixinhaResponse(
                 id=lote.id, saldo=lote.saldo, proximoRendimentoEm=lote.proximo_rendimento_em
             )
             for lote in caixinha.lotes
+        ],
+        movimentos=[
+            HistoricoCaixinhaResponse(tipo=item.tipo, valor=item.valor, em=item.em)
+            for item in reversed(caixinha.movimentos)
         ],
     )
 
@@ -52,6 +62,18 @@ def listar(
     return [_response(caixinha) for caixinha in service.listar(conta_id)]
 
 
+@router.put("/ordem", response_model=list[CaixinhaResponse])
+def reordenar(
+    conta_id: Annotated[int, Path(ge=0)],
+    dados: ReordenarCaixinhasRequest,
+    service: Annotated[CaixinhaService, Depends(get_caixinha_service)],
+) -> list[CaixinhaResponse]:
+    return [
+        _response(caixinha)
+        for caixinha in service.reordenar(conta_id, dados.caixinhas_ids)
+    ]
+
+
 @router.get("/{caixinha_id}", response_model=CaixinhaResponse)
 def buscar(
     conta_id: Annotated[int, Path(ge=0)],
@@ -62,22 +84,27 @@ def buscar(
 
 
 @router.patch("/{caixinha_id}", response_model=CaixinhaResponse)
-def renomear(
+def atualizar(
     conta_id: Annotated[int, Path(ge=0)],
     caixinha_id: UUID,
     dados: AtualizarCaixinhaRequest,
     service: Annotated[CaixinhaService, Depends(get_caixinha_service)],
 ) -> CaixinhaResponse:
-    return _response(service.renomear(conta_id, caixinha_id, dados.nome))
+    return _response(service.atualizar(conta_id, caixinha_id, dados.nome, dados.cor))
 
 
-@router.delete("/{caixinha_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{caixinha_id}", response_model=ExcluirCaixinhaResponse)
 def excluir(
     conta_id: Annotated[int, Path(ge=0)],
     caixinha_id: UUID,
     service: Annotated[CaixinhaService, Depends(get_caixinha_service)],
-) -> None:
-    service.excluir(conta_id, caixinha_id)
+) -> ExcluirCaixinhaResponse:
+    saldo_conta, valor_resgatado = service.excluir(conta_id, caixinha_id)
+    return ExcluirCaixinhaResponse(
+        mensagem="Caixinha excluída e saldo resgatado para a conta.",
+        saldoConta=saldo_conta,
+        valorResgatado=valor_resgatado,
+    )
 
 
 @router.post("/{caixinha_id}/guardar", response_model=MovimentoCaixinhaResponse)

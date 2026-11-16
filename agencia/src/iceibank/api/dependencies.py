@@ -10,6 +10,7 @@ from iceibank.core.config import Settings
 from iceibank.core.exceptions import NaoAutenticado
 from iceibank.core.security import decode_access_token
 from iceibank.services.auth_service import AuthService
+from iceibank.services.bully_service import BullyService
 from iceibank.services.caixinha_service import CaixinhaService
 from iceibank.services.conta_service import ContaService
 from iceibank.services.controle_financeiro_service import ControleFinanceiroService
@@ -28,6 +29,10 @@ def get_auth_service(request: Request) -> AuthService:
 
 def get_conta_service(request: Request) -> ContaService:
     return request.app.state.conta_service
+
+
+def get_bully_service(request: Request) -> BullyService:
+    return request.app.state.bully_service
 
 
 def get_transferencia_service(request: Request) -> TransferenciaService:

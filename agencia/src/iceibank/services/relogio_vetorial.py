@@ -18,6 +18,10 @@ class RelogioVetorial:
         with self._lock:
             return list(self._vetor)
 
+    def obter_vetor_atual(self) -> list[int]:
+        """Retorna uma cópia do vetor sem registrar um novo evento."""
+        return self.value
+
     def evento_local(self) -> list[int]:
         with self._lock:
             self._vetor[self._id_agencia] += 1

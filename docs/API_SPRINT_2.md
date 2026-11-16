@@ -1,5 +1,11 @@
 # Contrato da API - Sprint 2
 
+## Status
+
+Implementado e revisado em 11/10/2026. Complementa a API da Sprint 1 para o
+fluxo remoto assíncrono e para Caixinhas; a rota HTTP legada de crédito remoto
+não existe na execução vigente.
+
 ## Transferências
 
 `POST /transferencias` continua exigindo JWT e recebe `idOrigem`, `idDestino` e
@@ -25,17 +31,23 @@ Todas as rotas exigem JWT e a conta deve pertencer à agência atual.
 |---|---|---|
 | POST | `/contas/{contaId}/caixinhas` | Cria com `{ "nome": "Viagem" }`. |
 | GET | `/contas/{contaId}/caixinhas` | Lista apenas as Caixinhas da conta. |
+| PUT | `/contas/{contaId}/caixinhas/ordem` | Persiste a ordem visual com `{ "caixinhasIds": ["uuid-1", "uuid-2"] }`. A lista deve conter cada Caixinha da conta uma única vez. |
 | GET | `/contas/{contaId}/caixinhas/{caixinhaId}` | Consulta uma Caixinha vinculada. |
-| PATCH | `/contas/{contaId}/caixinhas/{caixinhaId}` | Renomeia com `{ "nome": "Férias" }`. |
-| DELETE | `/contas/{contaId}/caixinhas/{caixinhaId}` | Exclui apenas quando o saldo é zero. |
+| PATCH | `/contas/{contaId}/caixinhas/{caixinhaId}` | Atualiza nome e/ou cor, por exemplo `{ "nome": "Férias" }` ou `{ "cor": "azul" }`. |
+| DELETE | `/contas/{contaId}/caixinhas/{caixinhaId}` | Aplica rendimento, resgata todo o saldo e exclui. |
 | POST | `/contas/{contaId}/caixinhas/{caixinhaId}/guardar` | Debita conta e cria lote. |
 | POST | `/contas/{contaId}/caixinhas/{caixinhaId}/resgatar` | Aplica rendimentos e resgata FIFO. |
 
 Guardar e resgatar recebem `{ "valor": 10.00 }` e retornam a Caixinha atual e
-`saldoConta`. Nomes têm de 1 a 80 caracteres após espaços externos e são únicos
-por conta sem diferenciar maiúsculas. Os erros de domínio incluem
-`CAIXINHA_NAO_ENCONTRADA`, `CAIXINHA_INVALIDA`, `CAIXINHA_COM_SALDO` e
-`SALDO_INSUFICIENTE`.
+`saldoConta`. A Caixinha inclui `rendimentoTotal` e o histórico `movimentos`,
+com depósitos, retiradas e rendimentos. A Caixinha inclui a cor persistida `cor`;
+novas Caixinhas usam `verde` por padrão e a atualização aceita `caramelo`,
+`verde`, `azul`, `roxo` ou `coral`. O
+`DELETE` retorna `saldoConta` e `valorResgatado`. Nomes têm de 1 a 80 caracteres após espaços externos e são
+únicos por conta sem diferenciar maiúsculas. Os erros de domínio incluem
+`CAIXINHA_NAO_ENCONTRADA`, `CAIXINHA_INVALIDA` e `SALDO_INSUFICIENTE`. A
+resposta da Caixinha inclui `ordem`, usada pela listagem para manter a posição
+definida pela pessoa usuária.
 
 ## Referências
 

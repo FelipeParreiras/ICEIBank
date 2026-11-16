@@ -11,12 +11,24 @@ htmlcov/
 # Dados e segredos do backend
 agencia/.env
 agencia/data/*.jsonl
+agencia/data/*.sqlite3
+agencia/data/*.sqlite3-shm
+agencia/data/*.sqlite3-wal
 
 # React / Vite
 frontend/node_modules/
 frontend/dist/
 frontend/.env
 frontend/.env.local
+
+# Flutter
+app_mobile/.dart_tool/
+app_mobile/build/
+app_mobile/.plugins
+app_mobile/.plugins_dependencies
+
+# Artefatos temporários de validação local
+tmp/
 
 # Editor e sistema
 .vscode/

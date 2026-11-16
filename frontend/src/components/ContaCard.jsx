@@ -5,7 +5,7 @@ export function ContaCard({ conta }) {
     return (
       <div className="account-empty">
         <span className="empty-icon">⌁</span>
-        <p>Consulte ou crie uma conta para visualizar o saldo.</p>
+        <p>Não há conta cadastrada nesta agência.</p>
       </div>
     );
   }
