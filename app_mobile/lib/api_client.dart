@@ -106,7 +106,7 @@ class ApiClient {
       body: {'valor': valor},
     );
     final atual = await consultarSaldo(agenciaId, token, contaId);
-    return atual.copyWith(saldo: (data['saldo'] as num).toDouble());
+    return atual.copyWith(saldo: double.parse(data['saldo'].toString()));
   }
 
   Future<AccountSnapshot> sincronizar(

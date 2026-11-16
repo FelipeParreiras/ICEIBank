@@ -39,7 +39,7 @@ class AccountSnapshot {
       AccountSnapshot(
         id: json['id'] as int,
         nomeAluno: json['nomeAluno'] as String,
-        saldo: (json['saldo'] as num).toDouble(),
+        saldo: double.parse(json['saldo'].toString()),
         vetorAtual: (json['vetorAtual'] as List<dynamic>? ?? const <dynamic>[])
             .map((item) => item as int)
             .toList(),

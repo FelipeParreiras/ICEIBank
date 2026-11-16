@@ -14,12 +14,13 @@ void main() {
     final snapshot = AccountSnapshot.fromJson({
       'id': 12,
       'nomeAluno': 'Ana',
-      'saldo': 50.0,
+      'saldo': '50.00',
       'vetorAtual': [1, 2, 3],
       'pendente': true,
     });
 
     expect(snapshot.id, 12);
+    expect(snapshot.saldo, 50.0);
     expect(snapshot.vetorAtual, [1, 2, 3]);
     expect(snapshot.pendente, isTrue);
   });
