@@ -20,6 +20,7 @@ from iceibank.repositories.sqlite_database import SQLiteDatabase
 from iceibank.repositories.usuario_repository import UsuarioRepository
 from iceibank.services.auth_client import AuthClient
 from iceibank.services.auth_service import AuthService
+from iceibank.services.bully_service import BullyService
 from iceibank.services.caixinha_service import CaixinhaService
 from iceibank.services.conta_service import ContaService
 from iceibank.services.controle_financeiro_service import ControleFinanceiroService
@@ -42,7 +43,12 @@ def create_app(
         mensageria = getattr(app_lifespan.state, "mensageria", None)
         if mensageria is not None:
             mensageria.iniciar()
+        bully = app_lifespan.state.bully_service
+        if settings.bully_auto_start:
+            await bully.iniciar_eleicao()
+            bully.iniciar_heartbeat()
         yield
+        await bully.encerrar()
         if mensageria is not None:
             mensageria.encerrar()
         database = getattr(app_lifespan.state, "database", None)
@@ -80,6 +86,7 @@ def create_app(
 
     app.state.settings = settings
     app.state.clock = clock
+    app.state.bully_service = BullyService(settings, clock, logger)
     app.state.mensageria = mensageria
     app.state.database = database
     app.state.conta_repository = conta_repository

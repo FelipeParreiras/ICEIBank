@@ -75,7 +75,12 @@ def test_criar_depositar_sacar_e_consultar(
     assert created.status_code == 201
     assert deposited.json()["saldo"] == "225.50"
     assert withdrawn.json()["saldo"] == "205.50"
-    assert found.json() == {"id": 0, "nomeAluno": "Ana", "saldo": "205.50"}
+    assert found.json() == {
+        "id": 0,
+        "nomeAluno": "Ana",
+        "saldo": "205.50",
+        "vetorAtual": [3, 0, 0],
+    }
 
 
 def test_particao_e_saldo_sao_validados(client: TestClient, auth_headers: dict[str, str]) -> None:

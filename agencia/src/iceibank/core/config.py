@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     internal_token: str = "iceibank-dev-internal-token-change-me"
     frontend_origin: str = "http://localhost:5173"
     timeout_agencia_segundos: float = Field(default=3.0, gt=0, le=30)
+    bully_timeout_segundos: float = Field(default=1.0, gt=0, le=30)
+    heartbeat_intervalo_segundos: float = Field(default=3.0, gt=0, le=300)
+    bully_auto_start: bool = True
     rabbitmq_url: str | None = None
     data_dir: Path = Path("data")
 

@@ -5,6 +5,7 @@ from decimal import Decimal
 
 from iceibank.core.config import Settings
 from iceibank.core.exceptions import (
+    ConflitoSincronizacao,
     ContaForaDaParticao,
     ContaJaExiste,
     ContaNaoEncontrada,
@@ -13,6 +14,7 @@ from iceibank.core.exceptions import (
 from iceibank.models.conta import Conta
 from iceibank.models.evento import Evento
 from iceibank.repositories.conta_repository import ContaRepository
+from iceibank.services.comparar_vetores import comparar_vetores
 from iceibank.services.registro_eventos import EventLogger
 from iceibank.services.relogio_vetorial import RelogioVetorial
 
@@ -75,6 +77,35 @@ class ContaService:
             conta.saldo -= valor
             self.repository.atualizar(conta)
             self._evento("SAQUE", {"id": conta.id, "valor": valor, "novoSaldo": conta.saldo})
+            return conta
+
+    def sincronizar_operacao_pendente(
+        self, conta_id: int, tipo: str, valor: Decimal, vetor_conhecido: list[int]
+    ) -> Conta:
+        """Aplica uma escrita offline somente se a conta não ficou desatualizada."""
+        self.validar_particao(conta_id)
+        with self.repository.transacao():
+            conta = self._buscar_existente(conta_id)
+            vetor_atual = self.clock.obter_vetor_atual()
+            if comparar_vetores(vetor_conhecido, vetor_atual) != "IGUAIS":
+                raise ConflitoSincronizacao(
+                    vetor_conhecido,
+                    vetor_atual,
+                    {"id": conta.id, "nomeAluno": conta.nome_aluno, "saldo": conta.saldo},
+                )
+            if tipo == "DEPOSITO":
+                conta.saldo += valor
+            elif tipo == "SAQUE":
+                if conta.saldo < valor:
+                    raise SaldoInsuficiente()
+                conta.saldo -= valor
+            else:
+                raise ValueError("Tipo de operação pendente não suportado.")
+            self.repository.atualizar(conta)
+            self._evento(
+                "SINCRONIZACAO_OFFLINE",
+                {"id": conta.id, "tipo": tipo, "valor": valor, "novoSaldo": conta.saldo},
+            )
             return conta
 
     def _buscar_existente(self, conta_id: int) -> Conta:

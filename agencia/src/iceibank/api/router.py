@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from iceibank.controllers import (
     auth_controller,
+    bully_controller,
     caixinhas_controller,
     contas_controller,
     controle_financeiro_controller,
@@ -10,6 +11,7 @@ from iceibank.controllers import (
 
 api_router = APIRouter()
 api_router.include_router(auth_controller.router)
+api_router.include_router(bully_controller.router)
 api_router.include_router(contas_controller.router)
 api_router.include_router(caixinhas_controller.router)
 api_router.include_router(transferencias_controller.router)

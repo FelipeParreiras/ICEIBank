@@ -16,6 +16,7 @@ def settings(tmp_path: Path) -> Settings:
         data_dir=tmp_path,
         jwt_secret="segredo-jwt-seguro-para-testes-1234",
         internal_token="token-interno-seguro-para-testes",
+        bully_auto_start=False,
     )
 
 

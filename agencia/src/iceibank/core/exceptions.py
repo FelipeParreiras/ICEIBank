@@ -48,6 +48,25 @@ class SaldoInsuficiente(DomainError):
         super().__init__("Saldo insuficiente.", "SALDO_INSUFICIENTE", 400)
 
 
+class ConflitoSincronizacao(DomainError):
+    def __init__(
+        self,
+        vetor_conhecido: list[int],
+        vetor_atual: list[int],
+        conta_atual: dict[str, object],
+    ) -> None:
+        super().__init__(
+            "Conflito detectado: o estado da conta mudou desde a última sincronização do app.",
+            "CONFLITO_SINCRONIZACAO",
+            409,
+            {
+                "vetorConhecido": vetor_conhecido,
+                "vetorAtual": vetor_atual,
+                "contaAtual": conta_atual,
+            },
+        )
+
+
 class ContasIguais(DomainError):
     def __init__(self) -> None:
         super().__init__(

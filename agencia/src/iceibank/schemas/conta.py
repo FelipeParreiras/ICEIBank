@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import Literal
 
 from pydantic import Field, field_validator
 
@@ -38,3 +39,19 @@ class ContaResponse(ApiSchema):
     id: int
     nome_aluno: str = Field(alias="nomeAluno")
     saldo: Decimal
+
+
+class ContaComVetorResponse(ContaResponse):
+    vetor_atual: list[int] = Field(alias="vetorAtual")
+
+
+class SincronizarOperacaoRequest(ValorRequest):
+    tipo: Literal["DEPOSITO", "SAQUE"]
+    vetor_conhecido: list[int] = Field(alias="vetorConhecido", min_length=3, max_length=3)
+
+    @field_validator("vetor_conhecido")
+    @classmethod
+    def validar_vetor(cls, valor: list[int]) -> list[int]:
+        if any(item < 0 for item in valor):
+            raise ValueError("O vetor conhecido não pode possuir valores negativos.")
+        return valor
