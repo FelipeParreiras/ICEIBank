@@ -1,6 +1,6 @@
 # Documentação do ICEIBank
 
-Este diretório centraliza a documentação técnica, operacional e acadêmica do projeto. As Sprints 1 e 2 estão implementadas; as capturas reais de evidência continuam como atividade de entrega separada.
+Este diretório centraliza a documentação técnica, operacional e acadêmica do projeto. As Sprints 1, 2 e 3 estão implementadas; as capturas reais de evidência continuam como atividade de entrega separada.
 
 ## Estado atual
 
@@ -14,6 +14,7 @@ Este diretório centraliza a documentação técnica, operacional e acadêmica d
 | Proxy Vite preservando 4045–4047 no Chrome | Aceito e implementado |
 | Código da Sprint 1 | Implementado |
 | Código da Sprint 2 | Implementado |
+| Código da Sprint 3 | Implementado; capturas Android pendentes |
 | Persistência local SQLite por agência | Aceito e implementado |
 | Testes automatizados do estado atual | 45 testes backend; `ruff check src tests`, lint e build frontend aprovados em 11/10/2026 |
 | Evidências PNG e vídeo | Pendentes de captura para entrega |
@@ -27,6 +28,7 @@ Este diretório centraliza a documentação técnica, operacional e acadêmica d
 - [Auditoria documental de 11/10/2026](AUDITORIA_DOCUMENTAL_2026-10-11.md):
   escopo revisado, fontes históricas e verificação executada.
 - [Roadmap da Sprint 2](../ROADMAP_SPRINT_2.md): escopo, implementação e pendências de evidência.
+- [Roadmap da Sprint 3](../ROADMAP_SPRINT_3.md): Bully, Flutter e offline-first.
 - [SPEC-003 — Caixinha](specs/SPEC-003-caixinha.md): regras e validações da funcionalidade adicional.
 - [SPEC-004 — Mensageria e relógio vetorial](specs/SPEC-004-mensageria-e-relogio-vetorial.md): arquitetura distribuída da Sprint 2.
 - [README principal](../README.md): apresentação e entrada do repositório.
@@ -44,6 +46,7 @@ Este diretório centraliza a documentação técnica, operacional e acadêmica d
 - [Paleta de cores](PALETA_DE_CORES.md): tokens visuais, usos e regras de contraste.
 - [Contrato da API](API_SPRINT_1.md): endpoints, corpos, respostas e erros.
 - [Contrato da API Sprint 2](API_SPRINT_2.md): mensageria e Caixinhas.
+- [Contrato da API Sprint 3](API_SPRINT_3.md): consenso Bully e sincronização offline-first.
 - [Configuração e execução](CONFIGURACAO_E_EXECUCAO.md): variáveis, portas, proxy e comandos validados.
 - [Segurança](SEGURANCA.md): JWT, credencial interna, CORS, segredos e limitações.
 - [Lamport e observabilidade](LAMPORT_E_OBSERVABILIDADE.md): referência

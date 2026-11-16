@@ -21,6 +21,15 @@ frontend/dist/
 frontend/.env
 frontend/.env.local
 
+# Flutter
+app_mobile/.dart_tool/
+app_mobile/build/
+app_mobile/.plugins
+app_mobile/.plugins_dependencies
+
+# Artefatos temporários de validação local
+tmp/
+
 # Editor e sistema
 .vscode/
 .idea/

@@ -4,9 +4,9 @@ Projeto acadêmico de banco distribuído desenvolvido incrementalmente em quatro
 
 ## Estado atual
 
-**Sprints 1 e 2 implementadas. Na revisão documental de 11 de outubro de
-2026, 45 testes do backend, `ruff check src tests`, lint e build do frontend
-foram aprovados.**
+**Sprints 1, 2 e 3 implementadas. Na validação da Sprint 3, 53 testes do
+backend, `ruff check src tests`, `flutter analyze` e `flutter test` foram
+aprovados.**
 
 Decisões confirmadas:
 
@@ -30,6 +30,16 @@ Decisão implementada:
   superior sticky, logo oficial e tema verde/dourado por tokens.
 - `SelectField` com menu próprio; a variante rolável é usada apenas em listas
   de categorias que podem crescer.
+- Consenso Bully com heartbeat/failover, sincronização offline-first protegida
+  por relógio vetorial e cliente Flutter em `app_mobile/`.
+
+## Objetivo da Sprint 3
+
+Entregar uma eleição de líder entre as três agências, heartbeat com failover,
+histórico de liderança, sincronização offline-first com detecção de conflito e
+um app Flutter com fluxo bancário e painel de consenso. A implementação está
+concluída; as capturas reais no Android/emulador ainda dependem da configuração
+local do SDK Android.
 
 ## Objetivo da Sprint 2
 
@@ -81,6 +91,7 @@ Comece pelo [índice completo da documentação](docs/README.md).
 Documentos principais:
 
 - [Roadmap da Sprint 1](ROADMAP_SPRINT_1.md)
+- [Roadmap da Sprint 3](ROADMAP_SPRINT_3.md)
 - [Estado atual do projeto](docs/ESTADO_ATUAL_DO_PROJETO.md)
 - [Arquitetura FastAPI/React](docs/specs/SPEC-001-arquitetura-sprint-1.md)
 - [Controle Financeiro Mensal](docs/specs/SPEC-002-controle-financeiro-mensal.md)
@@ -97,6 +108,7 @@ Documentos principais:
 - [Respostas da Sprint 1](RESPOSTAS.md)
 - [Arquitetura de mensageria](docs/specs/SPEC-004-mensageria-e-relogio-vetorial.md)
 - [Contrato da API Sprint 2](docs/API_SPRINT_2.md)
+- [Contrato da API Sprint 3](docs/API_SPRINT_3.md)
 
 ## Execução
 
